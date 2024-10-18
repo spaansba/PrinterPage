@@ -8,7 +8,7 @@ export default function Home() {
   async function handlePrinterClick() {
     setStatus("Sending...")
     try {
-      const response = await fetch("https://8344-45-84-40-166.ngrok-free.app/print", {
+      const response = await fetch("https://5abf-45-84-40-171.ngrok-free.app/print", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -31,7 +31,7 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-8 gap-4 font-sans">
+    <div className="flex flex-col items-center justify-center min-h-screen p-8 gap-4 font-sans text-black">
       <input
         type="text"
         className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
