@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, useCallback } from "react"
 import { WordWrap } from "./wordwrap"
 export default function Home() {
   const [inputValue, setInputValue] = useState("")
@@ -8,7 +8,7 @@ export default function Home() {
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const MAX_WIDTH = 288
-
+  const [cursorIsAtEnd, setCursorIsAtEnd] = useState(true)
   function charValues(value: string): [number, number] {
     const width = 9
     const height = 17
@@ -42,19 +42,24 @@ export default function Home() {
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value
     setCursorPosition(e.target.selectionStart)
+    setCursorIsAtEnd(e.target.selectionStart - 1 === formattedValue.length)
     setInputValue(newValue)
   }
-
-  // Handle cursor position
-  useEffect(() => {
+  const setCorrectCursorPosition = useCallback(() => {
     if (cursorPosition !== null && textareaRef.current) {
-      textareaRef.current.setSelectionRange(cursorPosition, cursorPosition)
+      textareaRef.current.setSelectionRange(
+        cursorIsAtEnd ? cursorPosition + 1 : cursorPosition,
+        cursorIsAtEnd ? cursorPosition + 1 : cursorPosition
+      )
     }
-  }, [formattedValue, cursorPosition])
+  }, [cursorIsAtEnd, cursorPosition])
 
-  // Format text effect
   useEffect(() => {
-    const newInput = inputValue.replace("\n", "")
+    setCorrectCursorPosition()
+  }, [formattedValue, setCorrectCursorPosition])
+
+  useEffect(() => {
+    const newInput = inputValue.replaceAll("\n", "")
     const result = WordWrap.wrap(newInput)
     setFormattedValue(result)
   }, [inputValue])
@@ -77,6 +82,10 @@ export default function Home() {
         Send To Printer
       </button>
       {status && <p className="mt-2 text-sm text-gray-600">{status}</p>}
+      <p className="text-white">
+        Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has
+        been the s standard dummy text ever since the 1500s,
+      </p>
     </div>
   )
 }
