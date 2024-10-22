@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useState, useRef } from "react"
-
+import { WordWrap } from "./wordwrap"
 export default function Home() {
   const [inputValue, setInputValue] = useState("")
   const [status, setStatus] = useState("")
@@ -39,75 +39,26 @@ export default function Home() {
     }
   }
 
-  const formatText = (text: string) => {
-    // Split text into lines first (handle existing newlines)
-    const lines = text.split("\n")
-    const formattedLines = lines.map((line) => {
-      let currentWidth = 0
-      let currentLine = ""
-      let result = ""
-
-      let lastSpaceIndex = -1
-      let widthAtLastSpace = 0
-
-      for (let i = 0; i < line.length; i++) {
-        const char = line[i]
-        const [charWidth] = charValues(char)
-
-        if (char === " ") {
-          lastSpaceIndex = currentLine.length
-          widthAtLastSpace = currentWidth
-        }
-
-        if (currentWidth + charWidth > MAX_WIDTH) {
-          if (lastSpaceIndex !== -1) {
-            result += currentLine.substring(0, lastSpaceIndex) + "\n"
-            currentLine = currentLine.substring(lastSpaceIndex + 1)
-            currentWidth = 0
-            for (let j = 0; j < currentLine.length; j++) {
-              const [w] = charValues(currentLine[j])
-              currentWidth += w
-            }
-            lastSpaceIndex = -1
-            widthAtLastSpace = 0
-          } else {
-            result += currentLine + "\n"
-            currentLine = ""
-            currentWidth = 0
-          }
-        }
-
-        currentLine += char
-        currentWidth += charWidth
-      }
-
-      result += currentLine
-      return result
-    })
-
-    return formattedLines.join("\n")
-  }
-
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value
     const newCursorPosition = e.target.selectionStart
+    console.log(newValue)
     setInputValue(newValue)
     setCursorPosition(newCursorPosition)
   }
 
   // Handle cursor position
   useEffect(() => {
-    if (cursorPosition !== null && textareaRef.current) {
-      textareaRef.current.setSelectionRange(cursorPosition, cursorPosition)
-    }
+    // if (cursorPosition !== null && textareaRef.current) {
+    //   textareaRef.current.setSelectionRange(cursorPosition, cursorPosition)
+    // }
   }, [formattedValue])
 
   // Format text effect
   useEffect(() => {
-    const formatted = formatText(inputValue)
-    if (formatted !== formattedValue) {
-      setFormattedValue(formatted)
-    }
+    const result = WordWrap.wrap(inputValue)
+    console.log("results", result)
+    setFormattedValue(result)
   }, [inputValue])
 
   return (
