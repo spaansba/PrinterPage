@@ -41,23 +41,21 @@ export default function Home() {
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value
-    const newCursorPosition = e.target.selectionStart
-    console.log(newValue)
+    setCursorPosition(e.target.selectionStart)
     setInputValue(newValue)
-    setCursorPosition(newCursorPosition)
   }
 
   // Handle cursor position
   useEffect(() => {
-    // if (cursorPosition !== null && textareaRef.current) {
-    //   textareaRef.current.setSelectionRange(cursorPosition, cursorPosition)
-    // }
-  }, [formattedValue])
+    if (cursorPosition !== null && textareaRef.current) {
+      textareaRef.current.setSelectionRange(cursorPosition, cursorPosition)
+    }
+  }, [formattedValue, cursorPosition])
 
   // Format text effect
   useEffect(() => {
-    const result = WordWrap.wrap(inputValue)
-    console.log("results", result)
+    const newInput = inputValue.replace("\n", "")
+    const result = WordWrap.wrap(newInput)
     setFormattedValue(result)
   }, [inputValue])
 
@@ -67,16 +65,6 @@ export default function Home() {
         ref={textareaRef}
         className="w-[600px] px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-pre-wrap"
         onChange={handleTextChange}
-        onKeyDown={(e) => {
-          if (textareaRef.current) {
-            setCursorPosition(textareaRef.current.selectionStart)
-          }
-        }}
-        onClick={(e) => {
-          if (textareaRef.current) {
-            setCursorPosition(textareaRef.current.selectionStart)
-          }
-        }}
         value={formattedValue}
         placeholder="Enter message to print"
         rows={10}

@@ -17,18 +17,33 @@ export class WordWrap {
   }
 
   lines() {
-    /* trim each line of the supplied text */
     return (
       this._lines
-        /* split each line into an array of chunks, else mark it empty */
         .map((line) => line.match(re.chunk) || ["~~empty~~"])
         .map((lineWords) => lineWords.flat())
         .map((lineWords) => {
           return lineWords.reduce(
             (lines, word) => {
               const currentLine = lines[lines.length - 1]
-              if (replaceAnsi(word).length + replaceAnsi(currentLine).length > 32) {
+              const wordLength = replaceAnsi(word).length
+              const currentLength = replaceAnsi(currentLine).length
+
+              // If the current line is already at 32 chars, start a new line
+              if (currentLength >= 32) {
                 lines.push(word)
+              }
+
+              // If adding the word would exceed 32 chars
+              else if (wordLength + currentLength > 32) {
+                // If the word itself is longer than 32 chars, split it
+                if (wordLength > 32) {
+                  const firstPart = word.slice(0, 32 - currentLength)
+                  const remainingPart = word.slice(32 - currentLength)
+                  lines[lines.length - 1] += firstPart
+                  lines.push(remainingPart)
+                } else {
+                  lines.push(word)
+                }
               } else {
                 lines[lines.length - 1] += word
               }
@@ -39,7 +54,10 @@ export class WordWrap {
         })
         .flat()
 
-        /* restore the user's original empty lines */
+        /* filter out empty lines created by the word wrap */
+        .filter((line) => line.trim())
+
+        /* Put empty lines created by the user back */
         .map((line) => line.replace("~~empty~~", ""))
     )
   }
@@ -62,10 +80,6 @@ export class WordWrap {
     const matches = String(text).match(re.chunk)
     return matches ? matches.length > 1 : false
   }
-}
-
-function trimLine(line: string) {
-  return line.trim()
 }
 
 // removes ANSI escape sequences from text when calculating line lengths
