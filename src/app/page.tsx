@@ -3,7 +3,6 @@ import { useEffect, useState, useRef } from "react"
 import { WordWrap } from "./wordwrap"
 
 export default function Home() {
-  const [inputValue, setInputValue] = useState("")
   const [status, setStatus] = useState("")
   const [formattedValue, setFormattedValue] = useState("")
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -16,6 +15,10 @@ export default function Home() {
     timestamp: Date.now(),
   })
 
+  const printingClosingTag = () => {
+    return "\n\n" + "*********s*********" + "\n\n\n\n\n"
+  }
+
   async function handlePrinterClick() {
     setStatus("Sending...")
     try {
@@ -25,7 +28,7 @@ export default function Home() {
           "Content-Type": "text/plain; charset=utf-8",
         },
         body: JSON.stringify({
-          message: inputValue,
+          message: formattedValue + printingClosingTag(),
         }),
       })
 
@@ -55,7 +58,8 @@ export default function Home() {
     // Clean and format the text
     const cleanValue = newValue.replaceAll("\n", "")
     const formatted = WordWrap.wrap(cleanValue)
-
+    const lines = WordWrap.lines(cleanValue)
+    console.log(lines)
     // Calculate cursor position based on the current operation
     const rawBeforeCursor = newValue.substring(0, cursorPos)
     const cleanBeforeCursor = rawBeforeCursor.replaceAll("\n", "")
@@ -63,7 +67,6 @@ export default function Home() {
     const newCursorPos = formattedBeforeCursor.length
 
     // Update all states synchronously
-    setInputValue(cleanValue)
     setFormattedValue(formatted)
 
     // Schedule cursor update
