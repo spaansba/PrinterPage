@@ -1,7 +1,21 @@
 "use client"
-import { useEffect, useState, useRef } from "react"
+import { useState, useRef } from "react"
 import { WordWrap } from "./wordwrap"
-
+import TextEditor from "./_components/TextEditor"
+import RetroTextEditor from "./_components/RetroTextEditor"
+import {
+  Bold,
+  Italic,
+  Underline,
+  Strikethrough,
+  Barcode,
+  QrCode,
+  Image as ImageIcon,
+  Trash2,
+  Minus,
+  Square,
+  X,
+} from "lucide-react"
 export default function Home() {
   const [status, setStatus] = useState("")
   const [formattedValue, setFormattedValue] = useState("")
@@ -44,6 +58,9 @@ export default function Home() {
 
   // Handle both input changes and cursor positioning in one synchronous operation
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if (status != "") {
+      setStatus("")
+    }
     const currentTime = Date.now()
     const newValue = e.target.value
     const cursorPos = e.target.selectionStart || 0
@@ -79,29 +96,32 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-8 gap-4 font-mono text-black">
-      <textarea
+    <div className="flex flex-col items-center justify-center min-h-screen p-8 gap-6 font-mono text-black bg-[#d4d0c8]">
+      {/* Main Editor Window */}
+      <RetroTextEditor
         ref={textareaRef}
-        className="w-[600px] px-4 py-2 border border-gray-300 rounded-md focus:outline-none whitespace-pre-wrap"
-        onChange={handleTextChange}
-        value={formattedValue}
-        placeholder="Enter message to print"
-        rows={10}
-      />
-      <div className="text-sm text-gray-500">Max width: {MAX_WIDTH}px</div>
+        handleChange={handleTextChange}
+        formattedValue={formattedValue}
+        status={status}
+      ></RetroTextEditor>
+      {/* Print Button */}
       <button
         onClick={handlePrinterClick}
-        className="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600"
+        className="min-w-[120px] h-8 bg-[#d4d0c8] border-2 border-t-white border-l-white border-b-[#808080] border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white px-4 text-sm font-bold hover:bg-[#e6e3de]"
       >
         Send To Printer
       </button>
-      {status && <p className="mt-2 text-sm text-gray-600">{status}</p>}
-      <p className="text-white">
-        Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has
-        been the industrys standard dummy text ever since the 1500s, when an unknown printer took a
-        galley of type and scrambled it to make a type specimen book. It has survived not only five
-        centuries, but also the
-      </p>
+
+      {/* Sample Text Box */}
+      {/* <div className="w-[600px] bg-white border-2 border-[#808080] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] p-4 text-sm">
+        <p>
+          Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has
+          been the industry's standard dummy text ever since the 1500s, when an unknown printer took
+          a galley of type and scrambled it to make a type specimen book. It has survived not only
+          five centuries, but also the leap into electronic typesetting, remaining essentially
+          unchanged.
+        </p>
+      </div> */}
     </div>
   )
 }
