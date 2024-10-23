@@ -1,25 +1,11 @@
 "use client"
 import { useState, useRef } from "react"
 import { WordWrap } from "./wordwrap"
-import TextEditor from "./_components/TextEditor"
 import RetroTextEditor from "./_components/RetroTextEditor"
-import {
-  Bold,
-  Italic,
-  Underline,
-  Strikethrough,
-  Barcode,
-  QrCode,
-  Image as ImageIcon,
-  Trash2,
-  Minus,
-  Square,
-  X,
-} from "lucide-react"
+
 export default function Home() {
   const [status, setStatus] = useState("")
   const [formattedValue, setFormattedValue] = useState("")
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
   const MAX_WIDTH = 288
 
   // Keep track of the last input operation
@@ -57,14 +43,19 @@ export default function Home() {
   }
 
   // Handle both input changes and cursor positioning in one synchronous operation
-  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleTextChange = (e: React.FormEvent<HTMLDivElement>) => {
     if (status != "") {
       setStatus("")
     }
-    const currentTime = Date.now()
-    const newValue = e.target.value
-    const cursorPos = e.target.selectionStart || 0
 
+    const currentTime = Date.now()
+    const newValue = e.currentTarget.textContent
+    console.log(e.currentTarget.getHTML())
+    console.log(newValue)
+    if (!newValue) {
+      return
+    }
+    const cursorPos = 10000
     // Store the operation details
     lastOperation.current = {
       text: newValue,
@@ -75,8 +66,7 @@ export default function Home() {
     // Clean and format the text
     const cleanValue = newValue.replaceAll("\n", "")
     const formatted = WordWrap.wrap(cleanValue)
-    const lines = WordWrap.lines(cleanValue)
-    console.log(lines)
+
     // Calculate cursor position based on the current operation
     const rawBeforeCursor = newValue.substring(0, cursorPos)
     const cleanBeforeCursor = rawBeforeCursor.replaceAll("\n", "")
@@ -89,9 +79,9 @@ export default function Home() {
     // Schedule cursor update
     requestAnimationFrame(() => {
       // Only update if this is still the most recent operation
-      if (lastOperation.current.timestamp === currentTime && textareaRef.current) {
-        textareaRef.current.setSelectionRange(newCursorPos, newCursorPos)
-      }
+      // if (lastOperation.current.timestamp === currentTime && textareaRef.current) {
+      //   // textareaRef.current.setSelectionRange(newCursorPos, newCursorPos)
+      // }
     })
   }
 
@@ -99,8 +89,8 @@ export default function Home() {
     <div className="flex flex-col items-center justify-center min-h-screen p-8 gap-6 font-mono text-black bg-[#d4d0c8]">
       {/* Main Editor Window */}
       <RetroTextEditor
-        ref={textareaRef}
         handleChange={handleTextChange}
+        setFormattedValue={setFormattedValue}
         formattedValue={formattedValue}
         status={status}
       ></RetroTextEditor>

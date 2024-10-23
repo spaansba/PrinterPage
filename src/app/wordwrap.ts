@@ -25,10 +25,9 @@ export class WordWrap {
           return lineWords.reduce(
             (lines, word) => {
               const currentLine = lines[lines.length - 1]
-              console.log(currentLine)
               const wordLength = replaceAnsi(word).length
               const currentLength = replaceAnsi(currentLine).length
-              console.log(currentLength)
+
               // If the current line is already at 32 chars, start a new line
               if (currentLength >= 31) {
                 lines.push(word)
@@ -56,14 +55,15 @@ export class WordWrap {
         .flat()
 
         /* filter out empty lines created by the word wrap */
-        // .filter((line) => line.trim())
+        .filter((line) => line.trim())
 
         /* Put empty lines created by the user back */
-        .map((line) => line.replace("~~empty~~", ""))
+        .map((line) => line.replace("~~empty~~", "\n"))
     )
   }
 
   wrap() {
+    // console.log(this.lines().join("\n"))
     return this.lines().join("\n")
   }
 
