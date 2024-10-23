@@ -50,8 +50,8 @@ export default function Home() {
 
     const currentTime = Date.now()
     const newValue = e.currentTarget.textContent
-    console.log(e.currentTarget.getHTML())
-    console.log(newValue)
+    // console.log(e.currentTarget.getHTML())
+    // console.log(newValue)
     if (!newValue) {
       return
     }

@@ -20,24 +20,29 @@ type RetroTextEditorProps = {
   status: string
 }
 
-const OptionButtons = {
+const OPTION_BUTTONS = {
   Bold: {
     icon: Bold,
     label: "Bold",
+    html: "strong",
   },
   Italic: {
     icon: Italic,
     label: "Italic",
+    html: "em",
   },
   Underline: {
     icon: Underline,
     label: "Underline",
+    html: "u",
   },
   Strikethrough: {
     icon: Strikethrough,
     label: "Strikethrough",
+    html: "strike",
   },
 } as const
+type OptionButtonKey = keyof typeof OPTION_BUTTONS
 
 const RetroTextEditor = ({
   handleChange,
@@ -45,7 +50,12 @@ const RetroTextEditor = ({
   setFormattedValue,
   status,
 }: RetroTextEditorProps) => {
-  const [isBold, setIsBold] = useState(false)
+  const [optionButtonStates, setOptionButtonStates] = useState({
+    Bold: false,
+    Italic: false,
+    Underline: false,
+    Strikethrough: false,
+  })
   const textDivRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -75,46 +85,40 @@ const RetroTextEditor = ({
     }
   }, [formattedValue, textDivRef])
 
-  const handleBoldMouseDown = (e: React.MouseEvent) => {
+  const handleOptionMouseDown = (e: React.MouseEvent, label: OptionButtonKey) => {
     e.preventDefault() // Prevent losing focus
-    setIsBold(!isBold)
+    setOptionButtonStates((prev) => ({
+      ...prev,
+      [label]: !prev[label],
+    }))
 
     const selection = window.getSelection()
     if (!selection || !selection.rangeCount) return
 
+    const htmlTag = document.createElement(OPTION_BUTTONS[label].html)
+
     const range = selection.getRangeAt(0)
-    if (range.collapsed) return // No text selected
-
-    // Store the selection position
-    const startContainer = range.startContainer
-    const startOffset = range.startOffset
-    const endContainer = range.endContainer
-    const endOffset = range.endOffset
-
-    const strong = document.createElement("strong")
-    try {
-      // Wrap selected content in <strong> tag
-      range.surroundContents(strong)
-    } catch (e) {
-      // Handle case where selection crosses multiple nodes
-      const fragment = range.extractContents()
-      strong.appendChild(fragment)
-      range.insertNode(strong)
+    if (range.collapsed) {
+      // No text selected
+      console.log(range.surroundContents)
+      return
     }
 
-    // Restore the selection
-    const newRange = document.createRange()
     try {
-      newRange.setStart(startContainer, startOffset)
-      newRange.setEnd(endContainer, endOffset)
-      selection.removeAllRanges()
-      selection.addRange(newRange)
+      range.surroundContents(htmlTag)
     } catch (e) {
-      // If original containers are no longer valid, select the strong element
-      newRange.selectNodeContents(strong)
-      selection.removeAllRanges()
-      selection.addRange(newRange)
+      console.log(e)
     }
+
+    // try {
+    //   // Wrap selected content in tag
+    //   range.surroundContents(strong)
+    // } catch (e) {
+    //   // Handle case where selection crosses multiple nodes
+    //   const fragment = range.extractContents()
+    //   strong.appendChild(fragment)
+    //   range.insertNode(strong)
+    // }
   }
 
   return (
@@ -166,23 +170,27 @@ const RetroTextEditor = ({
           {/* Bottom Row - Font and Media */}
           <div className="px-1 py-1 flex items-center gap-1">
             {/* Text Style Buttons */}
-            <div className="flex items-center gap-px p-0.5 bg-[#d4d0c8] border border-[#808080] shadow-[inset_1px_1px_1px_rgba(255,255,255,0.5)]">
-              {Object.values(OptionButtons).map(({ icon: Icon, label }) => (
+            <div className="flex items-center gap-px p-[3px] bg-[#d4d0c8] border border-[#808080] shadow-[inset_1px_1px_1px_rgba(255,255,255,0.5)]">
+              {(
+                Object.entries(OPTION_BUTTONS) as [
+                  OptionButtonKey,
+                  (typeof OPTION_BUTTONS)[OptionButtonKey]
+                ][]
+              ).map(([key, { icon: Icon }]) => (
                 <button
-                  key={label}
-                  className="w-7 h-7 flex items-center justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
+                  key={key}
+                  className={`${
+                    optionButtonStates[key] ? "bg-[#808080]" : ""
+                  } size-7 flex items-center justify-center bg-[#d4d0c8]  border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] `}
+                  onMouseDown={(e) => handleOptionMouseDown(e, key)}
                 >
-                  <Icon
-                    size={15}
-                    className={label === "Bold" && isBold ? "bg-slate-200" : ""}
-                    onMouseDown={label === "Bold" ? handleBoldMouseDown : undefined}
-                  />
+                  <Icon size={15} className={optionButtonStates[key] ? "text-white" : ""} />
                 </button>
               ))}
             </div>
 
             {/* Media Buttons */}
-            <div className="flex items-center gap-px p-0.5 bg-[#d4d0c8] border border-[#808080] shadow-[inset_1px_1px_1px_rgba(255,255,255,0.5)]">
+            <div className="flex items-center gap-px p-[3px] bg-[#d4d0c8] border border-[#808080] shadow-[inset_1px_1px_1px_rgba(255,255,255,0.5)]">
               {[Barcode, QrCode, ImageIcon].map((Icon, index) => (
                 <button
                   key={index}
@@ -222,6 +230,10 @@ const RetroTextEditor = ({
           </div>
           {status && <span>{status}</span>}
         </div>
+      </div>
+
+      <div className="w-full px-4 py-2 min-h-[200px] bg-white border-2 border-[#808080] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] focus:outline-none font-mono resize-none whitespace-pre-wrap">
+        {textDivRef.current?.getHTML()}
       </div>
     </div>
   )
