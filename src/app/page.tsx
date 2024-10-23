@@ -1,19 +1,20 @@
 "use client"
-import { useEffect, useState, useRef, useCallback } from "react"
+import { useEffect, useState, useRef } from "react"
 import { WordWrap } from "./wordwrap"
+
 export default function Home() {
   const [inputValue, setInputValue] = useState("")
   const [status, setStatus] = useState("")
   const [formattedValue, setFormattedValue] = useState("")
-  const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const MAX_WIDTH = 288
-  const [cursorIsAtEnd, setCursorIsAtEnd] = useState(true)
-  function charValues(value: string): [number, number] {
-    const width = 9
-    const height = 17
-    return [width, height]
-  }
+
+  // Keep track of the last input operation
+  const lastOperation = useRef({
+    text: "",
+    cursor: 0,
+    timestamp: Date.now(),
+  })
 
   async function handlePrinterClick() {
     setStatus("Sending...")
@@ -31,7 +32,6 @@ export default function Home() {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
-
       setStatus("Sent successfully!")
     } catch (error) {
       console.error("Error sending to printer:", error)
@@ -39,36 +39,47 @@ export default function Home() {
     }
   }
 
+  // Handle both input changes and cursor positioning in one synchronous operation
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const currentTime = Date.now()
     const newValue = e.target.value
-    setCursorPosition(e.target.selectionStart)
-    setCursorIsAtEnd(e.target.selectionStart - 1 === formattedValue.length)
-    setInputValue(newValue)
-  }
-  const setCorrectCursorPosition = useCallback(() => {
-    if (cursorPosition !== null && textareaRef.current) {
-      textareaRef.current.setSelectionRange(
-        cursorIsAtEnd ? cursorPosition + 1 : cursorPosition,
-        cursorIsAtEnd ? cursorPosition + 1 : cursorPosition
-      )
+    const cursorPos = e.target.selectionStart || 0
+
+    // Store the operation details
+    lastOperation.current = {
+      text: newValue,
+      cursor: cursorPos,
+      timestamp: currentTime,
     }
-  }, [cursorIsAtEnd, cursorPosition])
 
-  useEffect(() => {
-    setCorrectCursorPosition()
-  }, [formattedValue, setCorrectCursorPosition])
+    // Clean and format the text
+    const cleanValue = newValue.replaceAll("\n", "")
+    const formatted = WordWrap.wrap(cleanValue)
 
-  useEffect(() => {
-    const newInput = inputValue.replaceAll("\n", "")
-    const result = WordWrap.wrap(newInput)
-    setFormattedValue(result)
-  }, [inputValue])
+    // Calculate cursor position based on the current operation
+    const rawBeforeCursor = newValue.substring(0, cursorPos)
+    const cleanBeforeCursor = rawBeforeCursor.replaceAll("\n", "")
+    const formattedBeforeCursor = WordWrap.wrap(cleanBeforeCursor)
+    const newCursorPos = formattedBeforeCursor.length
+
+    // Update all states synchronously
+    setInputValue(cleanValue)
+    setFormattedValue(formatted)
+
+    // Schedule cursor update
+    requestAnimationFrame(() => {
+      // Only update if this is still the most recent operation
+      if (lastOperation.current.timestamp === currentTime && textareaRef.current) {
+        textareaRef.current.setSelectionRange(newCursorPos, newCursorPos)
+      }
+    })
+  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-8 gap-4 font-mono text-black">
       <textarea
         ref={textareaRef}
-        className="w-[600px] px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-pre-wrap"
+        className="w-[600px] px-4 py-2 border border-gray-300 rounded-md focus:outline-none whitespace-pre-wrap"
         onChange={handleTextChange}
         value={formattedValue}
         placeholder="Enter message to print"
@@ -77,14 +88,16 @@ export default function Home() {
       <div className="text-sm text-gray-500">Max width: {MAX_WIDTH}px</div>
       <button
         onClick={handlePrinterClick}
-        className="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        className="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600"
       >
         Send To Printer
       </button>
       {status && <p className="mt-2 text-sm text-gray-600">{status}</p>}
       <p className="text-white">
         Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has
-        been the s standard dummy text ever since the 1500s,
+        been the industrys standard dummy text ever since the 1500s, when an unknown printer took a
+        galley of type and scrambled it to make a type specimen book. It has survived not only five
+        centuries, but also the
       </p>
     </div>
   )

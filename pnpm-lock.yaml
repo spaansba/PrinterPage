@@ -27,9 +27,6 @@ importers:
       '@types/react-dom':
         specifier: ^18
         version: 18.3.1
-      '@types/wordwrapjs':
-        specifier: ^5.1.1
-        version: 5.1.1
       eslint:
         specifier: ^8
         version: 8.57.1
@@ -45,9 +42,6 @@ importers:
       typescript:
         specifier: ^5
         version: 5.6.3
-      wordwrapjs:
-        specifier: ^5.1.0
-        version: 5.1.0
 
 packages:
 
@@ -214,9 +208,6 @@ packages:
 
   '@types/react@18.3.11':
     resolution: {integrity: sha512-r6QZ069rFTjrEYgFdOck1gK7FLVsgJE7tTz0pQBczlBNUhBNk0MQH4UbnFSwjpQLMkLzgqvBBa+qGpLje16eTQ==}
-
-  '@types/wordwrapjs@5.1.1':
-    resolution: {integrity: sha512-nCG4P6Ij8FKGZyyWOCrYhSrSYfYw1O58OKWAkGRqHdc9D6pO6DSMzk4+JkPr5mLKAhnTjorUamU4xfiUiErBgQ==}
 
   '@typescript-eslint/eslint-plugin@8.11.0':
     resolution: {integrity: sha512-KhGn2LjW1PJT2A/GfDpiyOfS4a8xHQv2myUagTM5+zsormOmBlYsnQ6pobJ8XxJmh6hnHwa2Mbe3fPrDJoDhbA==}
@@ -1505,10 +1496,6 @@ packages:
     resolution: {integrity: sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA==}
     engines: {node: '>=0.10.0'}
 
-  wordwrapjs@5.1.0:
-    resolution: {integrity: sha512-JNjcULU2e4KJwUNv6CHgI46UvDGitb6dGryHajXTDiLgg1/RiGoPSDw4kZfYnwGtEXf2ZMeIewDQgFGzkCB2Sg==}
-    engines: {node: '>=12.17'}
-
   wrap-ansi@7.0.0:
     resolution: {integrity: sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==}
     engines: {node: '>=10'}
@@ -1671,8 +1658,6 @@ snapshots:
     dependencies:
       '@types/prop-types': 15.7.13
       csstype: 3.1.3
-
-  '@types/wordwrapjs@5.1.1': {}
 
   '@typescript-eslint/eslint-plugin@8.11.0(@typescript-eslint/parser@8.11.0(eslint@8.57.1)(typescript@5.6.3))(eslint@8.57.1)(typescript@5.6.3)':
     dependencies:
@@ -3229,8 +3214,6 @@ snapshots:
       isexe: 2.0.0
 
   word-wrap@1.2.5: {}
-
-  wordwrapjs@5.1.0: {}
 
   wrap-ansi@7.0.0:
     dependencies:
