@@ -11,7 +11,10 @@ import {
   Square,
   Minus,
   X,
+  FlaskRound,
+  Aperture,
 } from "lucide-react"
+import { normalize } from "path"
 
 type RetroTextEditorProps = {
   handleChange: (e: React.FormEvent<HTMLDivElement>) => void
@@ -24,7 +27,7 @@ const OPTION_BUTTONS = {
   Bold: {
     icon: Bold,
     label: "Bold",
-    html: "strong",
+    html: "b",
   },
   Italic: {
     icon: Italic,
@@ -87,10 +90,6 @@ const RetroTextEditor = ({
 
   const handleOptionMouseDown = (e: React.MouseEvent, label: OptionButtonKey) => {
     e.preventDefault() // Prevent losing focus
-    setOptionButtonStates((prev) => ({
-      ...prev,
-      [label]: !prev[label],
-    }))
 
     const selection = window.getSelection()
     if (!selection || !selection.rangeCount) return
@@ -99,26 +98,88 @@ const RetroTextEditor = ({
 
     const range = selection.getRangeAt(0)
     if (range.collapsed) {
-      // No text selected
+      setOptionButtonStates((prev) => ({
+        ...prev,
+        [label]: !prev[label],
+      }))
       console.log(range.surroundContents)
       return
     }
 
-    try {
-      range.surroundContents(htmlTag)
-    } catch (e) {
-      console.log(e)
-    }
+    // const [leftIsFormatted, rightIsFormatted] = GetFormatted(range, htmlTag.tagName)
 
     // try {
-    //   // Wrap selected content in tag
-    //   range.surroundContents(strong)
+    //   range.surroundContents(htmlTag)
     // } catch (e) {
-    //   // Handle case where selection crosses multiple nodes
-    //   const fragment = range.extractContents()
-    //   strong.appendChild(fragment)
-    //   range.insertNode(strong)
+    //   console.log(e)
     // }
+
+    try {
+      // Wrap selected content in tag
+      range.surroundContents(htmlTag)
+    } catch (e) {
+      // Handle case where selection crosses multiple nodes
+      const fragment = range.extractContents()
+      htmlTag.appendChild(fragment)
+      range.insertNode(htmlTag)
+    }
+  }
+
+  function htmlTest() {
+    const selection = window.getSelection()
+    if (!selection || !selection.rangeCount) return
+
+    const htmlTag = document.createElement("b")
+
+    const range = selection.getRangeAt(0)
+    if (range.collapsed) {
+      console.log(range.surroundContents)
+      return
+    }
+
+    function isNodeFormattedWithTag(node: Node, htmlTagName: string) {
+      if (node.nodeType != 3) {
+        console.log("Node is not of type node type")
+        return false //"TODO FIX"
+      }
+
+      let parentNode = node.parentNode
+      while (parentNode && parentNode.nodeName !== "DIV") {
+        if (parentNode.nodeName === htmlTagName) {
+          return true
+        }
+        parentNode = parentNode.parentNode
+      }
+
+      return false
+    }
+    //If the user has a selection, check if the left and right are already formatted
+    const isLeftFormattedWithTag = isNodeFormattedWithTag(range.startContainer, htmlTag.tagName)
+    const isRightFormattedWithTag = isNodeFormattedWithTag(range.endContainer, htmlTag.tagName)
+
+    const isSame = range.startContainer.isSameNode(range.endContainer)
+    console.log(isSame)
+    switch (true) {
+      case isLeftFormattedWithTag && isRightFormattedWithTag:
+        // 1: All chars within the selection are already formatted > unformat it
+        // 2: Not all chars within the selection are already formatted > format them all
+
+        break
+      case isLeftFormattedWithTag:
+        // handle left side only
+        break
+      case isRightFormattedWithTag:
+        // handle right side only
+        break
+      default:
+        // handle neither side formatted
+        break
+    }
+    // if (textDivRef.current) {
+    //   normalizeHTML(textDivRef.current)
+    //   console.log(textDivRef.current?.getHTML())
+    // }
+    console.log(isLeftFormattedWithTag, isRightFormattedWithTag)
   }
 
   return (
@@ -158,13 +219,28 @@ const RetroTextEditor = ({
               <option>Normal</option>
             </select>
 
-            {/* Delete Button */}
-            <button
-              onMouseDown={() => setFormattedValue("")}
-              className="w-7 h-7 ml-auto flex items-center justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
-            >
-              <Trash2 size={15} />
-            </button>
+            <div className="flex items-center justify-center ml-auto">
+              <button
+                onMouseDown={(e) => setFormattedValue("This is a test text")}
+                className="size-7 bg-[#d4d0c8] flex items-center justify-center border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
+              >
+                <FlaskRound size={15} />
+              </button>
+
+              <button
+                onMouseDown={htmlTest}
+                className="size-7 bg-[#d4d0c8] flex items-center justify-center  border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
+              >
+                <Aperture size={15} />
+              </button>
+              {/* Delete Button */}
+              <button
+                onMouseDown={() => setFormattedValue("")}
+                className="size-7 bg-[#d4d0c8] flex items-center justify-center border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
+              >
+                <Trash2 size={15} />
+              </button>
+            </div>
           </div>
 
           {/* Bottom Row - Font and Media */}
