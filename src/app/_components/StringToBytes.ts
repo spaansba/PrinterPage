@@ -21,7 +21,9 @@ const ASCII = {
 export const htmlContentToBytesWithCommands = (text: string): Uint8Array => {
   let utf8Encode = new TextEncoder()
   console.log(text)
+
   const sendHTMLBytes = utf8Encode.encode(text)
-  console.log(ASCII.ESC)
+  const boldStart = utf8Encode.encode(ASCII.ESC + "E" + true + " " + text)
+  console.log(boldStart)
   return sendHTMLBytes
 }
