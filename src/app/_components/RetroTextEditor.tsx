@@ -14,7 +14,6 @@ import {
   FlaskRound,
   Aperture,
 } from "lucide-react"
-import { normalize } from "path"
 
 type RetroTextEditorProps = {
   handleChange: (e: React.FormEvent<HTMLDivElement>) => void
@@ -28,21 +27,25 @@ const OPTION_BUTTONS = {
     icon: Bold,
     label: "Bold",
     html: "b",
+    command: "bold",
   },
   Italic: {
     icon: Italic,
     label: "Italic",
     html: "em",
+    command: "italic",
   },
   Underline: {
     icon: Underline,
     label: "Underline",
     html: "u",
+    command: "underline",
   },
   Strikethrough: {
     icon: Strikethrough,
-    label: "Strikethrough",
+    label: "StrikeThrough",
     html: "strike",
+    command: "strikeThrough",
   },
 } as const
 type OptionButtonKey = keyof typeof OPTION_BUTTONS
@@ -69,11 +72,9 @@ const RetroTextEditor = ({
     if (!selection || selection.rangeCount < 1) return
     const range = selection.getRangeAt(0)
     const cursorOffset = range?.startOffset || 0
-
     // Only update if the content is different to avoid cursor jumps
     if (textDivRef.current.textContent !== formattedValue) {
       textDivRef.current.textContent = formattedValue
-
       // Restore cursor position
       if (selection && range) {
         const newRange = document.createRange()
@@ -88,41 +89,22 @@ const RetroTextEditor = ({
     }
   }, [formattedValue, textDivRef])
 
+  const handleSelectionChange = () => {
+    const newStates = {
+      Bold: document.queryCommandState("bold"),
+      Italic: document.queryCommandState("italic"),
+      Underline: document.queryCommandState("underline"),
+      Strikethrough: document.queryCommandState("strikeThrough"),
+    }
+    setOptionButtonStates(newStates)
+  }
+
   const handleOptionMouseDown = (e: React.MouseEvent, label: OptionButtonKey) => {
-    e.preventDefault() // Prevent losing focus
-
-    const selection = window.getSelection()
-    if (!selection || !selection.rangeCount) return
-
-    const htmlTag = document.createElement(OPTION_BUTTONS[label].html)
-
-    const range = selection.getRangeAt(0)
-    if (range.collapsed) {
-      setOptionButtonStates((prev) => ({
-        ...prev,
-        [label]: !prev[label],
-      }))
-      console.log(range.surroundContents)
-      return
-    }
-
-    // const [leftIsFormatted, rightIsFormatted] = GetFormatted(range, htmlTag.tagName)
-
-    // try {
-    //   range.surroundContents(htmlTag)
-    // } catch (e) {
-    //   console.log(e)
-    // }
-
-    try {
-      // Wrap selected content in tag
-      range.surroundContents(htmlTag)
-    } catch (e) {
-      // Handle case where selection crosses multiple nodes
-      const fragment = range.extractContents()
-      htmlTag.appendChild(fragment)
-      range.insertNode(htmlTag)
-    }
+    e.preventDefault() // Prevent losing focus of the text erea
+    const command = OPTION_BUTTONS[label].command
+    // API deprecated but there is no alternitive
+    document.execCommand(command, false)
+    handleSelectionChange()
   }
 
   function htmlTest() {
@@ -136,52 +118,7 @@ const RetroTextEditor = ({
       console.log(range.surroundContents)
       return
     }
-
-    function isNodeFormattedWithTag(node: Node, htmlTagName: string) {
-      if (node.nodeType != 3) {
-        console.log("Node is not of type node type")
-        return false //"TODO FIX"
-      }
-
-      let parentNode = node.parentNode
-      while (parentNode && parentNode.nodeName !== "DIV") {
-        if (parentNode.nodeName === htmlTagName) {
-          return true
-        }
-        parentNode = parentNode.parentNode
-      }
-
-      return false
-    }
-    //If the user has a selection, check if the left and right are already formatted
-    const isLeftFormattedWithTag = isNodeFormattedWithTag(range.startContainer, htmlTag.tagName)
-    const isRightFormattedWithTag = isNodeFormattedWithTag(range.endContainer, htmlTag.tagName)
-
-    const isSame = range.startContainer.isSameNode(range.endContainer)
-    console.log(isSame)
-    switch (true) {
-      case isLeftFormattedWithTag && isRightFormattedWithTag:
-        // 1: All chars within the selection are already formatted > unformat it
-        // 2: Not all chars within the selection are already formatted > format them all
-
-        break
-      case isLeftFormattedWithTag:
-        // handle left side only
-        break
-      case isRightFormattedWithTag:
-        // handle right side only
-        break
-      default:
-        // handle neither side formatted
-        break
-    }
-    // if (textDivRef.current) {
-    //   normalizeHTML(textDivRef.current)
-    //   console.log(textDivRef.current?.getHTML())
-    // }
-    console.log(isLeftFormattedWithTag, isRightFormattedWithTag)
   }
-
   return (
     <div className="w-[350px] bg-[#d4d0c8] border-2 border-white shadow-[2px_2px_8px_rgba(0,0,0,0.2)]">
       {/* Window Title Bar */}
@@ -280,20 +217,11 @@ const RetroTextEditor = ({
         </div>
 
         {/* Text Area */}
-        {/* <textarea
-          ref={ref}
-          className="w-full px-4 py-2 min-h-[200px] bg-white border-2 border-[#808080] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] focus:outline-none font-mono resize-none"
-          onChange={handleChange}
-          value={formattedValue}
-          placeholder="Enter message to print..."
-          rows={8}
-        /> */}
-
-        {/* Text Area */}
         <div
           ref={textDivRef}
           defaultValue="Enter message to print..."
           onInput={handleChange}
+          onSelect={handleSelectionChange}
           contentEditable="true"
           className="w-full px-4 py-2 min-h-[200px] bg-white border-2 border-[#808080] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] focus:outline-none font-mono resize-none whitespace-pre-wrap"
         ></div>
