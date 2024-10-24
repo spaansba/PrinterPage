@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@editorjs/editorjs':
-        specifier: ^2.30.6
-        version: 2.30.6
       lucide-react:
         specifier: ^0.453.0
         version: 0.453.0(react@18.3.1)
@@ -60,9 +57,6 @@ packages:
   '@alloc/quick-lru@5.2.0':
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
     engines: {node: '>=10'}
-
-  '@editorjs/editorjs@2.30.6':
-    resolution: {integrity: sha512-6eQMc4Di3Hz9p4o+NGRgKaCeAF7eAk106m+bsDLc4eo94VGYO1M163OiGFdmanE+w503qTmXOzycWff5blEOAQ==}
 
   '@eslint-community/eslint-utils@4.4.0':
     resolution: {integrity: sha512-1/sA4dwrzBAyeUoQ6oxahHKmrZvsnLCg4RfxW3ZFGGmQkSNQPFNLV9CUEFQP1x9EYXHTo5p6xdhZM1Ne9p/AfA==}
@@ -1528,8 +1522,6 @@ packages:
 snapshots:
 
   '@alloc/quick-lru@5.2.0': {}
-
-  '@editorjs/editorjs@2.30.6': {}
 
   '@eslint-community/eslint-utils@4.4.0(eslint@9.13.0(jiti@1.21.6))':
     dependencies:
