@@ -1,19 +1,13 @@
 "use client"
 import { useState, useRef } from "react"
-import { WordWrap } from "./wordwrap"
 import RetroTextEditor from "./_components/RetroTextEditor"
+import { htmlContentToBytesWithCommands } from "./_components/StringToBytes"
 
 export default function Home() {
   const [status, setStatus] = useState("")
-  const [formattedValue, setFormattedValue] = useState("")
+  const [textContent, setTextContent] = useState("")
+  const [hTMLContent, setHTMLcontent] = useState("")
   const MAX_WIDTH = 288
-
-  // Keep track of the last input operation
-  const lastOperation = useRef({
-    text: "",
-    cursor: 0,
-    timestamp: Date.now(),
-  })
 
   const printingClosingTag = () => {
     return "\n\n" + "*********s*********" + "\n\n\n\n\n"
@@ -21,14 +15,16 @@ export default function Home() {
 
   async function handlePrinterClick() {
     setStatus("Sending...")
+    const sendText = hTMLContent + printingClosingTag()
+    const content = htmlContentToBytesWithCommands(sendText)
     try {
       const response = await fetch("https://special-eagle-handy.ngrok-free.app/print", {
         method: "POST",
         headers: {
-          "Content-Type": "text/plain; charset=utf-8",
+          "Content-Type": "application/json", // Changed to JSON
         },
         body: JSON.stringify({
-          message: formattedValue + printingClosingTag(),
+          data: Array.from(content),
         }),
       })
 
@@ -42,57 +38,16 @@ export default function Home() {
     }
   }
 
-  // Handle both input changes and cursor positioning in one synchronous operation
-  const handleTextChange = (e: React.FormEvent<HTMLDivElement>) => {
-    if (status != "") {
-      setStatus("")
-    }
-
-    const currentTime = Date.now()
-    const newValue = e.currentTarget.textContent
-    // console.log(e.currentTarget.getHTML())
-    // console.log(newValue)
-    if (!newValue) {
-      return
-    }
-    const cursorPos = 10000
-    // Store the operation details
-    lastOperation.current = {
-      text: newValue,
-      cursor: cursorPos,
-      timestamp: currentTime,
-    }
-
-    // Clean and format the text
-    const cleanValue = newValue.replaceAll("\n", "")
-    const formatted = WordWrap.wrap(cleanValue)
-
-    // Calculate cursor position based on the current operation
-    const rawBeforeCursor = newValue.substring(0, cursorPos)
-    const cleanBeforeCursor = rawBeforeCursor.replaceAll("\n", "")
-    const formattedBeforeCursor = WordWrap.wrap(cleanBeforeCursor)
-    const newCursorPos = formattedBeforeCursor.length
-
-    // Update all states synchronously
-    setFormattedValue(formatted)
-
-    // Schedule cursor update
-    requestAnimationFrame(() => {
-      // Only update if this is still the most recent operation
-      // if (lastOperation.current.timestamp === currentTime && textareaRef.current) {
-      //   // textareaRef.current.setSelectionRange(newCursorPos, newCursorPos)
-      // }
-    })
-  }
-
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-8 gap-6 font-mono text-black bg-[#d4d0c8]">
       {/* Main Editor Window */}
       <RetroTextEditor
-        handleChange={handleTextChange}
-        setFormattedValue={setFormattedValue}
-        formattedValue={formattedValue}
+        setTextContent={setTextContent}
+        textContent={textContent}
         status={status}
+        setStatus={setStatus}
+        setHTMLContent={setHTMLcontent}
+        hTMLContent={hTMLContent}
       ></RetroTextEditor>
       {/* Print Button */}
       <button
@@ -103,7 +58,7 @@ export default function Home() {
       </button>
 
       {/* Sample Text Box */}
-      {/* <div className="w-[600px] bg-white border-2 border-[#808080] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] p-4 text-sm">
+      <div className="w-[600px] bg-white border-2 border-[#808080] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] p-4 text-sm">
         <p>
           Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has
           been the industry's standard dummy text ever since the 1500s, when an unknown printer took
@@ -111,7 +66,7 @@ export default function Home() {
           five centuries, but also the leap into electronic typesetting, remaining essentially
           unchanged.
         </p>
-      </div> */}
+      </div>
     </div>
   )
 }

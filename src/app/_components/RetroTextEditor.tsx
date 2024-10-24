@@ -15,12 +15,7 @@ import {
   Aperture,
 } from "lucide-react"
 
-type RetroTextEditorProps = {
-  handleChange: (e: React.FormEvent<HTMLDivElement>) => void
-  setFormattedValue: Dispatch<SetStateAction<string>>
-  formattedValue: string
-  status: string
-}
+import { WordWrap } from "../wordwrap"
 
 const OPTION_BUTTONS = {
   Bold: {
@@ -50,11 +45,22 @@ const OPTION_BUTTONS = {
 } as const
 type OptionButtonKey = keyof typeof OPTION_BUTTONS
 
+type RetroTextEditorProps = {
+  setTextContent: Dispatch<SetStateAction<string>>
+  textContent: string
+  setHTMLContent: Dispatch<SetStateAction<string>>
+  hTMLContent: string
+  setStatus: Dispatch<SetStateAction<string>>
+  status: string
+}
+
 const RetroTextEditor = ({
-  handleChange,
-  formattedValue,
-  setFormattedValue,
+  textContent,
+  setTextContent,
   status,
+  setStatus,
+  hTMLContent,
+  setHTMLContent,
 }: RetroTextEditorProps) => {
   const [optionButtonStates, setOptionButtonStates] = useState({
     Bold: false,
@@ -71,23 +77,8 @@ const RetroTextEditor = ({
     const selection = window.getSelection()
     if (!selection || selection.rangeCount < 1) return
     const range = selection.getRangeAt(0)
-    const cursorOffset = range?.startOffset || 0
-    // Only update if the content is different to avoid cursor jumps
-    if (textDivRef.current.textContent !== formattedValue) {
-      textDivRef.current.textContent = formattedValue
-      // Restore cursor position
-      if (selection && range) {
-        const newRange = document.createRange()
-        newRange.setStart(
-          textDivRef.current.firstChild || textDivRef.current,
-          Math.min(cursorOffset, formattedValue.length)
-        )
-        newRange.collapse(true)
-        selection.removeAllRanges()
-        selection.addRange(newRange)
-      }
-    }
-  }, [formattedValue, textDivRef])
+    // const cursorOffset = range?.startOffset || 0
+  }, [textContent, textDivRef])
 
   const handleSelectionChange = () => {
     const newStates = {
@@ -119,8 +110,47 @@ const RetroTextEditor = ({
       return
     }
   }
+
+  // Keep track of the last input operation
+  const lastOperation = useRef({
+    text: "",
+    cursor: 0,
+    timestamp: Date.now(),
+  })
+
+  // Handle both input changes and cursor positioning in one synchronous operation
+  const handleTextChange = (e: React.FormEvent<HTMLDivElement>) => {
+    setStatus("Editing")
+
+    const currentTime = Date.now()
+    const newValue = e.currentTarget.textContent
+    // console.log(e.currentTarget.getHTML())
+    // console.log(newValue)
+    if (!newValue) {
+      return
+    }
+
+    if (!textDivRef.current || !textDivRef.current.textContent) {
+      return
+    }
+
+    const text = textDivRef.current.textContent
+    const textLines = text.split(/\r\n|\n/g)
+
+    const chunkLinesBySpace = textLines
+      .map((line) => line.match(/[^\s-]+?-\b|\S+|\s+|\r\n?|\n/g) || ["~~empty~~"])
+      .flat()
+    const x = chunkLinesBySpace.map((lineWords) => {
+      const y = lineWords
+    })
+
+    // console.log(text)
+    setTextContent(text)
+
+    setHTMLContent(textDivRef.current.getHTML())
+  }
   return (
-    <div className="w-[350px] bg-[#d4d0c8] border-2 border-white shadow-[2px_2px_8px_rgba(0,0,0,0.2)]">
+    <div className="w-[40ch] bg-[#d4d0c8] border-2 border-white shadow-[2px_2px_8px_rgba(0,0,0,0.2)]">
       {/* Window Title Bar */}
       <div className="h-6 bg-[#000080] flex items-center justify-between px-2">
         <span className="text-white text-sm font-bold">Retro Text Editor</span>
@@ -158,7 +188,7 @@ const RetroTextEditor = ({
 
             <div className="flex items-center justify-center ml-auto">
               <button
-                onMouseDown={(e) => setFormattedValue("This is a test text")}
+                onMouseDown={(e) => setTextContent("This is a test text")}
                 className="size-7 bg-[#d4d0c8] flex items-center justify-center border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
               >
                 <FlaskRound size={15} />
@@ -172,7 +202,7 @@ const RetroTextEditor = ({
               </button>
               {/* Delete Button */}
               <button
-                onMouseDown={() => setFormattedValue("")}
+                onMouseDown={() => setTextContent("")}
                 className="size-7 bg-[#d4d0c8] flex items-center justify-center border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
               >
                 <Trash2 size={15} />
@@ -220,7 +250,7 @@ const RetroTextEditor = ({
         <div
           ref={textDivRef}
           defaultValue="Enter message to print..."
-          onInput={handleChange}
+          onInput={handleTextChange}
           onSelect={handleSelectionChange}
           contentEditable="true"
           className="w-full px-4 py-2 min-h-[200px] bg-white border-2 border-[#808080] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] focus:outline-none font-mono resize-none whitespace-pre-wrap"
@@ -229,16 +259,20 @@ const RetroTextEditor = ({
         {/* Status Bar */}
         <div className="h-6 bg-[#d4d0c8] border-t border-[#808080] flex items-center px-2 text-xs justify-between">
           <div>
-            <span className="pr-4">Characters: {formattedValue.length}</span>
-            <span>Lines: {formattedValue.split("\n").length}</span>
+            <span className="pr-4">Characters: {textContent.length}</span>
+            <span>Lines: {textContent.split("\n").length}</span>
           </div>
           {status && <span>{status}</span>}
         </div>
       </div>
 
-      <div className="w-full px-4 py-2 min-h-[200px] bg-white border-2 border-[#808080] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] focus:outline-none font-mono resize-none whitespace-pre-wrap">
-        {textDivRef.current?.getHTML()}
+      <div
+        // contentEditable="true"
+        className="w-full px-4 py-2 min-h-[200px] bg-white border-2 border-[#808080] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] focus:outline-none font-mono resize-none whitespace-pre-wrap"
+      >
+        {WordWrap.wrap(textDivRef.current?.textContent!)}
       </div>
+      {textContent}
     </div>
   )
 }

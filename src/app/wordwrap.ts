@@ -29,16 +29,16 @@ export class WordWrap {
               const currentLength = replaceAnsi(currentLine).length
 
               // If the current line is already at 32 chars, start a new line
-              if (currentLength >= 31) {
+              if (currentLength >= 32) {
                 lines.push(word)
               }
 
               // If adding the word would exceed 32 chars
-              else if (wordLength + currentLength > 31) {
+              else if (wordLength + currentLength > 32) {
                 // If the word itself is longer than 32 chars, split it
-                if (wordLength > 31) {
-                  const firstPart = word.slice(0, 31 - currentLength)
-                  const remainingPart = word.slice(31 - currentLength)
+                if (wordLength > 32) {
+                  const firstPart = word.slice(0, 32 - currentLength)
+                  const remainingPart = word.slice(32 - currentLength)
                   lines[lines.length - 1] += firstPart
                   lines.push(remainingPart)
                 } else {
@@ -54,16 +54,12 @@ export class WordWrap {
         })
         .flat()
 
-        /* filter out empty lines created by the word wrap */
-        .filter((line) => line.trim())
-
         /* Put empty lines created by the user back */
         .map((line) => line.replace("~~empty~~", "\n"))
     )
   }
 
   wrap() {
-    // console.log(this.lines().join("\n"))
     return this.lines().join("\n")
   }
 
