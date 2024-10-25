@@ -1,9 +1,7 @@
 import React, { type Dispatch, type SetStateAction, useEffect, useRef, useState } from "react"
 import {
   Bold,
-  Italic,
   Underline,
-  Strikethrough,
   Barcode,
   QrCode,
   Trash2,
@@ -13,9 +11,11 @@ import {
   X,
   FlaskRound,
   Aperture,
+  Highlighter,
 } from "lucide-react"
 
-import { WordWrap } from "../wordwrap"
+//must be RGB for queryCommandValue later on
+const InvertColor = "rgb(29, 29, 29)"
 
 const OPTION_BUTTONS = {
   Bold: {
@@ -23,26 +23,27 @@ const OPTION_BUTTONS = {
     label: "Bold",
     html: "b",
     command: "bold",
-  },
-  Italic: {
-    icon: Italic,
-    label: "Italic",
-    html: "em",
-    command: "italic",
+    commandValue: "",
+    styleWithCSS: false,
   },
   Underline: {
     icon: Underline,
     label: "Underline",
     html: "u",
     command: "underline",
+    commandValue: "",
+    styleWithCSS: false,
   },
-  Strikethrough: {
-    icon: Strikethrough,
-    label: "StrikeThrough",
-    html: "strike",
-    command: "strikeThrough",
+  Invert: {
+    icon: Highlighter,
+    label: "Invert",
+    html: "mark",
+    command: "backColor",
+    commandValue: InvertColor,
+    styleWithCSS: true,
   },
 } as const
+
 type OptionButtonKey = keyof typeof OPTION_BUTTONS
 
 type RetroTextEditorProps = {
@@ -64,9 +65,8 @@ const RetroTextEditor = ({
 }: RetroTextEditorProps) => {
   const [optionButtonStates, setOptionButtonStates] = useState({
     Bold: false,
-    Italic: false,
     Underline: false,
-    Strikethrough: false,
+    Invert: false,
   })
   const textDivRef = useRef<HTMLDivElement>(null)
 
@@ -74,41 +74,44 @@ const RetroTextEditor = ({
     if (!textDivRef.current) {
       return
     }
-    const selection = window.getSelection()
-    if (!selection || selection.rangeCount < 1) return
-    const range = selection.getRangeAt(0)
-    // const cursorOffset = range?.startOffset || 0
+    textDivRef.current.textContent = textContent
   }, [textContent, textDivRef])
 
   const handleSelectionChange = () => {
     const newStates = {
-      Bold: document.queryCommandState("bold"),
-      Italic: document.queryCommandState("italic"),
-      Underline: document.queryCommandState("underline"),
-      Strikethrough: document.queryCommandState("strikeThrough"),
+      Bold: document.queryCommandState(OPTION_BUTTONS["Bold"].command),
+      Underline: document.queryCommandState(OPTION_BUTTONS["Underline"].command),
+      Invert: document.queryCommandValue(OPTION_BUTTONS["Invert"].command) === InvertColor,
     }
     setOptionButtonStates(newStates)
   }
 
   const handleOptionMouseDown = (e: React.MouseEvent, label: OptionButtonKey) => {
     e.preventDefault() // Prevent losing focus of the text erea
-    const command = OPTION_BUTTONS[label].command
+    const option = OPTION_BUTTONS[label]
     // API deprecated but there is no alternitive
-    document.execCommand(command, false)
+    document.execCommand("styleWithCSS", false, option.styleWithCSS.toString())
+
+    if (option.label === "Invert") {
+      // For invert its not simply turn off / on, we set the value to the color or to transparant instead
+      if (optionButtonStates.Invert) {
+        document.execCommand(option.command, false, "transparent")
+        document.execCommand("foreColor", false, "black")
+      } else {
+        document.execCommand(option.command, false, option.commandValue)
+        document.execCommand("foreColor", false, "white")
+      }
+    } else {
+      document.execCommand(option.command, false, option.commandValue)
+    }
+
     handleSelectionChange()
   }
 
   function htmlTest() {
-    const selection = window.getSelection()
-    if (!selection || !selection.rangeCount) return
-
-    const htmlTag = document.createElement("b")
-
-    const range = selection.getRangeAt(0)
-    if (range.collapsed) {
-      console.log(range.surroundContents)
-      return
-    }
+    console.log(
+      document.queryCommandValue(OPTION_BUTTONS["Invert"].command) === "rgb(128, 128, 128)"
+    )
   }
 
   // Keep track of the last input operation
@@ -121,34 +124,25 @@ const RetroTextEditor = ({
   // Handle both input changes and cursor positioning in one synchronous operation
   const handleTextChange = (e: React.FormEvent<HTMLDivElement>) => {
     setStatus("Editing")
-
-    const currentTime = Date.now()
-    const newValue = e.currentTarget.textContent
-    // console.log(e.currentTarget.getHTML())
-    // console.log(newValue)
-    if (!newValue) {
+    if (!textDivRef.current) {
       return
     }
-
-    if (!textDivRef.current || !textDivRef.current.textContent) {
-      return
-    }
-
-    const text = textDivRef.current.textContent
-    const textLines = text.split(/\r\n|\n/g)
-
-    const chunkLinesBySpace = textLines
-      .map((line) => line.match(/[^\s-]+?-\b|\S+|\s+|\r\n?|\n/g) || ["~~empty~~"])
-      .flat()
-    const x = chunkLinesBySpace.map((lineWords) => {
-      const y = lineWords
-    })
-
-    // console.log(text)
-    setTextContent(text)
-
-    setHTMLContent(textDivRef.current.getHTML())
+    setTextContent(textDivRef.current.textContent || "")
+    setHTMLContent(textDivRef.current.innerHTML)
   }
+
+  //Make it so the pasted in values dont have formats
+  //TODO: dont remove tags used by the program
+  const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    document.execCommand("inserttext", false, e.clipboardData.getData("text/plain"))
+  }
+
+  //TODO: make handle drop work
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+  }
+
   return (
     <div className="w-[40ch] bg-[#d4d0c8] border-2 border-white shadow-[2px_2px_8px_rgba(0,0,0,0.2)]">
       {/* Window Title Bar */}
@@ -249,12 +243,17 @@ const RetroTextEditor = ({
         {/* Text Area */}
         <div
           ref={textDivRef}
+          spellCheck={"false"}
           defaultValue="Enter message to print..."
           onInput={handleTextChange}
           onSelect={handleSelectionChange}
+          onPaste={(e) => handlePaste(e)}
+          onDrop={handleDrop}
           contentEditable="true"
-          className="w-full px-4 py-2 min-h-[200px] bg-white border-2 border-[#808080] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] focus:outline-none font-mono resize-none whitespace-pre-wrap"
+          className="font-printer w-full px-4 py-2 min-h-[200px] bg-white border-2 border-[#808080] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] focus:outline-none font-mono resize-none whitespace-pre-wrap"
         ></div>
+
+        <div className="min-h-[200px]">{textDivRef.current?.getHTML()}</div>
 
         {/* Status Bar */}
         <div className="h-6 bg-[#d4d0c8] border-t border-[#808080] flex items-center px-2 text-xs justify-between">
@@ -265,14 +264,6 @@ const RetroTextEditor = ({
           {status && <span>{status}</span>}
         </div>
       </div>
-
-      <div
-        // contentEditable="true"
-        className="w-full px-4 py-2 min-h-[200px] bg-white border-2 border-[#808080] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] focus:outline-none font-mono resize-none whitespace-pre-wrap"
-      >
-        {WordWrap.wrap(textDivRef.current?.textContent!)}
-      </div>
-      {textContent}
     </div>
   )
 }

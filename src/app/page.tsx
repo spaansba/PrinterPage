@@ -9,14 +9,10 @@ export default function Home() {
   const [hTMLContent, setHTMLcontent] = useState("")
   const MAX_WIDTH = 288
 
-  const printingClosingTag = () => {
-    return "\n\n" + "*********s*********" + "\n\n\n\n\n"
-  }
-
   async function handlePrinterClick() {
     setStatus("Sending...")
-    const sendText = hTMLContent + printingClosingTag()
-    const content = htmlContentToBytesWithCommands(sendText)
+    const content = htmlContentToBytesWithCommands(hTMLContent)
+    console.log(content)
     try {
       const response = await fetch("https://special-eagle-handy.ngrok-free.app/print", {
         method: "POST",
