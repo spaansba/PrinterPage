@@ -273,7 +273,7 @@ const RetroTextEditor = ({
           className="font-printer w-full px-4 py-2 min-h-[200px] bg-white border-2 border-[#808080] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] focus:outline-none font-mono resize-none whitespace-pre-wrap"
         ></div>
 
-        <div className="min-h-[200px]">{textDivRef.current?.getHTML()}</div>
+        {/* <div className="min-h-[200px]">{textDivRef.current?.getHTML()}</div> */}
 
         {/* Status Bar */}
         <div className="h-6 bg-[#d4d0c8] border-t border-[#808080] flex items-center px-2 text-xs justify-between">
