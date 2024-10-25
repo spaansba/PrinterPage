@@ -88,28 +88,6 @@ export class HTMLByteSequenceReplacer {
     return this
   }
 
-  initialize(): HTMLByteSequenceReplacer {
-    // Create initialization sequence based on ESC/POS standard
-    const initSequence = new Uint8Array([
-      CONTROL.ESC,
-      0x40, // ESC @ - Initialize printer
-      CONTROL.ESC,
-      0x74,
-      0x00, // ESC t 0 - Select character code table
-      CONTROL.ESC,
-      0x52,
-      0x00, // ESC R 0 - Select international character set
-    ])
-
-    // Combine init sequence with existing bytes
-    const combined = new Uint8Array(initSequence.length + this._bytes.length)
-    combined.set(initSequence, 0)
-    combined.set(this._bytes, initSequence.length)
-
-    this._bytes = combined
-    return this
-  }
-
   private general(htmlTag: possibleTags) {
     const [replacedOpen, x] = findAndReplaceByteSequence(
       this._bytes,

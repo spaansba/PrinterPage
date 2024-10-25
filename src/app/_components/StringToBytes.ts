@@ -8,11 +8,7 @@ export const htmlContentToBytesWithCommands = (text: string): Uint8Array => {
   let HTMLByteToEscpos = new HTMLByteSequenceReplacer(encodedText)
   const openTag = printingOpenTag()
 
-  const userText = HTMLByteToEscpos.initialize()
-    .boldTranslate()
-    .underlineTranslate()
-    .invertTranslate()
-    .encode()
+  const userText = HTMLByteToEscpos.boldTranslate().underlineTranslate().invertTranslate().encode()
 
   const closingTag = printingClosingTag()
   console.log("openTag", openTag)
@@ -43,7 +39,7 @@ function printingClosingTag(): Uint8Array {
     imageMode: "raster",
     font: "9x17",
   })
-  return encoder.initialize().newline(2).line(tag).newline(2).encode()
+  return encoder.newline(2).line(tag).newline(2).encode()
 }
 
 function combineMultipleUint8Arrays(arrays: Uint8Array[]) {

@@ -127,7 +127,7 @@ const RetroTextEditor = ({
     if (!textDivRef.current) {
       return
     }
-    setTextContent(textDivRef.current.textContent || "")
+    // setTextContent(textDivRef.current.textContent || "")
     setHTMLContent(textDivRef.current.innerHTML)
   }
 
