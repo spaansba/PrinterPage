@@ -77,6 +77,27 @@ const RetroTextEditor = ({
     textDivRef.current.textContent = textContent
   }, [textContent, textDivRef])
 
+  const checkInvertState = () => {
+    const selection = window.getSelection()
+    if (!selection || !selection.rangeCount) return false
+
+    const range = selection.getRangeAt(0)
+    const span = document.createElement("span")
+    range.surroundContents(span)
+
+    const computedStyle = window.getComputedStyle(span)
+    const backgroundColor = computedStyle.backgroundColor
+
+    // Unwrap the span to not modify the actual content
+    const parent = span.parentNode
+    while (span.firstChild) {
+      parent?.insertBefore(span.firstChild, span)
+    }
+    parent?.removeChild(span)
+
+    return backgroundColor === InvertColor
+  }
+
   const handleSelectionChange = () => {
     const newStates = {
       Bold: document.queryCommandState(OPTION_BUTTONS["Bold"].command),
@@ -94,6 +115,7 @@ const RetroTextEditor = ({
 
     if (option.label === "Invert") {
       // For invert its not simply turn off / on, we set the value to the color or to transparant instead
+      console.log(document.queryCommandValue(OPTION_BUTTONS["Invert"].command))
       if (optionButtonStates.Invert) {
         document.execCommand(option.command, false, "transparent")
         document.execCommand("foreColor", false, "black")
@@ -114,31 +136,19 @@ const RetroTextEditor = ({
     )
   }
 
-  // Keep track of the last input operation
-  const lastOperation = useRef({
-    text: "",
-    cursor: 0,
-    timestamp: Date.now(),
-  })
-
-  // Handle both input changes and cursor positioning in one synchronous operation
   const handleTextChange = (e: React.FormEvent<HTMLDivElement>) => {
     setStatus("Editing")
     if (!textDivRef.current) {
       return
     }
-    // setTextContent(textDivRef.current.textContent || "")
     setHTMLContent(textDivRef.current.innerHTML)
   }
 
-  //Make it so the pasted in values dont have formats
-  //TODO: dont remove tags used by the program
   const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
     e.preventDefault()
     document.execCommand("inserttext", false, e.clipboardData.getData("text/plain"))
   }
 
-  //TODO: make handle drop work
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
   }
@@ -190,7 +200,7 @@ const RetroTextEditor = ({
 
               <button
                 onMouseDown={htmlTest}
-                className="size-7 bg-[#d4d0c8] flex items-center justify-center  border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
+                className="size-7 bg-[#d4d0c8] flex items-center justify-center border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
               >
                 <Aperture size={15} />
               </button>
@@ -216,12 +226,22 @@ const RetroTextEditor = ({
               ).map(([key, { icon: Icon }]) => (
                 <button
                   key={key}
-                  className={`${
-                    optionButtonStates[key] ? "bg-[#808080]" : ""
-                  } size-7 flex items-center justify-center bg-[#d4d0c8]  border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] `}
+                  className={`
+                    size-7 flex items-center justify-center bg-[#d4d0c8] border 
+                    ${
+                      optionButtonStates[key]
+                        ? "border-t-[#808080] border-l-[#808080] border-b-white border-r-white bg-[#bdb9b3] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]"
+                        : "border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080]"
+                    }
+                  `}
                   onMouseDown={(e) => handleOptionMouseDown(e, key)}
                 >
-                  <Icon size={15} className={optionButtonStates[key] ? "text-white" : ""} />
+                  <Icon
+                    size={15}
+                    style={
+                      optionButtonStates[key] ? { transform: "translate(0.5px, 0.5px)" } : undefined
+                    }
+                  />
                 </button>
               ))}
             </div>
@@ -267,7 +287,5 @@ const RetroTextEditor = ({
     </div>
   )
 }
-
-RetroTextEditor.displayName = "RetroTextEditor"
 
 export default RetroTextEditor

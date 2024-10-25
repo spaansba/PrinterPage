@@ -66,8 +66,7 @@ const commands = {
     },
   },
 } as const
-
-type possibleTags = "underline" | "bold" | "invert"
+type possibleTags = keyof typeof commands
 
 export class HTMLByteSequenceReplacer {
   private _bytes: Uint8Array

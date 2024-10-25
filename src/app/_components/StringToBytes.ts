@@ -7,13 +7,8 @@ export const htmlContentToBytesWithCommands = (text: string): Uint8Array => {
   const encodedText = utf8Encode.encode(text)
   let HTMLByteToEscpos = new HTMLByteSequenceReplacer(encodedText)
   const openTag = printingOpenTag()
-
   const userText = HTMLByteToEscpos.boldTranslate().underlineTranslate().invertTranslate().encode()
-
   const closingTag = printingClosingTag()
-  console.log("openTag", openTag)
-  console.log("user", userText)
-  console.log("close", closingTag)
   const combinedMultiple = combineMultipleUint8Arrays([openTag, userText, closingTag])
   return combinedMultiple
 }
