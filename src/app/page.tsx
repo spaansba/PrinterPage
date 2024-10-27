@@ -17,7 +17,7 @@ export default function Home() {
       const response = await fetch("https://special-eagle-handy.ngrok-free.app/print", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json", // Changed to JSON
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           data: Array.from(content),

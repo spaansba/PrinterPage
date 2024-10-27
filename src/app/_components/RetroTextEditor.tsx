@@ -14,9 +14,10 @@ import {
   Highlighter,
 } from "lucide-react"
 
-//must be RGB for queryCommandValue later on
+//must be RGB for queryCommandValue later on, also firefox needs rgb (clown emoij)
 const InvertColor = "rgb(29, 29, 29)"
-
+const InvertTextColor = "rgb(255, 255, 255)"
+const RegularTextColor = "rgb(0, 0, 0)"
 const OPTION_BUTTONS = {
   Bold: {
     icon: Bold,
@@ -116,12 +117,14 @@ const RetroTextEditor = ({
     if (option.label === "Invert") {
       // For invert its not simply turn off / on, we set the value to the color or to transparant instead
       console.log(document.queryCommandValue(OPTION_BUTTONS["Invert"].command))
+      console.log(document.queryCommandValue("foreColor"))
+      console.log(document.queryCommandEnabled(OPTION_BUTTONS["Invert"].command))
       if (optionButtonStates.Invert) {
-        document.execCommand(option.command, false, "transparent")
-        document.execCommand("foreColor", false, "black")
+        document.execCommand(option.command, false, "rgb(0, 0, 0, 0)")
+        document.execCommand("foreColor", false, RegularTextColor)
       } else {
         document.execCommand(option.command, false, option.commandValue)
-        document.execCommand("foreColor", false, "white")
+        document.execCommand("foreColor", false, InvertTextColor)
       }
     } else {
       document.execCommand(option.command, false, option.commandValue)
@@ -270,7 +273,7 @@ const RetroTextEditor = ({
           onPaste={(e) => handlePaste(e)}
           onDrop={handleDrop}
           contentEditable="true"
-          className="font-printer w-full px-4 py-2 min-h-[200px] bg-white border-2 border-[#808080] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] focus:outline-none font-mono resize-none whitespace-pre-wrap"
+          className="text-[13px] font-printer w-full px-4 py-2 min-h-[200px] bg-white border-2 border-[#808080] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] focus:outline-none font-mono resize-none whitespace-pre-wrap"
         ></div>
 
         {/* <div className="min-h-[200px]">{textDivRef.current?.getHTML()}</div> */}
