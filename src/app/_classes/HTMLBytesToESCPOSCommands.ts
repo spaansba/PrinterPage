@@ -94,16 +94,6 @@ export class HTMLBytesToESCPOSCommands {
     return this
   }
 
-  previewCommands(): string {
-    return Object.entries(this._commands)
-      .map(([name, command]) => {
-        return (
-          `${name}: ON=${command.state.on.map((b) => "0x" + b.toString(16)).join(" ")} ` +
-          `OFF=${command.state.off.map((b) => "0x" + b.toString(16)).join(" ")}`
-        )
-      })
-      .join("\n")
-  }
   private hexArrayFromString(str: string): number[] {
     return Array.from(str).map((char) => char.charCodeAt(0))
   }

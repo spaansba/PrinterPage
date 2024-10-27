@@ -78,27 +78,6 @@ const RetroTextEditor = ({
     textDivRef.current.textContent = textContent
   }, [textContent, textDivRef])
 
-  const checkInvertState = () => {
-    const selection = window.getSelection()
-    if (!selection || !selection.rangeCount) return false
-
-    const range = selection.getRangeAt(0)
-    const span = document.createElement("span")
-    range.surroundContents(span)
-
-    const computedStyle = window.getComputedStyle(span)
-    const backgroundColor = computedStyle.backgroundColor
-
-    // Unwrap the span to not modify the actual content
-    const parent = span.parentNode
-    while (span.firstChild) {
-      parent?.insertBefore(span.firstChild, span)
-    }
-    parent?.removeChild(span)
-
-    return backgroundColor === InvertColor
-  }
-
   const handleSelectionChange = () => {
     const newStates = {
       Bold: document.queryCommandState(OPTION_BUTTONS["Bold"].command),
@@ -108,6 +87,10 @@ const RetroTextEditor = ({
     setOptionButtonStates(newStates)
   }
 
+  useEffect(() => {
+    console.log(optionButtonStates.Invert)
+  }, [optionButtonStates.Invert])
+
   const handleOptionMouseDown = (e: React.MouseEvent, label: OptionButtonKey) => {
     e.preventDefault() // Prevent losing focus of the text erea
     const option = OPTION_BUTTONS[label]
@@ -115,22 +98,27 @@ const RetroTextEditor = ({
     document.execCommand("styleWithCSS", false, option.styleWithCSS.toString())
 
     if (option.label === "Invert") {
-      // For invert its not simply turn off / on, we set the value to the color or to transparant instead
-      console.log(document.queryCommandValue(OPTION_BUTTONS["Invert"].command))
-      console.log(document.queryCommandValue("foreColor"))
-      console.log(document.queryCommandEnabled(OPTION_BUTTONS["Invert"].command))
-      if (optionButtonStates.Invert) {
-        document.execCommand(option.command, false, "rgb(0, 0, 0, 0)")
-        document.execCommand("foreColor", false, RegularTextColor)
-      } else {
-        document.execCommand(option.command, false, option.commandValue)
-        document.execCommand("foreColor", false, InvertTextColor)
-      }
+      handleInvertMouseDown()
     } else {
       document.execCommand(option.command, false, option.commandValue)
     }
 
     handleSelectionChange()
+  }
+
+  const handleInvertMouseDown = () => {
+    // For invert its not simply turn off / on, we set the value to the color or to transparant instead
+    console.log("")
+    if (optionButtonStates.Invert) {
+      console.log("is now inverted, will not")
+      document.execCommand("backColor", false, "rgba(0,0,0,0")
+      // document.execCommand("foreColor", false, RegularTextColor)
+    } else {
+      console.log("is not inverted will now ")
+
+      document.execCommand("backColor", false, InvertColor)
+      // document.execCommand("foreColor", false, InvertTextColor)
+    }
   }
 
   function htmlTest() {
@@ -273,10 +261,10 @@ const RetroTextEditor = ({
           onPaste={(e) => handlePaste(e)}
           onDrop={handleDrop}
           contentEditable="true"
-          className=" text-[13px] font-printer w-full px-4 py-2 min-h-[200px] bg-white border-2 border-[#808080] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] focus:outline-none font-mono resize-none whitespace-pre-wrap"
+          className="text-[13px] font-printer w-full px-4 py-2 min-h-[200px] bg-white border-2 border-[#808080] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] focus:outline-none font-mono resize-none whitespace-pre-wrap"
         ></div>
 
-        {/* <div className="min-h-[200px]">{textDivRef.current?.getHTML()}</div> */}
+        <div className="min-h-[200px]">{textDivRef.current?.getHTML()}</div>
 
         {/* Status Bar */}
         <div className="h-6 bg-[#d4d0c8] border-t border-[#808080] flex items-center px-2 text-xs justify-between">
