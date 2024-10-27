@@ -3,26 +3,33 @@ import StarterKit from "@tiptap/starter-kit"
 import { Toolbar } from "./Toolbar"
 import Underline from "@tiptap/extension-underline"
 import Highlight from "@tiptap/extension-highlight"
+import TextStyle from "@tiptap/extension-text-style"
+import { SpanClass } from "./CustomSpan"
 
 type TiptapProps = {
-  description: string
-  onChange: (richText: string) => void
+  textEditorInput: string
+  onChange: (inputText: string, inputHTML: string) => void
 }
 
 const extraStyles = `
   .color-white {
     color: #fff9f9d1 !important;
   }
+  .custom-span-class{
+    color: yellow !important;
+  }
 `
 
-export default function Tiptap({ description, onChange }: TiptapProps) {
+export default function Tiptap({ textEditorInput, onChange }: TiptapProps) {
   const editor = useEditor({
     extensions: [
       StarterKit.configure(),
       Underline,
       Highlight.configure({ multicolor: true, HTMLAttributes: { class: "color-white" } }),
+      TextStyle,
+      SpanClass,
     ],
-    content: description,
+    content: textEditorInput,
     editorProps: {
       attributes: {
         class:
@@ -30,8 +37,7 @@ export default function Tiptap({ description, onChange }: TiptapProps) {
       },
     },
     onUpdate({ editor }) {
-      onChange(editor.getHTML())
-      console.log(editor.getHTML())
+      onChange(editor.getText(), editor.getHTML())
     },
   })
 

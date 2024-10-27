@@ -19,12 +19,13 @@ const CONTROL = {
 } as const
 
 const TAGS = {
-  LESS_THAN: 0x3c, //
-  GREATER_THAN: 0x3e, // >
-  FSLASH: 0x2f, // /
-  B: 0x62, // b
-  U: 0x75, // u
-  SPAN: [0x73, 0x70, 0x61, 0x6e], // span
+  LESS_THAN: 0x3c,
+  GREATER_THAN: 0x3e,
+  FSLASH: 0x2f,
+  STRONG: [0x73, 0x74, 0x72, 0x6f, 0x6e, 0x67],
+  U: 0x75,
+  SPAN: [0x73, 0x70, 0x61, 0x6e],
+  MARK: [0x6d, 0x61, 0x72, 0x6b],
 } as const
 
 const BOOL = {
@@ -32,7 +33,7 @@ const BOOL = {
   FALSE: 0x0,
 } as const
 
-type Command = {
+type BoolCommand = {
   state: {
     on: number[]
     off: number[]
@@ -43,19 +44,19 @@ type Command = {
   }
 }
 
-type Commands = {
-  [key: string]: Command
+type BoolCommands = {
+  [key: string]: BoolCommand
 }
 
 export class HTMLBytesToESCPOSCommands {
   private _bytes: Uint8Array
-  private _commands: Commands = {}
+  private _boolCommands: BoolCommands = {}
   constructor(bytes: Uint8Array) {
     this._bytes = bytes
   }
 
   underlineTranslate(): HTMLBytesToESCPOSCommands {
-    this._commands.underline = {
+    this._boolCommands.underline = {
       state: {
         on: [CONTROL.ESC, 0x2d, BOOL.TRUE],
         off: [CONTROL.ESC, 0x2d, BOOL.FALSE],
@@ -68,38 +69,58 @@ export class HTMLBytesToESCPOSCommands {
     return this
   }
   boldTranslate(): HTMLBytesToESCPOSCommands {
-    this._commands.bold = {
+    this._boolCommands.bold = {
       state: {
         on: [CONTROL.ESC, 0x45, BOOL.TRUE],
         off: [CONTROL.ESC, 0x45, BOOL.FALSE],
       },
       html: {
-        open: [TAGS.LESS_THAN, TAGS.B, TAGS.GREATER_THAN], // <b>
-        close: [TAGS.LESS_THAN, TAGS.FSLASH, TAGS.B, TAGS.GREATER_THAN], // </b>
+        open: [TAGS.LESS_THAN, ...TAGS.STRONG, TAGS.GREATER_THAN], // <b>
+        close: [TAGS.LESS_THAN, TAGS.FSLASH, ...TAGS.STRONG, TAGS.GREATER_THAN], // </b>
       },
     }
     return this
   }
   invertTranslate(invert: string): HTMLBytesToESCPOSCommands {
-    this._commands.invert = {
+    this._boolCommands.invert = {
       state: {
         on: [CONTROL.GS, 0x42, BOOL.TRUE],
         off: [CONTROL.GS, 0x42, BOOL.FALSE],
       },
       html: {
-        open: this.hexArrayFromString(invert), // <u>
-        close: [TAGS.LESS_THAN, TAGS.FSLASH, ...TAGS.SPAN, TAGS.GREATER_THAN], // </u>
+        open: this.hexArrayFromString(invert),
+        close: [TAGS.LESS_THAN, TAGS.FSLASH, ...TAGS.MARK, TAGS.GREATER_THAN],
       },
     }
     return this
   }
+
+  // sizeTallWide(tallWide: string): HTMLBytesToESCPOSCommands {
+  //   this._commands.tallWide = {
+  //     multiState: {
+  //       0: [CONTROL.GS, 0x21, 0x00],
+  //       1: [CONTROL.GS, 0x21, 0x11],
+  //       2: [CONTROL.GS, 0x21, 0x22],
+  //       3: [CONTROL.GS, 0x21, 0x33],
+  //       4: [CONTROL.GS, 0x21, 0x44],
+  //       5: [CONTROL.GS, 0x21, 0x55],
+  //       6: [CONTROL.GS, 0x21, 0x66],
+  //       7: [CONTROL.GS, 0x21, 0x77],
+  //     },
+  //     html: {
+  //       open: this.hexArrayFromString(tallWide),
+  //       close: [TAGS.LESS_THAN, TAGS.FSLASH, ...TAGS.SPAN, TAGS.GREATER_THAN],
+  //     },
+  //   }
+  //   return this
+  // }
 
   private hexArrayFromString(str: string): number[] {
     return Array.from(str).map((char) => char.charCodeAt(0))
   }
 
   encode(): Uint8Array {
-    Object.entries(this._commands).forEach(([key, command]) => {
+    Object.entries(this._boolCommands).forEach(([key, command]) => {
       const [replacedOpen, x] = htmlTagsToESCPOSEncoder(
         this._bytes,
         command.html.open,
@@ -116,6 +137,8 @@ export class HTMLBytesToESCPOSCommands {
   }
 }
 
+export function htmlTagsTo() {}
+
 export function htmlTagsToESCPOSEncoder(
   array: Uint8Array,
   findSequence: readonly number[],
@@ -129,7 +152,8 @@ export function htmlTagsToESCPOSEncoder(
   for (let i = startIndex; i <= array.length - findSequence.length; i++) {
     let currentSequenceMatches = true
     for (let j = 0; j < findSequence.length; j++) {
-      if (array[i + j] !== findSequence[j]) {
+      //"?" as wildcard
+      if (array[i + j] !== findSequence[j] && array[i + j] !== 0x3f) {
         currentSequenceMatches = false
         break
       }

@@ -2,14 +2,19 @@ import ReceiptPrinterEncoder from "@point-of-sale/receipt-printer-encoder"
 import { HTMLBytesToESCPOSCommands } from "../_classes/HTMLBytesToESCPOSCommands"
 
 export const htmlContentToBytesWithCommands = (text: string): Uint8Array => {
-  console.log(text)
+  const textWithoutPTag = text.replace("<p>", "")
+  const textWithoutPTag2 = textWithoutPTag.replace("</p>", "")
   let utf8Encode = new TextEncoder()
-  const encodedText = utf8Encode.encode(text)
+  const encodedText = utf8Encode.encode(textWithoutPTag2)
   let HTMLByteToEscpos = new HTMLBytesToESCPOSCommands(encodedText)
   const openTag = printingOpenTag()
+  console.log(openTag)
   const userText = HTMLByteToEscpos.boldTranslate()
     .underlineTranslate()
-    .invertTranslate(`<span style="background-color: rgb(29, 29, 29); color: rgb(255, 255, 255);">`)
+    .invertTranslate(
+      `<mark class="color-white" data-color="rgb(49, 49, 49)" style="background-color: rgb(49, 49, 49); color: inherit">`
+    )
+    // .sizeTallWide(`<span class="text-[??px]">`)
     .encode()
   const closingTag = printingClosingTag()
   const combinedMultiple = combineMultipleUint8Arrays([openTag, userText, closingTag])
@@ -28,18 +33,24 @@ function printingOpenTag(): Uint8Array {
   return (
     encoder
       .initialize()
-      .font("b")
-      .invert(true)
+      .font("a")
+      .invert(false)
       .line(tag)
       .invert(false)
       // .newline()
-      // .text("sdafdsfsdfsfsdf ")
+      // .newline()
+      // .size(8, 1)
+      // .text("twee en een")
       // .newline()
       // .size(1, 2)
-      // .text("asd asd")
-      // .size(1, 1)
-      // .text("new")
+      // .text("een en twee")
       // .newline()
+      // .size(2, 2)
+      // .text("twee en twee")
+      // .newline()
+      // .size(1, 1)
+      // .text("een en een")
+      .newline()
       .encode()
   )
 }
