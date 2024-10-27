@@ -134,9 +134,9 @@ const RetroTextEditor = ({
   }
 
   function htmlTest() {
-    console.log(
-      document.queryCommandValue(OPTION_BUTTONS["Invert"].command) === "rgb(128, 128, 128)"
-    )
+    const str = `span style="background-color: rgb(29, 29, 29); color: rgb(255, 255, 255);"`
+    const hexArray = Array.from(str).map((char) => "0x" + char.charCodeAt(0).toString(16))
+    console.log(hexArray)
   }
 
   const handleTextChange = (e: React.FormEvent<HTMLDivElement>) => {
@@ -273,7 +273,7 @@ const RetroTextEditor = ({
           onPaste={(e) => handlePaste(e)}
           onDrop={handleDrop}
           contentEditable="true"
-          className="text-[13px] font-printer w-full px-4 py-2 min-h-[200px] bg-white border-2 border-[#808080] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] focus:outline-none font-mono resize-none whitespace-pre-wrap"
+          className=" text-[13px] font-printer w-full px-4 py-2 min-h-[200px] bg-white border-2 border-[#808080] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] focus:outline-none font-mono resize-none whitespace-pre-wrap"
         ></div>
 
         {/* <div className="min-h-[200px]">{textDivRef.current?.getHTML()}</div> */}
