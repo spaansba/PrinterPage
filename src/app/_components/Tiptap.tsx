@@ -4,7 +4,7 @@ import { Toolbar } from "./Toolbar"
 import Underline from "@tiptap/extension-underline"
 import Highlight from "@tiptap/extension-highlight"
 import TextStyle from "@tiptap/extension-text-style"
-import { SpanClass } from "./CustomSpan"
+import { CustomMark } from "./CustomSpan"
 
 type TiptapProps = {
   textEditorInput: string
@@ -27,7 +27,7 @@ export default function Tiptap({ textEditorInput, onChange }: TiptapProps) {
       Underline,
       Highlight.configure({ multicolor: true, HTMLAttributes: { class: "color-white" } }),
       TextStyle,
-      SpanClass,
+      CustomMark,
     ],
     content: textEditorInput,
     editorProps: {

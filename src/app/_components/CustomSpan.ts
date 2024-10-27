@@ -1,74 +1,79 @@
-import { Extension } from "@tiptap/core"
+import { Mark } from "@tiptap/core"
 import { RawCommands } from "@tiptap/core"
-import "@tiptap/extension-text-style"
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
-    spanClass: {
+    customMark: {
       /**
-       * Toggle a span class
+       * Toggle a custom mark with class
        */
-      toggleSpanClass: (spanClass: string) => ReturnType
+      toggleCustomMark: (className: string) => ReturnType
       /**
-       * Unset a span class
+       * Unset custom mark
        */
-      unsetSpanClass: () => ReturnType
+      unsetCustomMark: () => ReturnType
     }
   }
 }
 
-export const SpanClass = Extension.create({
-  name: "spanClass",
+export const CustomMark = Mark.create({
+  name: "customMark",
 
   defaultOptions: {
-    types: ["textStyle"],
+    HTMLAttributes: {},
+    htmlTag: "my-tag",
   },
 
-  addGlobalAttributes() {
+  renderHTML({ HTMLAttributes }) {
+    return [this.options.htmlTag, HTMLAttributes, 0]
+  },
+
+  parseHTML() {
     return [
       {
-        types: this.options.types,
-        attributes: {
-          spanClass: {
-            default: null,
-            renderHTML: (attributes) => {
-              if (!attributes.spanClass) {
-                return {}
-              }
-              return {
-                class: attributes.spanClass,
-              }
-            },
-            parseHTML: (element) => ({
-              spanClass: element.classList.value || null,
-            }),
-          },
-        },
+        tag: this.options.htmlTag,
       },
     ]
   },
 
   addCommands() {
     return {
-      toggleSpanClass:
-        (spanClass: string) =>
+      toggleCustomMark:
+        (className: string) =>
         ({ chain, editor }) => {
-          // Check if the current selection has the exact spanClass we want to toggle
-          const isActive = editor.isActive("textStyle", { spanClass })
+          // Check if the current selection has the exact class we want to toggle
+          const isActive = editor.isActive(this.name, { class: className })
 
           if (isActive) {
-            // If the class is already applied, remove the textStyle mark completely
-            return chain().unsetMark("textStyle").run()
+            // If the class is already applied, remove the mark completely
+            return chain().unsetMark(this.name).run()
           }
 
           // If the class isn't applied, add it
-          return chain().setMark("textStyle", { spanClass }).run()
+          return chain().setMark(this.name, { class: className }).run()
         },
-      unsetSpanClass:
+      unsetCustomMark:
         () =>
         ({ chain }) => {
-          return chain().unsetMark("textStyle").run()
+          return chain().unsetMark(this.name).run()
         },
     } as Partial<RawCommands>
+  },
+
+  addAttributes() {
+    return {
+      class: {
+        default: null,
+        parseHTML: (element) => element.getAttribute("class"),
+        renderHTML: (attributes) => {
+          if (!attributes.class) {
+            return {}
+          }
+          return {
+            class: attributes.class,
+          }
+        },
+      },
+    }
   },
 })

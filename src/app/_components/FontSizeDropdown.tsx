@@ -29,7 +29,7 @@ const FontSizeDropdown: React.FC<FontSizeDropdownProps> = ({ editor }) => {
     const selectedValue = e.target.value
 
     if (selectedValue) {
-      editor.chain().focus().toggleSpanClass(selectedValue).run()
+      editor.chain().focus().toggleCustomMark(selectedValue).run()
     }
   }
 
