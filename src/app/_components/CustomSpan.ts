@@ -1,3 +1,4 @@
+"use client"
 import { Mark } from "@tiptap/core"
 import { RawCommands } from "@tiptap/core"
 

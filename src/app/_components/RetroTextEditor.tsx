@@ -1,3 +1,4 @@
+"use client"
 import React, { type Dispatch, type SetStateAction, useEffect, useRef, useState } from "react"
 import { Square, Minus, X } from "lucide-react"
 import { z } from "zod"
