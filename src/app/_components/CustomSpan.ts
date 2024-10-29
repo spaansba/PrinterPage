@@ -20,10 +20,10 @@ declare module "@tiptap/core" {
 export const CustomMark = Mark.create({
   name: "customMark",
 
-  defaultOptions: {
-    HTMLAttributes: {},
-    htmlTag: "my-tag",
-  },
+  // defaultOptions: {
+  //   HTMLAttributes: {},
+  //   htmlTag: "my-tag",
+  // },
 
   renderHTML({ HTMLAttributes }) {
     return [this.options.htmlTag, HTMLAttributes, 0]
