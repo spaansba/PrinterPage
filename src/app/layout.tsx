@@ -44,7 +44,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <html lang="en">
         <body className={`${geistSans.variable} ${geistMono.variable} ${ibmPlexMono.variable}`}>
           <header className="flex justify-end p-4">
-            <SignedIn>
+            {/* <SignedIn>
               <UserButton
                 appearance={{
                   elements: {
@@ -52,7 +52,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                     userButtonTrigger: "bg-[#EEF1DB] rounded-none hover:none",
                     userButtonPopoverCard:
                       "bg-[#EEF1DB] rounded-none border-2 border-[#808080] shadow-[2px_2px_8px_rgba(0,0,0,0.2)]",
-                    userButtonPopoverFooter: "hidden",
+                    userButtonPopoverFooter: "hidde n",
                     userButtonPopoverActions: "p-0",
                     userButtonPopoverMain: "rounded-none",
                     userPreviewMainIdentifier: "text-sm",
@@ -73,7 +73,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                   },
                 }}
               />
-            </SignedIn>
+            </SignedIn> */}
           </header>
           {children}
         </body>
