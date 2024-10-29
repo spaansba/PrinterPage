@@ -1,6 +1,15 @@
 "use client"
-import { SignedIn, SignedOut, SignIn, SignInButton, useUser } from "@clerk/nextjs"
-import { Camera, Ellipsis, Loader2, Mail, User } from "lucide-react"
+import {
+  RedirectToUserProfile,
+  SignedIn,
+  SignedOut,
+  SignIn,
+  SignInButton,
+  UserButton,
+  UserProfile,
+  useUser,
+} from "@clerk/nextjs"
+import { Camera, Ellipsis, Loader2, Mail, User, X } from "lucide-react"
 import React, { useState } from "react"
 
 function AccountPage() {
@@ -24,6 +33,7 @@ function AccountPage() {
       setIsUploading(false)
     }
   }
+
   return (
     <>
       <SignedIn>
@@ -34,11 +44,11 @@ function AccountPage() {
           <button>asdasd</button>
         </div>
 
-        <div className="p-2 border-t border-[1px] border-gray-500 bg-white flex flex-col gap-2 ">
+        <div className="p-2 border-t border-[1px] border-gray-500 bg-white flex flex-col gap-2 relative">
           <div className="flex gap-2">
             {/* Profile Image */}
             <div
-              className="relative size-[5rem] flex-shrink-0 border-[1px] border-[#808080]  overflow-hidden bg-gray-100 group"
+              className="relative size-[5rem] flex-shrink-0 border-[1px] border-[#808080] overflow-hidden bg-gray-100 group"
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
             >
@@ -51,7 +61,7 @@ function AccountPage() {
               {/* Upload Overlay */}
               <label
                 className={`absolute inset-0 flex flex-col items-center justify-center bg-black/50 cursor-pointer transition-opacity
-          ${isHovered || isUploading ? "opacity-100" : "opacity-0"}`}
+                ${isHovered || isUploading ? "opacity-100" : "opacity-0"}`}
                 htmlFor="profile-image-upload"
               >
                 {isUploading ? (
@@ -72,7 +82,7 @@ function AccountPage() {
                 className="hidden"
               />
             </div>
-            <div className="flex flex-col  flex-1 min-w-0">
+            <div className="flex flex-col flex-1 min-w-0">
               <div
                 title={user?.fullName ? user?.fullName : ""}
                 className="text-[16px] font-medium items-center flex gap-1 min-w-0"
@@ -92,27 +102,6 @@ function AccountPage() {
                 <span className="truncate">{user?.primaryEmailAddress?.emailAddress}</span>
               </div>
             </div>
-          </div>
-          <div>
-            <span>Connected Accounts:</span>
-            {user?.externalAccounts.map((account) => (
-              <div key={account.provider} className="flex gap-2">
-                <span>{account.provider}</span>
-                <button popoverTarget="accountPop">
-                  <Ellipsis>
-                    {/* <button onClick={() => account.destroy()}>Remove</button> */}
-                  </Ellipsis>
-                </button>
-                <button
-                  onClick={() => account.destroy()}
-                  className="bg-[#d4d0c8] border-[1px] text-[12px] px-2 border-[black]"
-                  popover="auto"
-                  id="accountPop"
-                >
-                  <span>Remove</span>
-                </button>
-              </div>
-            ))}
           </div>
         </div>
       </SignedIn>

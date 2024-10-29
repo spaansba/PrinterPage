@@ -4,17 +4,6 @@ import { IBM_Plex_Mono } from "next/font/google"
 import "./globals.css"
 import { ClerkProvider, SignedIn, SignedOut, SignIn, SignInButton, UserButton } from "@clerk/nextjs"
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-})
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-})
-
 const ibmPlexMono = IBM_Plex_Mono({
   subsets: ["latin"],
   weight: ["400", "700"],
@@ -42,9 +31,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className={`${geistSans.variable} ${geistMono.variable} ${ibmPlexMono.variable}`}>
+        <body className={`${ibmPlexMono.variable}`}>
           <header className="flex justify-end p-4">
-            {/* <SignedIn>
+            <SignedIn>
               <UserButton
                 appearance={{
                   elements: {
@@ -73,7 +62,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                   },
                 }}
               />
-            </SignedIn> */}
+            </SignedIn>
           </header>
           {children}
         </body>

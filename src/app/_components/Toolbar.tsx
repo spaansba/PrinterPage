@@ -79,7 +79,7 @@ export function Toolbar({ editor }: ToolbarProps) {
                 editor.isActive("bold")
                   ? "border-t-[#808080] border-l-[#808080] border-b-white border-r-white bg-[#bdb9b3] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]"
                   : "border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080]"
-              }  size-7 flex items-center justify-center bg-[#d4d0c8] border `}
+              }  size-7 flex items-center justify-center bg-[#d4d0c8] border active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white`}
               onPressedChange={() => editor.chain().focus().toggleBold().run()}
               pressed={editor.isActive("bold")}
             >
@@ -96,7 +96,7 @@ export function Toolbar({ editor }: ToolbarProps) {
                 editor.isActive("underline")
                   ? "border-t-[#808080] border-l-[#808080] border-b-white border-r-white bg-[#bdb9b3] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]"
                   : "border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080]"
-              }  size-7 flex items-center justify-center bg-[#d4d0c8] border `}
+              }  size-7 flex items-center justify-center bg-[#d4d0c8] border active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white `}
               onPressedChange={() => editor.chain().focus().toggleUnderline().run()}
               pressed={editor.isActive("underline")}
             >
@@ -115,7 +115,7 @@ export function Toolbar({ editor }: ToolbarProps) {
                 editor.isActive("highlight")
                   ? "border-t-[#808080] border-l-[#808080] border-b-white border-r-white bg-[#bdb9b3] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]"
                   : "border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080]"
-              }  size-7 flex items-center justify-center bg-[#d4d0c8] border `}
+              }  size-7 flex items-center justify-center bg-[#d4d0c8] border active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white`}
               onPressedChange={() =>
                 editor.chain().focus().toggleHighlight({ color: "rgb(49, 49, 49)" }).run()
               }
@@ -136,7 +136,7 @@ export function Toolbar({ editor }: ToolbarProps) {
                 editor.isActive("textStyle", { spanClass: "text-[32px]" })
                   ? "border-t-[#808080] border-l-[#808080] border-b-white border-r-white bg-[#bdb9b3] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]"
                   : "border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080]"
-              }  size-7 flex items-center justify-center bg-[#d4d0c8] border `}
+              }  size-7 flex items-center justify-center bg-[#d4d0c8] border active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white`}
               onPressedChange={() => editor.chain().focus().toggleCustomMark("text-[32px]").run()}
               pressed={editor.isActive("textStyle", { spanClass: "text-[32px]" })}
             >
