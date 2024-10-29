@@ -45,7 +45,7 @@ export default function Home() {
         setStatus={setStatus}
         setHTMLContent={setHTMLcontent}
         hTMLContent={hTMLContent}
-      ></RetroTextEditor>
+      />
       {/* Print Button */}
       <SignedOut>
         <SignInButton>

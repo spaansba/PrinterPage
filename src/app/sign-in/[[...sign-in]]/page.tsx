@@ -3,7 +3,6 @@ import React, { useRef } from "react"
 import * as Clerk from "@clerk/elements/common"
 import * as SignIn from "@clerk/elements/sign-in"
 import { Mail, X, Minus, Square } from "lucide-react"
-import LoadingSpinner from "@/app/_components/LoadingSpinner"
 
 export default function SignInPage() {
   const emailButtonRef = useRef<HTMLButtonElement>(null)

@@ -20,6 +20,27 @@ body {
   color: white;
 }
 
+.printerButton {
+  display: flex;
+  align-items: center;
+  justify-items: center;
+  border: 1px solid transparent;
+}
+
+.printerButton:hover {
+  border-top: 1px solid white;
+  border-left: 1px solid white;
+  border-bottom: 1px solid #808080;
+  border-right: 1px solid #808080;
+}
+
+.printerButton:active {
+  border-top: 1px solid #808080;
+  border-left: 1px solid #808080;
+  border-right: 1px solid white;
+  border-bottom: 1px solid white;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;

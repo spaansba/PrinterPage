@@ -42,29 +42,29 @@ export function Toolbar({ editor }: ToolbarProps) {
     <>
       <style>{TextStyles}</style>
 
-      <div className="bg-[#d4d0c8] border-t-2 border-l-2 border-white border-b-2 border-r-2 border-b-[#808080] border-r-[#808080]">
+      <div>
         {/* Top Row - Text Formatting */}
         <div className="px-1 py-1 flex items-center gap-1 border-b border-[#808080]">
           <FontSizeDropdown editor={editor} />
 
           <div className="flex items-center justify-center ml-auto">
             <button
-              //   onMouseDown={(e) => setTextContent("This is a test text")}
-              className="size-7 bg-[#d4d0c8] flex items-center justify-center border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
+              // onMouseDown={clerk.}
+              className="size-7 flex items-center justify-center border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
             >
               <FlaskRound size={15} />
             </button>
 
             <button
               //   onMouseDown={htmlTest}
-              className="size-7 bg-[#d4d0c8] flex items-center justify-center border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
+              className="size-7 flex items-center justify-center border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
             >
               <Aperture size={15} />
             </button>
             {/* Delete Button */}
             <button
               //   onMouseDown={() => setTextContent("")}
-              className="size-7 bg-[#d4d0c8] flex items-center justify-center border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
+              className="size-7  flex items-center justify-center border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
             >
               <Trash2 size={15} />
             </button>
