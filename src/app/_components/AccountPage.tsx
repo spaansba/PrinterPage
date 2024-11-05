@@ -1,22 +1,20 @@
 "use client"
-import {
-  RedirectToUserProfile,
-  SignedIn,
-  SignedOut,
-  SignIn,
-  SignInButton,
-  UserButton,
-  UserProfile,
-  useUser,
-} from "@clerk/nextjs"
+import { SignedIn, SignedOut, SignInButton, UserProfile, useUser } from "@clerk/nextjs"
 import { Camera, Ellipsis, Loader2, Mail, User, X } from "lucide-react"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 
 function AccountPage() {
   const { user } = useUser()
   const [isUploading, setIsUploading] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
-
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsModalOpen(false)
+    }
+    window.addEventListener("keydown", handleEscape)
+    return () => window.removeEventListener("keydown", handleEscape)
+  }, [])
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || !user) return
     const file = e.target.files[0]
@@ -37,12 +35,12 @@ function AccountPage() {
   return (
     <>
       <SignedIn>
-        <div className="px-1 py-1 flex items-center gap-1 ">
+        {/* <div className="px-1 py-1 flex items-center gap-1 ">
           <button>asdasd</button>
           <button>asdasd</button>
           <button>asdasd</button>
           <button>asdasd</button>
-        </div>
+        </div> */}
 
         <div className="p-2 border-t border-[1px] border-gray-500 bg-white flex flex-col gap-2 relative">
           <div className="flex gap-2">
@@ -103,7 +101,27 @@ function AccountPage() {
               </div>
             </div>
           </div>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="min-w-[120px] h-8 bg-[#d4d0c8] border-2 border-t-white border-l-white border-b-[#808080] border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white px-4 text-sm font-bold hover:bg-[#e6e3de]"
+          >
+            Edit Profile
+          </button>
         </div>
+        {/* Modal */}
+        {isModalOpen && (
+          <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
+            <div className="relative">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="absolute right-2 top-2 z-[60] p-2 hover:bg-gray-100 rounded-full"
+              >
+                <X size={24} />
+              </button>
+              <UserProfile routing="hash" path={undefined} />
+            </div>
+          </div>
+        )}
       </SignedIn>
       <SignedOut>
         <div className="flex justify-center items-center p-5">

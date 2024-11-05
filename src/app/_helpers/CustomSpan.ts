@@ -20,9 +20,14 @@ declare module "@tiptap/core" {
 export const CustomMark = Mark.create({
   name: "customMark",
 
-  defaultOptions: {
-    HTMLAttributes: {},
-    htmlTag: "my-tag",
+  // Changed from defaultOptions to addOptions
+  addOptions() {
+    return {
+      HTMLAttributes: {},
+      htmlTag: "my-tag",
+      // Add immediatelyRender option for SSR
+      immediatelyRender: false,
+    }
   },
 
   renderHTML({ HTMLAttributes }) {

@@ -1,3 +1,4 @@
+"use client"
 const re = {
   // Matches either:
   // - A sequence of non-whitespace chars ending with hyphen at word boundary

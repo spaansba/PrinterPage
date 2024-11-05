@@ -1,3 +1,4 @@
+"use client"
 const TextJustify = {
   Left: 0,
   Center: 1,
