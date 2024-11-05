@@ -4,7 +4,7 @@ import { Square, Minus, X } from "lucide-react"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs"
+import { SignedIn, SignedOut, SignInButton, useUser } from "@clerk/nextjs"
 import { EditorContent, useEditor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import { Toolbar } from "./Toolbar"
@@ -16,6 +16,7 @@ import AccountPage from "./AccountPage"
 import type { Recipient } from "./RecipientSelector"
 import RecipientSelector from "./RecipientSelector"
 import { htmlContentToBytesWithCommands } from "../_helpers/StringToBytes"
+import { getAssociatedPrintersById } from "@/lib/queries"
 
 type RetroTextEditorProps = {
   setTextContent: Dispatch<SetStateAction<string>>
@@ -34,7 +35,6 @@ const extraStyles = `
     color: yellow !important;
   }
 `
-const xxx = "fcs2ean4kg"
 
 type Pages = "Printer" | "Account"
 
@@ -48,6 +48,9 @@ const RetroTextEditor = ({
 }: RetroTextEditorProps) => {
   const [selectedRecipient, setSelectedRecipient] = useState<Recipient | null>(null)
   const [pageActivated, setPageActivated] = useState<Pages>("Printer")
+  const { user } = useUser()
+  const [recipients, setRecipients] = useState<Recipient[]>([])
+
   const Title = () => {
     switch (pageActivated) {
       case "Printer":
@@ -58,6 +61,32 @@ const RetroTextEditor = ({
         break
     }
   }
+
+  useEffect(() => {
+    const fetchRecipients = async () => {
+      if (!user) return
+
+      try {
+        const associatedPrinters = await getAssociatedPrintersById(user.id)
+
+        // Transform the data to match the Recipient type
+        const formattedRecipients = associatedPrinters.map((printer) => ({
+          printerId: printer.printerId,
+          name: printer.name,
+        }))
+        setSelectedRecipient(formattedRecipients[0])
+        setRecipients(formattedRecipients)
+        // setError(null)
+      } catch (err) {
+        // setError("Failed to load recipients")
+        console.error("Error fetching recipients:", err)
+      } finally {
+        // setIsLoading(false)
+      }
+    }
+
+    fetchRecipients()
+  }, [user])
 
   useEffect(() => {
     if (selectedRecipient) {
@@ -74,8 +103,8 @@ const RetroTextEditor = ({
     recipient: z
       .object(
         {
-          id: z.string(),
-          username: z.string(),
+          printerId: z.string(),
+          name: z.string(),
         },
         {
           required_error: "Please select a recipient",
@@ -145,7 +174,7 @@ const RetroTextEditor = ({
       return
     }
     try {
-      const response = await fetch(`https://${selectedRecipient.id}.toasttexter.com/print`, {
+      const response = await fetch(`https://${selectedRecipient.printerId}.toasttexter.com/print`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -222,6 +251,8 @@ const RetroTextEditor = ({
           <div>
             <div>
               <RecipientSelector
+                recipients={recipients}
+                setRecipients={setRecipients}
                 selectedRecipient={selectedRecipient}
                 onSelectRecipient={setSelectedRecipient}
               />
@@ -258,8 +289,8 @@ const RetroTextEditor = ({
                   onClick={form.handleSubmit(handlePrinterClick)}
                   className="w-full h-8 border-t bg-[#e4d3b2] border border-b-transparent border-l-transparent border-r-transparent border-[#808080] hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
                 >
-                  {selectedRecipient?.username
-                    ? `Send to ${selectedRecipient?.username}`
+                  {selectedRecipient?.name
+                    ? `Send to ${selectedRecipient?.name}`
                     : "Choose Recipient"}
                 </button>
               </SignedIn>

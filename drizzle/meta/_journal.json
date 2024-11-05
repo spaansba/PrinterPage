@@ -22,6 +22,27 @@
       "when": 1730805117467,
       "tag": "0002_simple_dracula",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1730818765568,
+      "tag": "0003_illegal_prowler",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1730818876933,
+      "tag": "0004_nebulous_angel",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1730818943308,
+      "tag": "0005_normal_george_stacy",
+      "breakpoints": true
     }
   ]
 }

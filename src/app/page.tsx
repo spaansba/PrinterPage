@@ -1,7 +1,7 @@
 "use client"
 import { useState, useRef, useEffect } from "react"
 import RetroTextEditor from "./_components/RetroTextEditor"
-import { getPosts, type NewPost } from "@/lib/db"
+import { getPosts, type NewPost } from "@/lib"
 import { date } from "drizzle-orm/mysql-core"
 
 export default function Home() {

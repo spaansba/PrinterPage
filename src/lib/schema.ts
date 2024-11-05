@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm"
 import { foreignKey, index, pgTableCreator, serial, timestamp, varchar } from "drizzle-orm/pg-core"
-
+import { createInsertSchema } from "drizzle-zod"
 export const createTable = pgTableCreator((name) => `printer_${name}`)
 
 export const posts = createTable("post", {
@@ -28,7 +28,8 @@ export const usersAssociatedPrinters = createTable(
   {
     id: serial("id").primaryKey(),
     userId: varchar("user_id", { length: 256 }).notNull(),
-    printerId: varchar("printer_id", { length: 10 }),
+    printerId: varchar("printer_id", { length: 10 }).notNull(),
+    name: varchar("name", { length: 50 }).notNull(),
     createdAt: timestamp("created_at", { mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
@@ -44,3 +45,6 @@ export const usersAssociatedPrinters = createTable(
     }
   }
 )
+
+export type newUserAssociatedPrinter = typeof usersAssociatedPrinters.$inferInsert
+export const InsertUsersAssociatedPrinters = createInsertSchema(usersAssociatedPrinters)
