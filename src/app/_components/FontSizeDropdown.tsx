@@ -1,6 +1,7 @@
 "use client"
 import React from "react"
 import type { Editor } from "@tiptap/react"
+import { SignalZero } from "lucide-react"
 
 interface FontSize {
   label: string
@@ -43,7 +44,6 @@ const FontSizeDropdown: React.FC<FontSizeDropdownProps> = ({ editor }) => {
 
   return (
     <select
-      value={getCurrentFontSize()}
       onChange={handleFontSizeChange}
       className="h-7 px-1 bg-white border-2 border-[#808080] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.1)] w-[70px] hover:bg-[#f0f0f0] appearance-none cursor-pointer rounded-none text-sm"
     >

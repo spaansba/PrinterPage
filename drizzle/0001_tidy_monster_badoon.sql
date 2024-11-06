@@ -1,0 +1,1 @@
+ALTER TABLE "printer_users_printer_association" ADD COLUMN "last_send_message" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL;

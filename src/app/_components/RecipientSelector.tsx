@@ -5,18 +5,14 @@ import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useUser } from "@clerk/nextjs"
-import {
-  addAssociatedPrinters,
-  changeNameAssociatedPrinters,
-  getAssociatedPrintersById,
-} from "@/lib/queries"
+import { addAssociatedPrinters, changeNameAssociatedPrinters } from "@/lib/queries"
 
 export type Recipient = {
   printerId: string
   name: string
 }
 
-const recipientNameSchema = z.object({
+export const recipientNameSchema = z.object({
   name: z
     .string()
     .min(3, { message: "Name is too short" })
@@ -46,6 +42,7 @@ const RecipientSelector = ({
 }: RecipientSelectorProps) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isAddingRecipient, setIsAddingRecipient] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
   const addRecipientRef = useRef<HTMLFormElement>(null)
   const editNameFormRef = useRef<HTMLFormElement>(null)
   const { user } = useUser()
@@ -99,6 +96,7 @@ const RecipientSelector = ({
 
   function handleEditClick(e: React.MouseEvent<HTMLButtonElement, MouseEvent>, printerId: string) {
     e.stopPropagation()
+    resetEdit()
     if (printerId == editingId) {
       setEditingId(null)
     } else {
@@ -113,12 +111,18 @@ const RecipientSelector = ({
       return
     }
     try {
-      const changed = await changeNameAssociatedPrinters(user.id, data.name, printerId)
+      const changed = await changeNameAssociatedPrinters(user.id, printerId, data.name)
       if (changed.error) {
-        setErrorNew("root", { message: changed.error.message })
+        console.error(changed.error.message)
+        setErrorEdit("root", { message: changed.error.message })
       } else {
         setEditingId(null)
-        setIsAddingRecipient(true)
+        resetEdit()
+        setRecipients((prev) =>
+          prev.map((recipient) =>
+            recipient.printerId === printerId ? { ...recipient, name: data.name } : recipient
+          )
+        )
       }
     } catch (error) {
       setErrorEdit("root", { message: "Failed to update name. Please try again." })
@@ -129,6 +133,23 @@ const RecipientSelector = ({
   useEffect(() => {
     setIsAddingRecipient(false)
     setEditingId(null)
+
+    //When the user clicks outside of the open dropdown, close it
+    const handleClickOutside = (event: MouseEvent) => {
+      // Add check to ignore clicks on the button itself
+      if (event.target instanceof Element && event.target.closest('button[type="button"]')) {
+        return
+      }
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false)
+      }
+    }
+    if (isDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside)
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
   }, [isDropdownOpen])
 
   useEffect(() => {
@@ -203,12 +224,12 @@ const RecipientSelector = ({
           ) : (
             <button
               type="button"
-              className="ml-auto"
+              className="ml-auto relative before:absolute before:content-[''] before:-inset-3 before:z-10"
               title="Edit Name"
               onClick={(e) => handleEditClick(e, recipient.printerId)}
             >
               <Pencil
-                className="opacity-100 md:opacity-0 group-hover/recipient:opacity-100 text-black"
+                className="opacity-100 md:opacity-0 group-hover/recipient:opacity-100 text-black relative z-20"
                 size={14}
               />
             </button>
@@ -246,8 +267,11 @@ const RecipientSelector = ({
       </button>
 
       {isDropdownOpen && (
-        <div className="absolute w-full mt-1 bg-white border-[1px] border-gray-500 shadow-[2px_2px_8px_rgba(0,0,0,0.2)] z-10">
-          <div className="max-h-48 overflow-y-auto">
+        <div
+          ref={dropdownRef}
+          className="absolute w-[120%] -translate-x-[10%] mt-1 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]  bg-white border border-gray-500 shadow-md z-10"
+        >
+          <div className="max-h-[30rem] overflow-y-auto">
             {recipients.map((recipient) => (
               <RecipientItem key={recipient.printerId} recipient={recipient} />
             ))}
@@ -256,7 +280,7 @@ const RecipientSelector = ({
               {isAddingRecipient ? (
                 <form
                   ref={addRecipientRef}
-                  className="flex flex-col px-4 py-2 gap-2"
+                  className="flex flex-col px-4 py-2 gap-1"
                   onSubmit={handleSubmitNew(handleFormSubmit)}
                 >
                   <div className="grid grid-cols-2">
@@ -295,9 +319,9 @@ const RecipientSelector = ({
                   </div>
                   <button
                     type="submit"
-                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mt-2"
+                    className="flex justify-center bg-[#735721] hover:bg-[#e4d3b2] text-white  py-[6px]"
                   >
-                    add +
+                    <Plus />
                   </button>
                 </form>
               ) : (

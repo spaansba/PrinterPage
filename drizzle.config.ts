@@ -13,4 +13,5 @@ export default defineConfig({
   dbCredentials: {
     url: env.parsed?.POSTGRES_URL ?? "",
   },
+  tablesFilter: "printer_",
 })

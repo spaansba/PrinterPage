@@ -1,16 +1,16 @@
 {
-  "id": "b07933b6-a58a-46e0-a091-9e4be58d8368",
+  "id": "8429c5c2-621a-4f25-af94-3910f73d1be9",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.printer_post": {
-      "name": "printer_post",
+    "public.printer_printers": {
+      "name": "printer_printers",
       "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "varchar(10)",
           "primaryKey": true,
           "notNull": true
         },
@@ -34,12 +34,62 @@
           "notNull": false
         }
       },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.printer_users_printer_association": {
+      "name": "printer_users_printer_association",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "printer_id": {
+          "name": "printer_id",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
       "indexes": {
-        "name_idx": {
-          "name": "name_idx",
+        "printer_idx": {
+          "name": "printer_idx",
           "columns": [
             {
-              "expression": "name",
+              "expression": "printer_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -51,7 +101,21 @@
           "with": {}
         }
       },
-      "foreignKeys": {},
+      "foreignKeys": {
+        "printer_users_printer_association_printer_id_printer_printers_id_fk": {
+          "name": "printer_users_printer_association_printer_id_printer_printers_id_fk",
+          "tableFrom": "printer_users_printer_association",
+          "tableTo": "printer_printers",
+          "columnsFrom": [
+            "printer_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},

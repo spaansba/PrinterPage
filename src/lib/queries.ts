@@ -2,28 +2,34 @@
 import { db } from "./index"
 import {
   InsertUsersAssociatedPrinters,
-  posts,
   usersAssociatedPrinters,
-  type NewPost,
   type newUserAssociatedPrinter,
 } from "./schema"
-import { eq, and } from "drizzle-orm"
-
-export const getPosts = async () => {
-  const selectResult = await db.select().from(posts)
-  console.log("Results", selectResult)
-  return selectResult
-}
-
-export const insertPost = async (post: NewPost) => {
-  return db.insert(posts).values(post).returning()
-}
+import { eq, and, desc } from "drizzle-orm"
 
 export const getAssociatedPrintersById = async (userId: string) => {
   return await db
     .select()
     .from(usersAssociatedPrinters)
     .where(eq(usersAssociatedPrinters.userId, userId))
+    .orderBy(desc(usersAssociatedPrinters.lastSendMessage)) // Make sure the person you send the latest message to is on top of the recipients list
+}
+
+export const updateLastSendMessage = async (userId: string, printerId: string) => {
+  const exists = await checkIfPrinterIsAssociated(userId, printerId)
+  if (!exists) {
+    return
+  }
+  await db
+    .update(usersAssociatedPrinters)
+    .set({ lastSendMessage: new Date().toISOString() })
+    .where(
+      and(
+        eq(usersAssociatedPrinters.userId, userId),
+        eq(usersAssociatedPrinters.printerId, printerId)
+      )
+    )
+    .returning()
 }
 
 export const changeNameAssociatedPrinters = async (
@@ -45,7 +51,7 @@ export const changeNameAssociatedPrinters = async (
 
     const result = await db
       .update(usersAssociatedPrinters)
-      .set({ name: newName })
+      .set({ name: newName.trim() })
       .where(
         and(
           eq(usersAssociatedPrinters.userId, userId),
@@ -60,6 +66,7 @@ export const changeNameAssociatedPrinters = async (
         userId: result[0].userId,
         printerId: result[0].printerId,
         name: result[0].name,
+        lastSendMessage: result[0].lastSendMessage,
       },
       error: null,
     }
@@ -90,6 +97,7 @@ export const addAssociatedPrinters = async (userId: string, printerId: string, n
       userId: userId,
       printerId: printerId,
       name: name,
+      lastSendMessage: new Date().toISOString(),
     }
     const validateInsert = InsertUsersAssociatedPrinters.parse(newAssociation)
 
@@ -101,6 +109,7 @@ export const addAssociatedPrinters = async (userId: string, printerId: string, n
         userId: result[0].userId,
         printerId: result[0].printerId,
         name: result[0].name,
+        lastSendMessage: result[0].lastSendMessage,
       },
       error: null,
     }

@@ -12,6 +12,17 @@ const QRCodeErrorCorrectionLevel = {
   H: 51,
 } as const
 
+const TEXT_SIZE_MAP = {
+  "13": 0x11,
+  "19": 0x22,
+  "24": 0x33,
+  "30": 0x44,
+  "35": 0x55,
+  "41": 0x66,
+  "46": 0x77,
+} as const
+type ValidSize = keyof typeof TEXT_SIZE_MAP
+
 const CONTROL = {
   ESC: 0x1b,
   GS: 0x1d,
@@ -96,6 +107,25 @@ export class HTMLBytesToESCPOSCommands {
     return this
   }
 
+  textSizeTranslate(): HTMLBytesToESCPOSCommands {
+    this._boolCommands.size = {
+      state: {
+        on: [CONTROL.GS, 0x21, 0x3f], // we change the ? later on to the real value
+        off: [CONTROL.GS, 0x21, 0x00],
+      },
+      html: {
+        open: this.hexArrayFromString(`<font-size class="text-[??px]">`),
+        close: [
+          TAGS.LESS_THAN,
+          TAGS.FSLASH,
+          ...this.hexArrayFromString(`font-size`),
+          TAGS.GREATER_THAN,
+        ],
+      },
+    }
+    return this
+  }
+
   // sizeTallWide(tallWide: string): HTMLBytesToESCPOSCommands {
   //   this._commands.tallWide = {
   //     multiState: {
@@ -122,15 +152,17 @@ export class HTMLBytesToESCPOSCommands {
 
   encode(): Uint8Array {
     Object.entries(this._boolCommands).forEach(([key, command]) => {
-      const [replacedOpen, x] = htmlTagsToESCPOSEncoder(
+      const [replacedOpen] = htmlTagsToESCPOSEncoder(
         this._bytes,
         command.html.open,
-        command.state.on
+        command.state.on,
+        key
       )
-      const [replacedClosed, y] = htmlTagsToESCPOSEncoder(
+      const [replacedClosed] = htmlTagsToESCPOSEncoder(
         replacedOpen,
         command.html.close,
-        command.state.off
+        command.state.off,
+        key
       )
       this._bytes = replacedClosed
     })
@@ -144,16 +176,33 @@ export function htmlTagsToESCPOSEncoder(
   array: Uint8Array,
   findSequence: readonly number[],
   replaceSequence: readonly number[],
+  key: string,
   startIndex: number = 0
 ): [Uint8Array, number] {
   let replacementCount = 0
   let matches: number[] = [] //Array of indexes of the start of each match
+  console.log(key)
+  if (key === "size") {
+    console.log(array)
+    console.log(replaceSequence)
+  }
 
   // Find all matches in the users sequence
   for (let i = startIndex; i <= array.length - findSequence.length; i++) {
     let currentSequenceMatches = true
     for (let j = 0; j < findSequence.length; j++) {
       //"?" as wildcard
+      if (key === "size") {
+        if (array[i + j] === 0x5b) {
+          const size = String.fromCharCode(array[i + j + 1]) + String.fromCharCode(array[i + j + 2])
+          if (isValidSize(size)) {
+            const replaceWith = TEXT_SIZE_MAP[size]
+            // use replaceWith...
+          } else {
+            const replaceWith = 0x00 // default value for invalid sizes
+          }
+        }
+      }
       if (array[i + j] !== findSequence[j] && array[i + j] !== 0x3f) {
         currentSequenceMatches = false
         break
@@ -185,4 +234,8 @@ export function htmlTagsToESCPOSEncoder(
   }
 
   return [newBitArray, replacementCount]
+}
+
+function isValidSize(size: string): size is ValidSize {
+  return size in TEXT_SIZE_MAP
 }

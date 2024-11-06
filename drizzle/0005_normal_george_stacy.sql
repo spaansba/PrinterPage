@@ -1,1 +1,0 @@
-ALTER TABLE "printer_users_printer_association" ALTER COLUMN "printer_id" SET NOT NULL;

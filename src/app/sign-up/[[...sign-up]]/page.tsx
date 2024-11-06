@@ -2,7 +2,7 @@
 import React, { useRef } from "react"
 import * as Clerk from "@clerk/elements/common"
 import * as SignUp from "@clerk/elements/sign-up"
-import { Mail, User, Lock } from "lucide-react"
+import { Mail, Lock } from "lucide-react"
 import Link from "next/link"
 
 export default function SignUpPage() {
@@ -45,23 +45,9 @@ export default function SignUpPage() {
                   </div>
                 </div>
 
-                {/* Username Input */}
-                <div className="space-y-2">
-                  <Clerk.Field name="username">
-                    <Clerk.Label className="text-sm font-medium block mb-1">Username</Clerk.Label>
-                    <div className="relative">
-                      <div className="absolute left-3 top-3">
-                        <User size={16} className="text-[#808080]" />
-                      </div>
-                      <Clerk.Input className="w-full h-10 pl-9 bg-white border border-[#808080] focus:outline-none focus:ring-1 focus:ring-[#000080] text-sm" />
-                    </div>
-                    <Clerk.FieldError className="text-xs text-red-600 mt-1" />
-                  </Clerk.Field>
-                </div>
-
                 {/* Email Input */}
                 <div className="space-y-2">
-                  <Clerk.Field name="emailAddress">
+                  <Clerk.Field name="email">
                     <Clerk.Label className="text-sm font-medium block mb-1">Email</Clerk.Label>
                     <div className="relative">
                       <div className="absolute left-3 top-3">

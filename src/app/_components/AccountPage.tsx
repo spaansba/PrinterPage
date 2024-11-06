@@ -1,13 +1,20 @@
 "use client"
 import { SignedIn, SignedOut, SignInButton, UserProfile, useUser } from "@clerk/nextjs"
-import { Camera, Ellipsis, Loader2, Mail, User, X } from "lucide-react"
+import { AtSign, Camera, Loader2, Pencil, SendHorizonal, X } from "lucide-react"
 import React, { useEffect, useState } from "react"
+import { useForm } from "react-hook-form"
+import { recipientNameSchema } from "./RecipientSelector"
+import { zodResolver } from "@hookform/resolvers/zod"
+import type { z } from "zod"
 
 function AccountPage() {
   const { user } = useUser()
   const [isUploading, setIsUploading] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isEditingUsername, setIsEditingUsername] = useState(false)
+  const [isUpdatingUsername, setIsUpdatingUsername] = useState(false)
+
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") setIsModalOpen(false)
@@ -15,6 +22,7 @@ function AccountPage() {
     window.addEventListener("keydown", handleEscape)
     return () => window.removeEventListener("keydown", handleEscape)
   }, [])
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || !user) return
     const file = e.target.files[0]
@@ -32,16 +40,48 @@ function AccountPage() {
     }
   }
 
+  const {
+    register: registerEdit,
+    handleSubmit: handleSubmitEdit,
+    formState: { errors: errorsEdit },
+    reset: resetEdit,
+    setError: setErrorEdit,
+  } = useForm<z.infer<typeof recipientNameSchema>>({
+    resolver: zodResolver(recipientNameSchema),
+    mode: "onSubmit",
+  })
+
+  function handleEditClick(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+    e.stopPropagation()
+    setIsEditingUsername(true)
+    resetEdit()
+  }
+
+  async function handleNewUserName(data: z.infer<typeof recipientNameSchema>) {
+    if (!user) {
+      setErrorEdit("root", { message: "User Doesn't Exist" })
+      return
+    }
+
+    try {
+      setIsUpdatingUsername(true)
+      await user.update({
+        username: data.name,
+      })
+      setIsEditingUsername(false)
+    } catch (error) {
+      console.error("Error updating username:", error)
+      setErrorEdit("name", {
+        message: error instanceof Error ? error.message : "Failed to update username",
+      })
+    } finally {
+      setIsUpdatingUsername(false)
+    }
+  }
+
   return (
     <>
       <SignedIn>
-        {/* <div className="px-1 py-1 flex items-center gap-1 ">
-          <button>asdasd</button>
-          <button>asdasd</button>
-          <button>asdasd</button>
-          <button>asdasd</button>
-        </div> */}
-
         <div className="p-2 border-t border-[1px] border-gray-500 bg-white flex flex-col gap-2 relative">
           <div className="flex gap-2">
             {/* Profile Image */}
@@ -63,42 +103,75 @@ function AccountPage() {
                 htmlFor="profile-image-upload"
               >
                 {isUploading ? (
-                  <>
-                    <Loader2 className="size-6 text-white animate-spin" />
-                  </>
+                  <Loader2 className="size-6 text-white animate-spin" />
                 ) : (
-                  <>
-                    <Camera className="size-6 text-white" />
-                  </>
+                  <Camera className="size-6 text-white" />
                 )}
               </label>
               <input
                 id="profile-image-upload"
                 type="file"
                 accept="image/*"
-                onChange={(e) => handleImageUpload(e)}
+                onChange={handleImageUpload}
                 className="hidden"
               />
             </div>
             <div className="flex flex-col flex-1 min-w-0">
               <div
-                title={user?.fullName ? user?.fullName : ""}
+                title="Username"
                 className="text-[16px] font-medium items-center flex gap-1 min-w-0"
               >
-                <User size={10} color="black" className="flex-shrink-0" />
-                <span className="truncate">{user?.fullName}</span>
+                <AtSign size={10} color="black" className="flex-shrink-0 mr-1" />
+                {isEditingUsername ? (
+                  <form
+                    className="flex items-center flex-1"
+                    onSubmit={handleSubmitEdit(handleNewUserName)}
+                  >
+                    <input
+                      {...registerEdit("name")}
+                      className="w-[120px] border-[1px] px-1 py-0.5 rounded"
+                      defaultValue={user?.username ?? ""}
+                      placeholder="Enter username"
+                    />
+                    <button
+                      type="submit"
+                      title="Save Username"
+                      className="ml-2 disabled:opacity-50"
+                      disabled={isUpdatingUsername}
+                    >
+                      {isUpdatingUsername ? (
+                        <Loader2 size={14} className="animate-spin" />
+                      ) : (
+                        <SendHorizonal size={14} />
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      title="Cancel"
+                      className="ml-2"
+                      onClick={() => setIsEditingUsername(false)}
+                    >
+                      <X size={14} />
+                    </button>
+                  </form>
+                ) : (
+                  <>
+                    <span className="truncate">
+                      {user?.username ? user?.username : user?.fullName}
+                    </span>
+                    <button
+                      title="Edit Username"
+                      className="ml-auto mr-1"
+                      onClick={handleEditClick}
+                    >
+                      <Pencil size={14} />
+                    </button>
+                  </>
+                )}
               </div>
-              <div
-                className="text-[16px] font-medium items-center flex gap-1 min-w-0"
-                title={
-                  user?.primaryEmailAddress?.emailAddress
-                    ? user?.primaryEmailAddress?.emailAddress
-                    : ""
-                }
-              >
-                <Mail size={10} color="black" className="flex-shrink-0" />
-                <span className="truncate">{user?.primaryEmailAddress?.emailAddress}</span>
-              </div>
+              {errorsEdit.name && (
+                <span className="text-red-500 text-sm">{errorsEdit.name.message}</span>
+              )}
             </div>
           </div>
           <button

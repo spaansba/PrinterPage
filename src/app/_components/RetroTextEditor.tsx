@@ -16,7 +16,7 @@ import AccountPage from "./AccountPage"
 import type { Recipient } from "./RecipientSelector"
 import RecipientSelector from "./RecipientSelector"
 import { htmlContentToBytesWithCommands } from "../_helpers/StringToBytes"
-import { getAssociatedPrintersById } from "@/lib/queries"
+import { getAssociatedPrintersById, updateLastSendMessage } from "@/lib/queries"
 
 type RetroTextEditorProps = {
   setTextContent: Dispatch<SetStateAction<string>>
@@ -51,6 +51,50 @@ const RetroTextEditor = ({
   const { user } = useUser()
   const [recipients, setRecipients] = useState<Recipient[]>([])
 
+  async function handlePrinterClick() {
+    setStatus("Sending...")
+    const content = await htmlContentToBytesWithCommands(hTMLContent)
+    if (!selectedRecipient) {
+      return
+    }
+    return
+    try {
+      const response = await fetch(`https://${selectedRecipient.printerId}.toasttexter.com/print`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // Add CORS headers if needed
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          data: Array.from(content),
+        }),
+      })
+
+      const responseText = await response.text()
+      if (user) {
+        await updateLastSendMessage(user.id, selectedRecipient.printerId)
+      }
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}, body: ${responseText}`)
+      }
+      setStatus("Sent successfully!")
+    } catch (error) {
+      console.error("Error sending to printer:", error)
+      // More detailed error message
+      if (error instanceof TypeError && error.message === "Failed to fetch") {
+        setStatus("Could not connect to printer. Please check if it's online.")
+      } else {
+        // setStatus(`Error: ${error.message}`)
+      }
+    }
+
+    if (editor) {
+      editor.commands.focus()
+    }
+  }
+
   const Title = () => {
     switch (pageActivated) {
       case "Printer":
@@ -65,10 +109,8 @@ const RetroTextEditor = ({
   useEffect(() => {
     const fetchRecipients = async () => {
       if (!user) return
-
       try {
         const associatedPrinters = await getAssociatedPrintersById(user.id)
-
         // Transform the data to match the Recipient type
         const formattedRecipients = associatedPrinters.map((printer) => ({
           printerId: printer.printerId,
@@ -76,12 +118,8 @@ const RetroTextEditor = ({
         }))
         setSelectedRecipient(formattedRecipients[0])
         setRecipients(formattedRecipients)
-        // setError(null)
       } catch (err) {
-        // setError("Failed to load recipients")
         console.error("Error fetching recipients:", err)
-      } finally {
-        // setIsLoading(false)
       }
     }
 
@@ -129,8 +167,6 @@ const RetroTextEditor = ({
   const textEditorValue = form.watch("textEditorInput")
   const handleTextChange = (inputText: string, inputHTML: string) => {
     setStatus("Editing")
-    console.log(inputText)
-    console.log(inputHTML)
     setTextContent(inputText)
     setHTMLContent(inputHTML)
     form.setValue("textEditorInput", inputText)
@@ -166,49 +202,6 @@ const RetroTextEditor = ({
       form.clearErrors()
     },
   })
-
-  async function handlePrinterClick() {
-    setStatus("Sending...")
-    const content = await htmlContentToBytesWithCommands(hTMLContent)
-    if (!selectedRecipient) {
-      return
-    }
-    try {
-      const response = await fetch(`https://${selectedRecipient.printerId}.toasttexter.com/print`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          // Add CORS headers if needed
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          data: Array.from(content),
-        }),
-      })
-
-      // Log the response for debugging
-      console.log("Response status:", response.status)
-      const responseText = await response.text()
-      console.log("Response body:", responseText)
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}, body: ${responseText}`)
-      }
-      setStatus("Sent successfully!")
-    } catch (error) {
-      console.error("Error sending to printer:", error)
-      // More detailed error message
-      if (error instanceof TypeError && error.message === "Failed to fetch") {
-        setStatus("Could not connect to printer. Please check if it's online.")
-      } else {
-        // setStatus(`Error: ${error.message}`)
-      }
-    }
-
-    if (editor) {
-      editor.commands.focus()
-    }
-  }
 
   // Get the first form error message if any exist
   const getFirstFormError = () => {

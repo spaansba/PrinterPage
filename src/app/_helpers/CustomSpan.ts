@@ -24,7 +24,7 @@ export const CustomMark = Mark.create({
   addOptions() {
     return {
       HTMLAttributes: {},
-      htmlTag: "my-tag",
+      htmlTag: "text-size",
       // Add immediatelyRender option for SSR
       immediatelyRender: false,
     }

@@ -21,7 +21,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <html lang="en">
         <body className={`${ibmPlexMono.variable}`}>
           <header className="flex justify-end p-4">
-            <SignedIn>
+            {/* <SignedIn>
               <UserButton
                 appearance={{
                   elements: {
@@ -50,7 +50,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                   },
                 }}
               />
-            </SignedIn>
+            </SignedIn> */}
           </header>
           {children}
         </body>

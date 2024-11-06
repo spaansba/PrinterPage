@@ -9,12 +9,12 @@ export const htmlContentToBytesWithCommands = async (text: string): Promise<Uint
   const encodedText = utf8Encode.encode(textWithoutPTag2)
   let HTMLByteToEscpos = new HTMLBytesToESCPOSCommands(encodedText)
   const openTag = printingOpenTag()
-  console.log(openTag)
   const userText = HTMLByteToEscpos.boldTranslate()
     .underlineTranslate()
     .invertTranslate(
       `<mark class="color-white" data-color="rgb(49, 49, 49)" style="background-color: rgb(49, 49, 49); color: inherit">`
     )
+    .textSizeTranslate()
     .encode()
   const closingTag = await printingClosingTag()
   const combinedMultiple = combineMultipleUint8Arrays([openTag, userText, closingTag])

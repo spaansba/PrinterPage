@@ -3,24 +3,13 @@ import { foreignKey, index, pgTableCreator, serial, timestamp, varchar } from "d
 import { createInsertSchema } from "drizzle-zod"
 export const createTable = pgTableCreator((name) => `printer_${name}`)
 
-export const posts = createTable("post", {
-  id: serial("id").primaryKey(),
-  name: varchar("name", { length: 256 }),
-  createdAt: timestamp("created_at")
-    .default(sql`CURRENT_TIMESTAMP`)
-    .notNull(),
-  updatedAt: timestamp("updatedAt"),
-})
-
-export type NewPost = typeof posts.$inferInsert
-
 export const printers = createTable("printers", {
   id: varchar("id", { length: 10 }).primaryKey(),
   name: varchar("name", { length: 256 }),
-  createdAt: timestamp("created_at")
+  createdAt: timestamp("created_at", { mode: "string" })
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
-  updatedAt: timestamp("updatedAt"),
+  updatedAt: timestamp("updatedAt", { mode: "string" }),
 })
 
 export const usersAssociatedPrinters = createTable(
@@ -34,6 +23,9 @@ export const usersAssociatedPrinters = createTable(
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
     updatedAt: timestamp("updatedAt", { mode: "string" }),
+    lastSendMessage: timestamp("last_send_message", { mode: "string" })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
   },
   (table) => {
     return {

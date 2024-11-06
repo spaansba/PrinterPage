@@ -36,17 +36,17 @@ export default function SignInPage() {
                   </button>
                 </Clerk.Connection>
 
-                <div className="relative py-2">
+                {/* <div className="relative py-2">
                   <div className="absolute inset-0 flex items-center">
                     <span className="w-full border-t border-[#808080]" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
                     <span className="bg-[#d4d0c8] px-2 text-[#808080]">Or continue with</span>
                   </div>
-                </div>
+                </div> */}
 
                 {/* Email Input */}
-                <div className="space-y-2">
+                {/* <div className="space-y-2">
                   <Clerk.Field name="identifier">
                     <Clerk.Label className="text-sm font-medium block mb-1">Email</Clerk.Label>
                     <div className="relative">
@@ -60,20 +60,20 @@ export default function SignInPage() {
                     </div>
                     <Clerk.FieldError className="text-xs text-red-600 mt-1" />
                   </Clerk.Field>
-                </div>
+                </div> */}
 
                 {/* Submit Button */}
-                <SignIn.Action submit>
+                {/* <SignIn.Action submit>
                   <button
                     ref={emailButtonRef}
                     className="w-[200px] h-10 bg-[#d4d0c8] border border-t-white border-l-white border-b-[#808080] border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white text-sm hover:bg-[#e6e3dd]"
                   >
                     Sign In With Email
                   </button>
-                </SignIn.Action>
+                </SignIn.Action> */}
 
                 {/* Sign Up Link */}
-                <div className="text-center pt-4">
+                {/* <div className="text-center pt-4">
                   <p className="text-sm text-[#808080]">
                     Don't have an account?{" "}
                     <Link
@@ -83,7 +83,7 @@ export default function SignInPage() {
                       Sign up here
                     </Link>
                   </p>
-                </div>
+                </div> */}
               </div>
             </SignIn.Step>
 
