@@ -1,7 +1,25 @@
 import { sql } from "drizzle-orm"
-import { foreignKey, index, pgTableCreator, serial, timestamp, varchar } from "drizzle-orm/pg-core"
+import {
+  foreignKey,
+  index,
+  integer,
+  pgTableCreator,
+  serial,
+  timestamp,
+  varchar,
+} from "drizzle-orm/pg-core"
 import { createInsertSchema } from "drizzle-zod"
 export const createTable = pgTableCreator((name) => `printer_${name}`)
+
+export const users = createTable("users", {
+  id: varchar("id", { length: 256 }).primaryKey(),
+  userName: varchar("user_name", { length: 256 }),
+  messagesSend: integer("messages_send").default(0),
+  createdAt: timestamp("created_at", { mode: "string" })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updatedAt", { mode: "string" }),
+})
 
 export const printers = createTable("printers", {
   id: varchar("id", { length: 10 }).primaryKey(),

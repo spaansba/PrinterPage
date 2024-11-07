@@ -2,10 +2,41 @@
 import { db } from "./index"
 import {
   InsertUsersAssociatedPrinters,
+  users,
   usersAssociatedPrinters,
   type newUserAssociatedPrinter,
 } from "./schema"
 import { eq, and, desc } from "drizzle-orm"
+
+export const createNewUser = async (clerkUserId: string, clerkName: string) => {
+  try {
+    // Check if user already exists
+    const existingUser = await db.select().from(users).where(eq(users.id, clerkUserId)).limit(1)
+
+    if (existingUser.length > 0) {
+      throw new Error("User already exists")
+    }
+
+    // Insert new user
+    const newUser = await db
+      .insert(users)
+      .values({
+        id: clerkUserId,
+        userName: clerkName,
+        messagesSend: 0,
+        // createdAt and updatedAt will be handled by default values
+      })
+      .returning()
+
+    return {
+      success: true,
+      user: newUser[0],
+    }
+  } catch (error) {
+    console.error("Error creating new user:", error)
+    throw error
+  }
+}
 
 export const getAssociatedPrintersById = async (userId: string) => {
   return await db

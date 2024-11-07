@@ -5,16 +5,7 @@ import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-
-const userNameSchema = z.object({
-  name: z
-    .string()
-    .min(3, { message: "Name is too short (min 3)" })
-    .max(20, { message: "Name is too long (max 20)" })
-    .regex(/^[a-zA-Z0-9_-]+$/, {
-      message: "Username can only contain letters, numbers, underscores, and hyphens",
-    }),
-})
+import { recipientNameSchema } from "./RecipientSelector"
 
 function AccountPage() {
   const { user } = useUser()
@@ -55,8 +46,8 @@ function AccountPage() {
     formState: { errors: errorsEdit },
     reset: resetEdit,
     setError: setErrorEdit,
-  } = useForm<z.infer<typeof userNameSchema>>({
-    resolver: zodResolver(userNameSchema),
+  } = useForm<z.infer<typeof recipientNameSchema>>({
+    resolver: zodResolver(recipientNameSchema),
     mode: "onSubmit",
   })
 
@@ -66,7 +57,7 @@ function AccountPage() {
     resetEdit()
   }
 
-  async function handleNewUserName(data: z.infer<typeof userNameSchema>) {
+  async function handleNewUserName(data: z.infer<typeof recipientNameSchema>) {
     if (!user) {
       setErrorEdit("root", { message: "User Doesn't Exist" })
       return
