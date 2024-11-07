@@ -9,12 +9,20 @@ import {
 import { eq, and, desc } from "drizzle-orm"
 
 export const createNewUser = async (clerkUserId: string, clerkName: string) => {
+  if (!clerkUserId || !clerkName) {
+    throw new Error("Missing required fields: clerkUserId and clerkName must be provided")
+  }
+
   try {
     // Check if user already exists
     const existingUser = await db.select().from(users).where(eq(users.id, clerkUserId)).limit(1)
 
     if (existingUser.length > 0) {
-      throw new Error("User already exists")
+      return {
+        success: false,
+        message: "User already exists",
+        user: existingUser[0],
+      }
     }
 
     // Insert new user
@@ -24,12 +32,12 @@ export const createNewUser = async (clerkUserId: string, clerkName: string) => {
         id: clerkUserId,
         userName: clerkName,
         messagesSend: 0,
-        // createdAt and updatedAt will be handled by default values
       })
       .returning()
 
     return {
       success: true,
+      message: "User created successfully",
       user: newUser[0],
     }
   } catch (error) {

@@ -1,75 +1,52 @@
 import { headers } from "next/headers"
-import { WebhookEvent } from "@clerk/nextjs/server"
-import { Webhook } from "svix"
-import { createNewUser } from "@/lib/queries" // adjust this import path as needed
+import { createNewUser } from "@/lib/queries"
 
 export async function POST(req: Request) {
   try {
-    const headersList = headers()
-    const svixId = headersList.get("svix-id")
-    const svixTimestamp = headersList.get("svix-timestamp")
-    const svixSignature = headersList.get("svix-signature")
-
-    if (!svixId || !svixTimestamp || !svixSignature) {
-      return new Response("Missing svix headers", { status: 400 })
-    }
-
     const payload = await req.json()
-    const body = JSON.stringify(payload)
 
-    const webhookSecret = process.env.CLERK_WEBHOOK_SECRET
-    if (!webhookSecret) {
-      return new Response("Missing webhook secret", { status: 500 })
-    }
-
-    const wh = new Webhook(webhookSecret)
-    let evt: WebhookEvent
-
-    try {
-      evt = wh.verify(body, {
-        "svix-id": svixId,
-        "svix-timestamp": svixTimestamp,
-        "svix-signature": svixSignature,
-      }) as WebhookEvent
-    } catch (err) {
-      console.error("Error verifying webhook:", err)
-      return new Response("Invalid webhook signature", { status: 400 })
-    }
-
-    // Handle the webhook
-    if (evt.type === "user.created") {
-      const { id, first_name, last_name, username } = evt.data
-
-      // Use username or combine first/last name, falling back to id if neither exists
+    // Return detailed info in response during testing
+    if (payload.type === "user.created") {
+      const { id, username, first_name, last_name } = payload.data
       const displayName =
         username || (first_name || last_name ? `${first_name || ""} ${last_name || ""}`.trim() : id)
 
-      try {
-        const result = await createNewUser(id, displayName)
-        console.log("User created successfully:", result)
-      } catch (error) {
-        if (error instanceof Error && error.message === "User already exists") {
-          // This is fine, just log it
-          console.log("User already exists:", id)
-          return new Response("User already exists", { status: 200 })
+      const result = await createNewUser(id, displayName)
+
+      // Return debug info
+      return new Response(
+        JSON.stringify({
+          received: payload,
+          userCreated: {
+            id,
+            displayName,
+            result,
+          },
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
         }
-        // For other errors, we should probably still return 200 to Clerk
-        // but log the error for our monitoring
-        console.error("Error creating user:", error)
-      }
+      )
     }
 
-    return new Response("Webhook processed", { status: 200 })
-  } catch (error) {
-    console.error("Webhook processing error:", error)
-    return new Response("Internal server error", { status: 500 })
+    return new Response(
+      JSON.stringify({
+        received: payload,
+        message: "Not a user.created event",
+      })
+    )
+  } catch (error: any) {
+    // Return error details during testing
+    return new Response(
+      JSON.stringify({
+        error: error.message,
+        stack: error.stack,
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    )
   }
-}
-
-export async function GET() {
-  return new Response("Webhook endpoint is alive", { status: 200 })
-}
-
-export async function HEAD() {
-  return new Response(null, { status: 200 })
 }
