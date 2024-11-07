@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 .font-printer {
-  /* font-family: var(--font-IBM-Plex_Mono); */
+  font-family: var(--font-ibm-plex-mono);
 }
 
 /* Prevent scrollbar shifting */

@@ -7,7 +7,7 @@ const ibmPlexMono = IBM_Plex_Mono({
   subsets: ["latin"],
   weight: ["400", "700"],
   display: "swap",
-  variable: "--font-IBM-Plex_Mono",
+  variable: "--font-ibm-plex-mono",
 })
 
 export const metadata: Metadata = {

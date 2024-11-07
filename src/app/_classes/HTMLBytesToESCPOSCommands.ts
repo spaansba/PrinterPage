@@ -22,6 +22,53 @@ const TEXT_SIZE_MAP = {
   "52": 0x33,
 } as const
 
+const HTML_ENTITIES = {
+  LT: {
+    entity: [0x26, 0x6c, 0x74, 0x3b], // "&lt;"
+    value: 0x3c, // <
+  },
+  GT: {
+    entity: [0x26, 0x67, 0x74, 0x3b], // "&gt;"
+    value: 0x3e, // >
+  },
+  AMP: {
+    entity: [0x26, 0x61, 0x6d, 0x70, 0x3b], // "&amp;"
+    value: 0x26, // &
+  },
+  QUOT: {
+    entity: [0x26, 0x71, 0x75, 0x6f, 0x74, 0x3b], // "&quot;"
+    value: 0x22, // "
+  },
+  APOS: {
+    entity: [0x26, 0x61, 0x70, 0x6f, 0x73, 0x3b], // "&apos;"
+    value: 0x27, // '
+  },
+  CENT: {
+    entity: [0x26, 0x63, 0x65, 0x6e, 0x74, 0x3b], // "&cent;"
+    value: 0xa2, // ¢
+  },
+  POUND: {
+    entity: [0x26, 0x70, 0x6f, 0x75, 0x6e, 0x64, 0x3b], // "&pound;"
+    value: 0xa3, // £
+  },
+  YEN: {
+    entity: [0x26, 0x79, 0x65, 0x6e, 0x3b], // "&yen;"
+    value: 0xa5, // ¥
+  },
+  EURO: {
+    entity: [0x26, 0x65, 0x75, 0x72, 0x6f, 0x3b], // "&euro;"
+    value: 0x20ac, // €
+  },
+  COPY: {
+    entity: [0x26, 0x63, 0x6f, 0x70, 0x79, 0x3b], // "&copy;"
+    value: 0xa9, // ©
+  },
+  REG: {
+    entity: [0x26, 0x72, 0x65, 0x67, 0x3b], // "&reg;"
+    value: 0xae, // ®
+  },
+} as const
+
 const CONTROL = {
   ESC: 0x1b,
   GS: 0x1d,
@@ -156,8 +203,27 @@ export class HTMLBytesToESCPOSCommands {
     })
 
     this.addLineBreaks()
-
+    this.convertEntitiesToHex()
     return this._bytes
+  }
+
+  private convertEntitiesToHex() {
+    // Process each HTML entity
+    Object.values(HTML_ENTITIES).forEach((entity) => {
+      const findSequence = new Uint8Array(entity.entity)
+      const replaceSequence = new Uint8Array([entity.value])
+
+      // Use the existing encoder to replace entities with their hex values
+      const [result] = htmlTagsToESCPOSEncoder(
+        this._bytes,
+        findSequence,
+        replaceSequence,
+        "entity",
+        true
+      )
+
+      this._bytes = result
+    })
   }
 
   private addLineBreaks() {
