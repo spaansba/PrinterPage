@@ -1,4 +1,7 @@
 "use client"
+
+import { array } from "zod"
+
 const TextJustify = {
   Left: 0,
   Center: 1,
@@ -24,6 +27,7 @@ const CONTROL = {
   GS: 0x1d,
   FS: 0x1c,
   DC2: 0x12,
+  LF: 0x0a,
 } as const
 
 const TAGS = {
@@ -150,11 +154,21 @@ export class HTMLBytesToESCPOSCommands {
       )
       this._bytes = replacedClosed
     })
+
+    this.addLineBreaks()
+
     return this._bytes
   }
-}
 
-export function htmlTagsTo() {}
+  private addLineBreaks() {
+    const lineBreakTag = new Uint8Array(this.hexArrayFromString("<line-break>"))
+    const lfByte = new Uint8Array([CONTROL.LF])
+
+    const [result] = htmlTagsToESCPOSEncoder(this._bytes, lineBreakTag, lfByte, "linebreak", true)
+
+    this._bytes = result
+  }
+}
 
 export function htmlTagsToESCPOSEncoder(
   array: Uint8Array,
@@ -236,13 +250,6 @@ export function htmlTagsToESCPOSEncoder(
   // Copy any remaining bytes
   while (currentIndex < array.length) {
     newBitArray[targetIndex++] = array[currentIndex++]
-  }
-
-  if (key === "size" && openTag) {
-    console.log("Matches and their replacements:")
-    replacements.forEach((sequence, index) => {
-      console.log(`Match at ${index}:`, Array.from(sequence))
-    })
   }
 
   return [newBitArray, replacementCount]

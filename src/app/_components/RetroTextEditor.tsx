@@ -68,7 +68,6 @@ const RetroTextEditor = ({
       return
     }
 
-    return
     try {
       const response = await fetch(`https://${selectedRecipient.printerId}.toasttexter.com/print`, {
         method: "POST",
