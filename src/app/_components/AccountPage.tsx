@@ -3,9 +3,18 @@ import { SignedIn, SignedOut, SignInButton, UserProfile, useUser } from "@clerk/
 import { AtSign, Camera, Loader2, Pencil, SendHorizonal, X } from "lucide-react"
 import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
-import { recipientNameSchema } from "./RecipientSelector"
 import { zodResolver } from "@hookform/resolvers/zod"
-import type { z } from "zod"
+import { z } from "zod"
+
+const userNameSchema = z.object({
+  name: z
+    .string()
+    .min(3, { message: "Name is too short (min 3)" })
+    .max(20, { message: "Name is too long (max 20)" })
+    .regex(/^[a-zA-Z0-9_-]+$/, {
+      message: "Username can only contain letters, numbers, underscores, and hyphens",
+    }),
+})
 
 function AccountPage() {
   const { user } = useUser()
@@ -46,8 +55,8 @@ function AccountPage() {
     formState: { errors: errorsEdit },
     reset: resetEdit,
     setError: setErrorEdit,
-  } = useForm<z.infer<typeof recipientNameSchema>>({
-    resolver: zodResolver(recipientNameSchema),
+  } = useForm<z.infer<typeof userNameSchema>>({
+    resolver: zodResolver(userNameSchema),
     mode: "onSubmit",
   })
 
@@ -57,7 +66,7 @@ function AccountPage() {
     resetEdit()
   }
 
-  async function handleNewUserName(data: z.infer<typeof recipientNameSchema>) {
+  async function handleNewUserName(data: z.infer<typeof userNameSchema>) {
     if (!user) {
       setErrorEdit("root", { message: "User Doesn't Exist" })
       return
@@ -65,6 +74,7 @@ function AccountPage() {
 
     try {
       setIsUpdatingUsername(true)
+      console.log(data.name)
       await user.update({
         username: data.name,
       })
@@ -117,11 +127,8 @@ function AccountPage() {
               />
             </div>
             <div className="flex flex-col flex-1 min-w-0">
-              <div
-                title="Username"
-                className="text-[16px] font-medium items-center flex gap-1 min-w-0"
-              >
-                <AtSign size={10} color="black" className="flex-shrink-0 mr-1" />
+              <div title="Username" className="text-[16px] font-medium items-center gap-1 min-w-0">
+                <div className="font-bold tex-sm">Username:</div>
                 {isEditingUsername ? (
                   <form
                     className="flex items-center flex-1"
@@ -155,18 +162,14 @@ function AccountPage() {
                     </button>
                   </form>
                 ) : (
-                  <>
+                  <div className="flex">
                     <span className="truncate">
                       {user?.username ? user?.username : user?.fullName}
                     </span>
-                    <button
-                      title="Edit Username"
-                      className="ml-auto mr-1"
-                      onClick={handleEditClick}
-                    >
+                    <button title="Edit Username" className="ml-auto" onClick={handleEditClick}>
                       <Pencil size={14} />
                     </button>
-                  </>
+                  </div>
                 )}
               </div>
               {errorsEdit.name && (

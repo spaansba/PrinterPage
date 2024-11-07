@@ -11,11 +11,11 @@ import { Toolbar } from "./Toolbar"
 import Underline from "@tiptap/extension-underline"
 import Highlight from "@tiptap/extension-highlight"
 import TextStyle from "@tiptap/extension-text-style"
-import { CustomMark } from "../_helpers/CustomSpan"
-import AccountPage from "./AccountPage"
-import type { Recipient } from "./RecipientSelector"
-import RecipientSelector from "./RecipientSelector"
-import { htmlContentToBytesWithCommands } from "../_helpers/StringToBytes"
+import { CustomMark } from "../../_helpers/CustomSpan"
+import AccountPage from "../AccountPage"
+import type { Recipient } from "../RecipientSelector"
+import RecipientSelector from "../RecipientSelector"
+import { htmlContentToBytesWithCommands } from "../../_helpers/StringToBytes"
 import { getAssociatedPrintersById, updateLastSendMessage } from "@/lib/queries"
 import { HtmlContext } from "next/dist/shared/lib/html-context.shared-runtime"
 import { count } from "console"
@@ -63,7 +63,10 @@ const RetroTextEditor = ({
     // Log the lines and their count
     const htmlContentWithLineBreaks = addLineBreaks(hTMLContent, lines)
 
-    const content = await htmlContentToBytesWithCommands(htmlContentWithLineBreaks)
+    const content = await htmlContentToBytesWithCommands(
+      htmlContentWithLineBreaks,
+      user?.username ? user.username : ""
+    )
     if (!selectedRecipient) {
       return
     }

@@ -2,7 +2,10 @@
 import ReceiptPrinterEncoder from "@point-of-sale/receipt-printer-encoder"
 import { HTMLBytesToESCPOSCommands } from "../_classes/HTMLBytesToESCPOSCommands"
 
-export const htmlContentToBytesWithCommands = async (text: string): Promise<Uint8Array> => {
+export const htmlContentToBytesWithCommands = async (
+  text: string,
+  sender: string
+): Promise<Uint8Array> => {
   const cleanText = text
     .replaceAll("<p>", "")
     .replaceAll("</p>", "")
@@ -12,7 +15,7 @@ export const htmlContentToBytesWithCommands = async (text: string): Promise<Uint
   let utf8Encode = new TextEncoder()
   const encodedText = utf8Encode.encode(cleanText)
   let HTMLByteToEscpos = new HTMLBytesToESCPOSCommands(encodedText)
-  const openTag = printingOpenTag()
+  const openTag = printingOpenTag(sender)
   const userText = HTMLByteToEscpos.boldTranslate()
     .underlineTranslate()
     .invertTranslate(
@@ -26,7 +29,7 @@ export const htmlContentToBytesWithCommands = async (text: string): Promise<Uint
   return combinedMultiple
 }
 
-function printingOpenTag(): Uint8Array {
+function printingOpenTag(sender: string): Uint8Array {
   let encoder = new ReceiptPrinterEncoder({
     printerModel: "pos-8360",
     columns: 32,
@@ -45,7 +48,7 @@ function printingOpenTag(): Uint8Array {
     .invert(false)
     .line("----------NEW MESSAGE----------")
     .invert(false)
-    .line("Sender:  Bart")
+    .line(`Sender:  ${sender}`)
     .line("Send at: " + getFormattedDateTime())
     .rule()
     .encode()
@@ -89,6 +92,7 @@ async function printingClosingTag(): Promise<Uint8Array> {
     console.error("Error loading image:", error)
     return encoder
       .newline(1)
+
       .rule({ style: "double" })
       .newline(3)
       .text("Image loading failed")

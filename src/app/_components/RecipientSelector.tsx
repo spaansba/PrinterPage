@@ -15,8 +15,8 @@ export type Recipient = {
 export const recipientNameSchema = z.object({
   name: z
     .string()
-    .min(3, { message: "Name is too short" })
-    .max(50, { message: "Name is too long" }),
+    .min(3, { message: "Name is too short (min 3)" })
+    .max(20, { message: "Name is too long (max 20)" }),
 })
 
 const newRecipientSchema = z.object({

@@ -1,6 +1,6 @@
 "use client"
 import { useState } from "react"
-import RetroTextEditor from "./_components/RetroTextEditor"
+import RetroTextEditor from "./_components/_editor/RetroTextEditor"
 
 export default function Home() {
   const [status, setStatus] = useState("")
