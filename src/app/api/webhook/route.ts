@@ -1,15 +1,19 @@
-export async function GET() {
-  const webhookSecret = process.env.CLERK_WEBHOOK_SECRET
-  const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+import { headers } from "next/headers"
 
-  console.log("Environment Check:", {
-    hasWebhookSecret: !!webhookSecret,
-    hasPublishableKey: !!publishableKey,
-    nodeEnv: process.env.NODE_ENV,
-    // Log partial keys for verification (safely)
-    webhookSecretPrefix: webhookSecret?.substring(0, 4),
-    publishableKeyPrefix: publishableKey?.substring(0, 4),
+export async function POST(req: Request) {
+  // Log headers
+  const headersList = headers()
+  console.log("Headers:", {
+    "svix-id": headersList.get("svix-id"),
+    "svix-timestamp": headersList.get("svix-timestamp"),
+    "svix-signature": headersList.get("svix-signature"),
   })
 
-  return new Response("Environment check completed - check logs")
+  // Log body
+  const body = await req.json()
+  console.log("Webhook Body:", body)
+
+  return new Response("Webhook received", {
+    status: 200,
+  })
 }
