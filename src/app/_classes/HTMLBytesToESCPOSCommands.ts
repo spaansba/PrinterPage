@@ -13,15 +13,11 @@ const QRCodeErrorCorrectionLevel = {
 } as const
 
 const TEXT_SIZE_MAP = {
-  "13": 0x11,
-  "19": 0x22,
-  "24": 0x33,
-  "30": 0x44,
-  "35": 0x55,
-  "41": 0x66,
-  "46": 0x77,
+  "13": 0x00,
+  "26": 0x11,
+  "42": 0x22,
+  "52": 0x33,
 } as const
-type ValidSize = keyof typeof TEXT_SIZE_MAP
 
 const CONTROL = {
   ESC: 0x1b,
@@ -31,6 +27,7 @@ const CONTROL = {
 } as const
 
 const TAGS = {
+  WILDCARD: 0x3f,
   LESS_THAN: 0x3c,
   GREATER_THAN: 0x3e,
   FSLASH: 0x2f,
@@ -47,12 +44,12 @@ const BOOL = {
 
 type BoolCommand = {
   state: {
-    on: number[]
-    off: number[]
+    on: Uint8Array
+    off: Uint8Array
   }
   html: {
-    open: number[]
-    close: number[]
+    open: Uint8Array
+    close: Uint8Array
   }
 }
 
@@ -70,25 +67,26 @@ export class HTMLBytesToESCPOSCommands {
   underlineTranslate(): HTMLBytesToESCPOSCommands {
     this._boolCommands.underline = {
       state: {
-        on: [CONTROL.ESC, 0x2d, BOOL.TRUE],
-        off: [CONTROL.ESC, 0x2d, BOOL.FALSE],
+        on: new Uint8Array([CONTROL.ESC, 0x2d, BOOL.TRUE]),
+        off: new Uint8Array([CONTROL.ESC, 0x2d, BOOL.FALSE]),
       },
       html: {
-        open: [TAGS.LESS_THAN, TAGS.U, TAGS.GREATER_THAN],
-        close: [TAGS.LESS_THAN, TAGS.FSLASH, TAGS.U, TAGS.GREATER_THAN],
+        open: new Uint8Array([TAGS.LESS_THAN, TAGS.U, TAGS.GREATER_THAN]),
+        close: new Uint8Array([TAGS.LESS_THAN, TAGS.FSLASH, TAGS.U, TAGS.GREATER_THAN]),
       },
     }
     return this
   }
+
   boldTranslate(): HTMLBytesToESCPOSCommands {
     this._boolCommands.bold = {
       state: {
-        on: [CONTROL.ESC, 0x45, BOOL.TRUE],
-        off: [CONTROL.ESC, 0x45, BOOL.FALSE],
+        on: new Uint8Array([CONTROL.ESC, 0x45, BOOL.TRUE]),
+        off: new Uint8Array([CONTROL.ESC, 0x45, BOOL.FALSE]),
       },
       html: {
-        open: [TAGS.LESS_THAN, ...TAGS.STRONG, TAGS.GREATER_THAN], // <b>
-        close: [TAGS.LESS_THAN, TAGS.FSLASH, ...TAGS.STRONG, TAGS.GREATER_THAN], // </b>
+        open: new Uint8Array([TAGS.LESS_THAN, ...TAGS.STRONG, TAGS.GREATER_THAN]),
+        close: new Uint8Array([TAGS.LESS_THAN, TAGS.FSLASH, ...TAGS.STRONG, TAGS.GREATER_THAN]),
       },
     }
     return this
@@ -96,55 +94,39 @@ export class HTMLBytesToESCPOSCommands {
   invertTranslate(invert: string): HTMLBytesToESCPOSCommands {
     this._boolCommands.invert = {
       state: {
-        on: [CONTROL.GS, 0x42, BOOL.TRUE],
-        off: [CONTROL.GS, 0x42, BOOL.FALSE],
+        on: new Uint8Array([CONTROL.GS, 0x42, BOOL.TRUE]),
+        off: new Uint8Array([CONTROL.GS, 0x42, BOOL.FALSE]),
       },
       html: {
-        open: this.hexArrayFromString(invert),
-        close: [TAGS.LESS_THAN, TAGS.FSLASH, ...TAGS.MARK, TAGS.GREATER_THAN],
+        open: new Uint8Array(this.hexArrayFromString(invert)),
+        close: new Uint8Array([TAGS.LESS_THAN, TAGS.FSLASH, ...TAGS.MARK, TAGS.GREATER_THAN]),
       },
     }
     return this
   }
 
   textSizeTranslate(): HTMLBytesToESCPOSCommands {
+    const openTagPattern = this.hexArrayFromString(`<text-size class="text-[`)
+    openTagPattern.push(TAGS.WILDCARD, TAGS.WILDCARD) // for the size digits
+    openTagPattern.push(...this.hexArrayFromString(`px]">`))
+
     this._boolCommands.size = {
       state: {
-        on: [CONTROL.GS, 0x21, 0x3f], // we change the ? later on to the real value
-        off: [CONTROL.GS, 0x21, 0x00],
+        on: new Uint8Array([CONTROL.GS, 0x21, 0x00]), // we change the 0 later on to the real value
+        off: new Uint8Array([CONTROL.GS, 0x21, 0x00]),
       },
       html: {
-        open: this.hexArrayFromString(`<font-size class="text-[??px]">`),
-        close: [
+        open: new Uint8Array(openTagPattern),
+        close: new Uint8Array([
           TAGS.LESS_THAN,
           TAGS.FSLASH,
-          ...this.hexArrayFromString(`font-size`),
+          ...this.hexArrayFromString(`text-size`),
           TAGS.GREATER_THAN,
-        ],
+        ]),
       },
     }
     return this
   }
-
-  // sizeTallWide(tallWide: string): HTMLBytesToESCPOSCommands {
-  //   this._commands.tallWide = {
-  //     multiState: {
-  //       0: [CONTROL.GS, 0x21, 0x00],
-  //       1: [CONTROL.GS, 0x21, 0x11],
-  //       2: [CONTROL.GS, 0x21, 0x22],
-  //       3: [CONTROL.GS, 0x21, 0x33],
-  //       4: [CONTROL.GS, 0x21, 0x44],
-  //       5: [CONTROL.GS, 0x21, 0x55],
-  //       6: [CONTROL.GS, 0x21, 0x66],
-  //       7: [CONTROL.GS, 0x21, 0x77],
-  //     },
-  //     html: {
-  //       open: this.hexArrayFromString(tallWide),
-  //       close: [TAGS.LESS_THAN, TAGS.FSLASH, ...TAGS.SPAN, TAGS.GREATER_THAN],
-  //     },
-  //   }
-  //   return this
-  // }
 
   private hexArrayFromString(str: string): number[] {
     return Array.from(str).map((char) => char.charCodeAt(0))
@@ -156,13 +138,15 @@ export class HTMLBytesToESCPOSCommands {
         this._bytes,
         command.html.open,
         command.state.on,
-        key
+        key,
+        true
       )
       const [replacedClosed] = htmlTagsToESCPOSEncoder(
         replacedOpen,
         command.html.close,
         command.state.off,
-        key
+        key,
+        false
       )
       this._bytes = replacedClosed
     })
@@ -174,68 +158,92 @@ export function htmlTagsTo() {}
 
 export function htmlTagsToESCPOSEncoder(
   array: Uint8Array,
-  findSequence: readonly number[],
-  replaceSequence: readonly number[],
+  findSequence: Uint8Array,
+  replaceSequence: Uint8Array,
   key: string,
+  openTag: boolean,
   startIndex: number = 0
 ): [Uint8Array, number] {
   let replacementCount = 0
-  let matches: number[] = [] //Array of indexes of the start of each match
-  console.log(key)
-  if (key === "size") {
-    console.log(array)
-    console.log(replaceSequence)
-  }
+  // Create a Map to store matchIndex -> replaceSequence pairs
+  const replacements = new Map<number, Uint8Array>()
 
-  // Find all matches in the users sequence
+  // Find all matches in the sequence
   for (let i = startIndex; i <= array.length - findSequence.length; i++) {
     let currentSequenceMatches = true
     for (let j = 0; j < findSequence.length; j++) {
-      //"?" as wildcard
-      if (key === "size") {
-        if (array[i + j] === 0x5b) {
-          const size = String.fromCharCode(array[i + j + 1]) + String.fromCharCode(array[i + j + 2])
-          if (isValidSize(size)) {
-            const replaceWith = TEXT_SIZE_MAP[size]
-            // use replaceWith...
-          } else {
-            const replaceWith = 0x00 // default value for invalid sizes
-          }
-        }
+      if (findSequence[j] === TAGS.WILDCARD) {
+        continue
       }
-      if (array[i + j] !== findSequence[j] && array[i + j] !== 0x3f) {
+      if (array[i + j] !== findSequence[j]) {
         currentSequenceMatches = false
         break
       }
     }
+
     if (currentSequenceMatches) {
-      matches.push(i)
-      replacementCount++
+      if (key === "size" && openTag) {
+        const sizeStartIndex = i + findSequence.indexOf(TAGS.WILDCARD)
+        const sizeDigits =
+          String.fromCharCode(array[sizeStartIndex]) +
+          String.fromCharCode(array[sizeStartIndex + 1])
+
+        if (sizeDigits in TEXT_SIZE_MAP) {
+          // Create a new replacement sequence for this specific size
+          const specificReplaceSequence = new Uint8Array(replaceSequence)
+          specificReplaceSequence[2] = TEXT_SIZE_MAP[sizeDigits as keyof typeof TEXT_SIZE_MAP]
+
+          // Store the specific replacement sequence for this match
+          replacements.set(i, specificReplaceSequence)
+          replacementCount++
+        }
+      } else {
+        // For non-size tags or closing tags, use the original replacement sequence
+        replacements.set(i, replaceSequence)
+        replacementCount++
+      }
     }
   }
 
-  // Calculate new array size since we need to create a new one and copy over the values
+  // Calculate new array size
   const sizeDiff = replaceSequence.length - findSequence.length
-  const newSize = array.length + sizeDiff * matches.length
+  const newSize = array.length + sizeDiff * replacements.size
   let newBitArray = new Uint8Array(newSize)
 
   let targetIndex = 0
-  for (let i = 0; i < array.length; i++) {
-    if (matches.includes(i)) {
-      // Copy replacement sequence
-      for (let j = 0; j < replaceSequence.length; j++) {
-        newBitArray[targetIndex++] = replaceSequence[j]
-      }
-      // Skip the original sequence
-      i += findSequence.length - 1
-    } else {
-      newBitArray[targetIndex++] = array[i]
+  let currentIndex = 0
+
+  // Sort the match indices to process them in order
+  const sortedIndices = Array.from(replacements.keys()).sort((a, b) => a - b)
+
+  // Process each segment
+  sortedIndices.forEach((matchIndex) => {
+    // Copy bytes up to the match
+    while (currentIndex < matchIndex) {
+      newBitArray[targetIndex++] = array[currentIndex++]
     }
+
+    // Get and copy the specific replacement sequence for this match
+    const currentReplaceSequence = replacements.get(matchIndex)!
+    for (let j = 0; j < currentReplaceSequence.length; j++) {
+      newBitArray[targetIndex++] = currentReplaceSequence[j]
+    }
+
+    // Skip the original sequence
+    currentIndex += findSequence.length
+  })
+
+  // Copy any remaining bytes
+  while (currentIndex < array.length) {
+    newBitArray[targetIndex++] = array[currentIndex++]
+  }
+
+  if (key === "size" && openTag) {
+    console.log("Matches and their replacements:")
+    replacements.forEach((sequence, index) => {
+      console.log(`Match at ${index}:`, Array.from(sequence))
+    })
   }
 
   return [newBitArray, replacementCount]
-}
-
-function isValidSize(size: string): size is ValidSize {
-  return size in TEXT_SIZE_MAP
 }

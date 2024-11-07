@@ -1,12 +1,10 @@
 "use client"
 import React from "react"
 import type { Editor } from "@tiptap/react"
-import { SignalZero } from "lucide-react"
 
 interface FontSize {
   label: string
   value: string
-  coordinates: string
 }
 
 interface FontSizeDropdownProps {
@@ -17,14 +15,10 @@ const FontSizeDropdown: React.FC<FontSizeDropdownProps> = ({ editor }) => {
   if (!editor) return null
 
   const fontSizes: readonly FontSize[] = [
-    { label: "13px", value: "text-[13px]", coordinates: "0,0" },
-    { label: "19px", value: "text-[19px]", coordinates: "1,1" },
-    { label: "24px", value: "text-[24px]", coordinates: "2,2" },
-    { label: "30px", value: "text-[30px]", coordinates: "3,3" },
-    { label: "35px", value: "text-[35px]", coordinates: "4,4" },
-    { label: "41px", value: "text-[41px]", coordinates: "5,5" },
-    { label: "46px", value: "text-[46px]", coordinates: "6,6" },
-    { label: "52px", value: "text-[52px]", coordinates: "7,7" },
+    { label: "13px", value: "text-[13px]" },
+    { label: "26px", value: "text-[26px]" },
+    { label: "42px", value: "text-[42px]" },
+    { label: "52px", value: "text-[52px]" },
   ] as const
 
   const handleFontSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {

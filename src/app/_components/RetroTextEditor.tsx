@@ -17,6 +17,8 @@ import type { Recipient } from "./RecipientSelector"
 import RecipientSelector from "./RecipientSelector"
 import { htmlContentToBytesWithCommands } from "../_helpers/StringToBytes"
 import { getAssociatedPrintersById, updateLastSendMessage } from "@/lib/queries"
+import { HtmlContext } from "next/dist/shared/lib/html-context.shared-runtime"
+import { count } from "console"
 
 type RetroTextEditorProps = {
   setTextContent: Dispatch<SetStateAction<string>>
@@ -36,6 +38,8 @@ const extraStyles = `
   }
 `
 
+type Lines = { characters: string; characterCount: number }[]
+
 type Pages = "Printer" | "Account"
 
 const RetroTextEditor = ({
@@ -53,10 +57,17 @@ const RetroTextEditor = ({
 
   async function handlePrinterClick() {
     setStatus("Sending...")
-    const content = await htmlContentToBytesWithCommands(hTMLContent)
+
+    const editorElement = editor!.view.dom as HTMLElement
+    const lines = getVisualLines(editorElement)
+    // Log the lines and their count
+    const htmlContentWithLineBreaks = addLineBreaks(hTMLContent, lines)
+
+    const content = await htmlContentToBytesWithCommands(htmlContentWithLineBreaks)
     if (!selectedRecipient) {
       return
     }
+
     return
     try {
       const response = await fetch(`https://${selectedRecipient.printerId}.toasttexter.com/print`, {
@@ -92,6 +103,140 @@ const RetroTextEditor = ({
 
     if (editor) {
       editor.commands.focus()
+    }
+  }
+
+  function addLineBreaks(htmlContent: string, lines: Lines): string {
+    let result = ""
+    let insideTag = false
+    let insideEntity = false
+    let entityBuffer = ""
+    let currentLineIndex = 0
+    let visibleCharCount = 0
+    let nextBreakAt = lines[0]?.characterCount || 0
+
+    const checkAndAddLineBreak = () => {
+      if (visibleCharCount === nextBreakAt && currentLineIndex < lines.length - 1) {
+        result += "<line-break>"
+        currentLineIndex++
+        nextBreakAt += lines[currentLineIndex].characterCount
+      }
+    }
+
+    for (let i = 0; i < htmlContent.length; i++) {
+      const char = htmlContent[i]
+
+      if (char === "<") {
+        insideTag = true
+        result += char
+        continue
+      }
+
+      if (char === ">") {
+        insideTag = false
+        result += char
+        continue
+      }
+
+      if (insideTag) {
+        result += char
+        continue
+      }
+
+      // Regular character - add to result and increment counter
+      result += char
+
+      // If we're inside an entity and hit a semicolon, the entity is complete
+      if (insideEntity && char === ";") {
+        insideEntity = false
+        visibleCharCount++
+        checkAndAddLineBreak()
+        continue
+      }
+
+      // Start of an entity
+      if (char === "&") {
+        insideEntity = true
+        continue
+      }
+
+      // Only count character if we're not inside an entity
+      if (!insideEntity) {
+        visibleCharCount++
+        checkAndAddLineBreak()
+      }
+    }
+
+    // Handle any remaining characters at the end
+    if (visibleCharCount > 0 && currentLineIndex < lines.length - 1) {
+      result += "<line-break>"
+    }
+    return result
+  }
+
+  function getVisualLines(element: HTMLElement): Lines {
+    const lines: Lines = []
+    const positions: { char: string; center: number }[] = []
+    const range = document.createRange()
+
+    // Get every character and its vertical center position
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT)
+    let node
+
+    while ((node = walker.nextNode())) {
+      const text = node.textContent || ""
+      for (let i = 0; i < text.length; i++) {
+        try {
+          range.setStart(node, i)
+          range.setEnd(node, i + 1)
+          const rect = range.getBoundingClientRect()
+          // Use the vertical CENTER of each character instead of top
+          const center = rect.top + rect.height / 2
+          positions.push({
+            char: text[i],
+            center: Math.round(center),
+          })
+        } catch (e) {
+          console.error("Error measuring character:", e)
+        }
+      }
+    }
+
+    // Group by vertical center with a tolerance for different text heights
+    let currentLine = ""
+    let lastCenter = positions[0]?.center
+    const TOLERANCE = 15 // Adjust based on your font sizes
+
+    for (const pos of positions) {
+      // If the center difference is greater than our tolerance, it's a new line
+      if (Math.abs((lastCenter || 0) - pos.center) > TOLERANCE) {
+        if (currentLine.trim()) {
+          lines.push({ characters: currentLine.trim(), characterCount: currentLine.length })
+        }
+        currentLine = pos.char
+        lastCenter = pos.center
+      } else {
+        currentLine += pos.char
+      }
+    }
+
+    // Add final line
+    if (currentLine.trim()) {
+      lines.push({ characters: currentLine.trim(), characterCount: currentLine.length })
+    }
+
+    range.detach()
+    return lines
+  }
+
+  function updateLineCount() {
+    if (!editor?.view?.dom) {
+      return { lines: [], count: 0 }
+    }
+    const lines = getVisualLines(editor.view.dom)
+    return {
+      lines,
+      count: lines.length,
     }
   }
 
@@ -218,7 +363,7 @@ const RetroTextEditor = ({
   return (
     <>
       <style>{extraStyles}</style>
-      <div className="w-[300px] border-t-2 border-l-2 border-white border-b-2 border-r-2 border-b-[#808080] border-r-[#808080] shadow-[2px_2px_8px_rgba(0,0,0,0.2)]">
+      <div className="w-[273px] border-t-2 border-l-2 border-white border-b-2 border-r-2 border-b-[#808080] border-r-[#808080] shadow-[2px_2px_8px_rgba(0,0,0,0.2)]">
         {/* Window Title Bar */}
         <div className="h-6 bg-[#735721] flex items-center justify-between px-2">
           <span className="text-white text-sm font-bold">{Title()}</span>
@@ -264,8 +409,16 @@ const RetroTextEditor = ({
             {/* Status Bar */}
             <div className="bg-[#d4d0c8] flex items-center px-2 text-xs justify-between py-1 text-[11px]">
               <div className="flex flex-col">
-                <span className="pr-4 min-w-[115px]">Characters: {textContent.length}</span>
-                <span>Lines: {textContent.split("\n").length}</span>
+                {(() => {
+                  const { lines, count } = updateLineCount()
+                  const totalChars = lines.reduce((total, line) => total + line.characterCount, 0)
+                  return (
+                    <>
+                      <span className="pr-4 min-w-[115px]">Characters: {totalChars}</span>
+                      <span>Lines: {count}</span>
+                    </>
+                  )
+                })()}
               </div>
               {status && <span>{status}</span>}
             </div>

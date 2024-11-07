@@ -3,10 +3,15 @@ import ReceiptPrinterEncoder from "@point-of-sale/receipt-printer-encoder"
 import { HTMLBytesToESCPOSCommands } from "../_classes/HTMLBytesToESCPOSCommands"
 
 export const htmlContentToBytesWithCommands = async (text: string): Promise<Uint8Array> => {
-  const textWithoutPTag = text.replace("<p>", "")
-  const textWithoutPTag2 = textWithoutPTag.replace("</p>", "")
+  console.log(text)
+  const cleanText = text
+    .replaceAll("<p>", "")
+    .replaceAll("</p>", "")
+    .replaceAll("<span>", "")
+    .replaceAll("</span>", "")
+  console.log(cleanText)
   let utf8Encode = new TextEncoder()
-  const encodedText = utf8Encode.encode(textWithoutPTag2)
+  const encodedText = utf8Encode.encode(cleanText)
   let HTMLByteToEscpos = new HTMLBytesToESCPOSCommands(encodedText)
   const openTag = printingOpenTag()
   const userText = HTMLByteToEscpos.boldTranslate()
@@ -16,6 +21,8 @@ export const htmlContentToBytesWithCommands = async (text: string): Promise<Uint
     )
     .textSizeTranslate()
     .encode()
+  console.log(userText)
+
   const closingTag = await printingClosingTag()
   const combinedMultiple = combineMultipleUint8Arrays([openTag, userText, closingTag])
   return combinedMultiple
@@ -36,7 +43,7 @@ function printingOpenTag(): Uint8Array {
     .italic(false)
     .align("left")
     .bold(false)
-    .size(1, 1)
+    .size(1)
     .invert(false)
     .line("----------NEW MESSAGE----------")
     .invert(false)
