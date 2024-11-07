@@ -1,11 +1,12 @@
 "use client"
 import { SignedIn, SignedOut, SignInButton, UserProfile, useUser } from "@clerk/nextjs"
-import { AtSign, Camera, Loader2, Pencil, SendHorizonal, X } from "lucide-react"
-import React, { useEffect, useState } from "react"
+import { Camera, Loader2, Pencil, SendHorizonal, X } from "lucide-react"
+import React, { useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { recipientNameSchema } from "./RecipientSelector"
+import { getUserName, updatedUserName } from "@/lib/queries"
 
 function AccountPage() {
   const { user } = useUser()
@@ -14,6 +15,28 @@ function AccountPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isEditingUsername, setIsEditingUsername] = useState(false)
   const [isUpdatingUsername, setIsUpdatingUsername] = useState(false)
+  const [dbUsername, setDbUsername] = useState("")
+  const [isLoadingUsername, setIsLoadingUsername] = useState(false)
+
+  useEffect(() => {
+    const loadUsername = async () => {
+      try {
+        if (!user) {
+          return
+        }
+        setIsLoadingUsername(true)
+        const userName = await getUserName(user.id)
+        setDbUsername(userName)
+      } catch (error) {
+        console.error("Error fetching username:", error)
+        setDbUsername("Error loading username")
+      } finally {
+        setIsLoadingUsername(false)
+      }
+    }
+
+    loadUsername()
+  }, [])
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -46,6 +69,7 @@ function AccountPage() {
     formState: { errors: errorsEdit },
     reset: resetEdit,
     setError: setErrorEdit,
+    setFocus: setEditFocus,
   } = useForm<z.infer<typeof recipientNameSchema>>({
     resolver: zodResolver(recipientNameSchema),
     mode: "onSubmit",
@@ -53,8 +77,14 @@ function AccountPage() {
 
   function handleEditClick(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     e.stopPropagation()
+
     setIsEditingUsername(true)
     resetEdit()
+
+    // Give inputbox automatic focus for UX
+    setTimeout(() => {
+      setEditFocus("name")
+    }, 0)
   }
 
   async function handleNewUserName(data: z.infer<typeof recipientNameSchema>) {
@@ -66,9 +96,8 @@ function AccountPage() {
     try {
       setIsUpdatingUsername(true)
       console.log(data.name)
-      await user.update({
-        username: data.name,
-      })
+      await updatedUserName(user.id, data.name)
+      setDbUsername(data.name)
       setIsEditingUsername(false)
     } catch (error) {
       console.error("Error updating username:", error)
@@ -128,7 +157,7 @@ function AccountPage() {
                     <input
                       {...registerEdit("name")}
                       className="w-[120px] border-[1px] px-1 py-0.5 rounded"
-                      defaultValue={user?.username ?? ""}
+                      defaultValue={dbUsername}
                       placeholder="Enter username"
                     />
                     <button
@@ -155,7 +184,7 @@ function AccountPage() {
                 ) : (
                   <div className="flex">
                     <span className="truncate">
-                      {user?.username ? user?.username : user?.fullName}
+                      {isLoadingUsername ? <Loader2 className="size-4 animate-spin" /> : dbUsername}
                     </span>
                     <button title="Edit Username" className="ml-auto" onClick={handleEditClick}>
                       <Pencil size={14} />

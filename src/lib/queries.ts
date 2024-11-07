@@ -8,42 +8,17 @@ import {
 } from "./schema"
 import { eq, and, desc } from "drizzle-orm"
 
-export const createNewUser = async (clerkUserId: string, clerkName: string) => {
-  if (!clerkUserId || !clerkName) {
-    throw new Error("Missing required fields: clerkUserId and clerkName must be provided")
-  }
+export const getUserName = async (userId: string) => {
+  const user = await db.select().from(users).where(eq(users.id, userId))
+  return user[0].userName ? user[0].userName : "username not found"
+}
 
-  try {
-    // Check if user already exists
-    const existingUser = await db.select().from(users).where(eq(users.id, clerkUserId)).limit(1)
-
-    if (existingUser.length > 0) {
-      return {
-        success: false,
-        message: "User already exists",
-        user: existingUser[0],
-      }
-    }
-
-    // Insert new user
-    const newUser = await db
-      .insert(users)
-      .values({
-        id: clerkUserId,
-        userName: clerkName,
-        messagesSend: 0,
-      })
-      .returning()
-
-    return {
-      success: true,
-      message: "User created successfully",
-      user: newUser[0],
-    }
-  } catch (error) {
-    console.error("Error creating new user:", error)
-    throw error
-  }
+export const updatedUserName = async (userId: string, newUserName: string) => {
+  return await db
+    .update(users)
+    .set({ userName: newUserName })
+    .where(eq(users.id, userId))
+    .returning()
 }
 
 export const getAssociatedPrintersById = async (userId: string) => {

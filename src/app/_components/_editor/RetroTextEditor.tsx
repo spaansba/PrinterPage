@@ -16,7 +16,7 @@ import AccountPage from "../AccountPage"
 import type { Recipient } from "../RecipientSelector"
 import RecipientSelector from "../RecipientSelector"
 import { htmlContentToBytesWithCommands } from "../../_helpers/StringToBytes"
-import { getAssociatedPrintersById, updateLastSendMessage } from "@/lib/queries"
+import { getAssociatedPrintersById, getUserName, updateLastSendMessage } from "@/lib/queries"
 import { HtmlContext } from "next/dist/shared/lib/html-context.shared-runtime"
 import { count } from "console"
 
@@ -56,6 +56,9 @@ const RetroTextEditor = ({
   const [recipients, setRecipients] = useState<Recipient[]>([])
 
   async function handlePrinterClick() {
+    if (!user) {
+      return
+    }
     setStatus("Sending...")
 
     const editorElement = editor!.view.dom as HTMLElement
@@ -63,10 +66,8 @@ const RetroTextEditor = ({
     // Log the lines and their count
     const htmlContentWithLineBreaks = addLineBreaks(hTMLContent, lines)
 
-    const content = await htmlContentToBytesWithCommands(
-      htmlContentWithLineBreaks,
-      user?.username ? user.username : ""
-    )
+    const username = await getUserName(user.id)
+    const content = await htmlContentToBytesWithCommands(htmlContentWithLineBreaks, username)
     if (!selectedRecipient) {
       return
     }
@@ -311,6 +312,12 @@ const RetroTextEditor = ({
     },
   })
 
+  useEffect(() => {
+    if (pageActivated === "Printer") {
+      form.setFocus("textEditorInput")
+    }
+  }, [pageActivated])
+
   const textEditorValue = form.watch("textEditorInput")
   const handleTextChange = (inputText: string, inputHTML: string) => {
     setStatus("Editing")
@@ -399,7 +406,11 @@ const RetroTextEditor = ({
               <Toolbar editor={editor} />
               <form onPaste={handlePaste} className="text-[16px]">
                 <div className="text-[13px]">
-                  <EditorContent editor={editor} spellCheck="false" />
+                  <EditorContent
+                    {...form.register("textEditorInput")}
+                    editor={editor}
+                    spellCheck="false"
+                  />
                   {getFirstFormError() && (
                     <div className="bg-[#d4d0c8] border-t border-[#808080] px-2 py-1">
                       <span className="text-red-500 text-xs">{getFirstFormError()}</span>

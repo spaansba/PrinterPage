@@ -1,6 +1,6 @@
 "use client"
 import React, { useEffect, useRef, useState } from "react"
-import { ChevronDown, User, Plus, Pencil, SendHorizonal } from "lucide-react"
+import { ChevronDown, User, Plus, Pencil, SendHorizonal, X } from "lucide-react"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -54,6 +54,7 @@ const RecipientSelector = ({
     formState: { errors: errorsNew },
     reset: resetNew,
     setError: setErrorNew,
+    setFocus: setNewFocus,
   } = useForm<z.infer<typeof newRecipientSchema>>({
     resolver: zodResolver(newRecipientSchema),
     mode: "onSubmit",
@@ -65,6 +66,7 @@ const RecipientSelector = ({
     formState: { errors: errorsEdit },
     reset: resetEdit,
     setError: setErrorEdit,
+    setFocus: setEditFocus,
   } = useForm<z.infer<typeof recipientNameSchema>>({
     resolver: zodResolver(recipientNameSchema),
     mode: "onSubmit",
@@ -94,6 +96,15 @@ const RecipientSelector = ({
     }
   }
 
+  function handleNewRecipientClick() {
+    setIsAddingRecipient(true)
+
+    // Give inputbox automatic focus for UX
+    setTimeout(() => {
+      setNewFocus("printerId")
+    }, 0)
+  }
+
   function handleEditClick(e: React.MouseEvent<HTMLButtonElement, MouseEvent>, printerId: string) {
     e.stopPropagation()
     resetEdit()
@@ -101,11 +112,16 @@ const RecipientSelector = ({
       setEditingId(null)
     } else {
       setEditingId(printerId)
+
+      setTimeout(() => {
+        setEditFocus("name")
+      }, 0)
     }
     setIsAddingRecipient(false)
   }
 
   async function handleNewName(data: z.infer<typeof recipientNameSchema>, printerId: string) {
+    console.log("here")
     if (!user) {
       setErrorEdit("root", { message: "User Doesnt Exist" })
       return
@@ -191,8 +207,10 @@ const RecipientSelector = ({
                 <div className="flex items-center">
                   <input
                     {...registerEdit("name")}
+                    // ref={editNameInputRef}
                     className="border-solid border border-gray-300 px-2 py-1 rounded"
                     autoComplete="off"
+                    spellCheck="false"
                     defaultValue={recipient.name}
                   />
                 </div>
@@ -207,20 +225,27 @@ const RecipientSelector = ({
           )}
 
           {editingId === recipient.printerId ? (
-            <button
-              type="button"
-              className="ml-auto"
-              title="Confirm Name"
-              onClick={(e) => {
-                e.stopPropagation()
-                editNameFormRef.current?.requestSubmit()
-              }}
-            >
-              <SendHorizonal
-                className="opacity-100 md:opacity-0 group-hover/recipient:opacity-100 text-black"
-                size={14}
-              />
-            </button>
+            <>
+              <button
+                type="button"
+                className="ml-auto"
+                title="Confirm Name"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  editNameFormRef.current?.requestSubmit()
+                }}
+              >
+                <SendHorizonal className="text-black" size={14} />
+              </button>
+              <button
+                type="button"
+                title="Cancel"
+                className="ml-2"
+                onClick={() => setEditingId(null)}
+              >
+                <X size={14} />
+              </button>
+            </>
           ) : (
             <button
               type="button"
@@ -269,7 +294,7 @@ const RecipientSelector = ({
       {isDropdownOpen && (
         <div
           ref={dropdownRef}
-          className="absolute w-[120%] -translate-x-[10%] mt-1 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]  bg-white border border-gray-500 shadow-md z-10"
+          className="absolute w-[120%] -translate-x-[10%] mt-1 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]  bg-white border border-gray-500 z-10"
         >
           <div className="max-h-[30rem] overflow-y-auto">
             {recipients.map((recipient) => (
@@ -292,6 +317,8 @@ const RecipientSelector = ({
                       placeholder="xxxxxxxxxx"
                       className="border-solid border border-gray-300 px-2 py-1 rounded"
                       id="printerId"
+                      autoComplete="off"
+                      spellCheck="false"
                     />
                     <div className="col-span-2 text-red-600 pt-1">
                       {errorsNew.printerId?.message && (
@@ -325,15 +352,15 @@ const RecipientSelector = ({
                   </button>
                 </form>
               ) : (
-                <div
+                <button
                   className="flex items-center w-full px-4 py-2 hover:bg-[#e4d3b2] cursor-pointer"
-                  onClick={() => setIsAddingRecipient(true)}
+                  onClick={handleNewRecipientClick} // Dont change to mouse down!!
                 >
                   <div className="w-4 h-4 bg-[#d4d0c8] border border-gray-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] flex items-center justify-center mr-2">
                     <Plus size={12} />
                   </div>
                   <span>Add new recipient...</span>
-                </div>
+                </button>
               )}
             </div>
           </div>
