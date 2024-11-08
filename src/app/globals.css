@@ -42,6 +42,24 @@ body {
   border-bottom: 1px solid white;
 }
 
+.editorStyles {
+  font-family: "Courier New", Courier, monospace !important;
+  font-size: 13px !important;
+  letter-spacing: 0 !important;
+  line-height: 1.2 !important;
+  font-feature-settings: "tnum" on, "lnum" on !important;
+  -webkit-font-feature-settings: "tnum" on, "lnum" on !important;
+  -moz-font-feature-settings: "tnum" on, "lnum" on !important;
+  box-sizing: border-box !important;
+}
+
+@supports (-webkit-touch-callout: none) {
+  .editorStyles {
+    text-size-adjust: none !important;
+    -webkit-text-size-adjust: none !important;
+  }
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;

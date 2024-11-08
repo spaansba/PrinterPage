@@ -17,8 +17,6 @@ import type { Recipient } from "../RecipientSelector"
 import RecipientSelector from "../RecipientSelector"
 import { htmlContentToBytesWithCommands } from "../../_helpers/StringToBytes"
 import { getAssociatedPrintersById, getUserName, updateLastSendMessage } from "@/lib/queries"
-import { HtmlContext } from "next/dist/shared/lib/html-context.shared-runtime"
-import { count } from "console"
 
 type RetroTextEditorProps = {
   setTextContent: Dispatch<SetStateAction<string>>
@@ -33,11 +31,10 @@ const extraStyles = `
   .color-white {
     color: #fff9f9d1 !important;
   }
-  .custom-span-class{
+  .custom-span-class {
     color: yellow !important;
   }
 `
-
 type Lines = { characters: string; characterCount: number }[]
 
 type Pages = "Printer" | "Account"
@@ -348,7 +345,7 @@ const RetroTextEditor = ({
     editorProps: {
       attributes: {
         class:
-          "text-[13px] font-mono w-full px-4 py-2 min-h-[200px] bg-white border-[1px] border-gray-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] focus:outline-none whitespace-pre-wrap",
+          "editorStyles text-[13px] font-mono w-full px-4 py-2 min-h-[200px] bg-white border-[1px] border-gray-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] focus:outline-none whitespace-pre-wrap",
       },
     },
     onUpdate({ editor }) {
@@ -372,7 +369,7 @@ const RetroTextEditor = ({
   return (
     <>
       <style>{extraStyles}</style>
-      <div className="w-[273px] border-t-2 border-l-2 border-white border-b-2 border-r-2 border-b-[#808080] border-r-[#808080] shadow-[2px_2px_8px_rgba(0,0,0,0.2)]">
+      <div className="w-[288px] border-t-2 border-l-2 border-white border-b-2 border-r-2 border-b-[#808080] border-r-[#808080] shadow-[2px_2px_8px_rgba(0,0,0,0.2)]">
         {/* Window Title Bar */}
         <div className="h-6 bg-[#735721] flex items-center justify-between px-2">
           <span className="text-white text-sm font-bold">{Title()}</span>
