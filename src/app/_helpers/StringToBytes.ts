@@ -51,6 +51,7 @@ function printingOpenTag(sender: string): Uint8Array {
     .line(`Sender:  ${sender}`)
     .line("Send at: " + getFormattedDateTime())
     .rule()
+    .underline(2)
     .encode()
 }
 

@@ -9,7 +9,7 @@ export default function Home() {
   const MAX_WIDTH = 288
 
   return (
-    <div className="flex flex-col items-center justify-center p-8 gap-6 font-mono text-black bg-[#d4d0c8]">
+    <div className="flex flex-col items-center justify-center p-2 gap-6 font-mono text-black bg-[#d4d0c8]">
       {/* Main Editor Window */}
       <RetroTextEditor
         setTextContent={setTextContent}

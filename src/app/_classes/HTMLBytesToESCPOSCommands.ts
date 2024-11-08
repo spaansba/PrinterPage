@@ -53,6 +53,12 @@ const CONTROL = {
   LF: 0x0a,
 } as const
 
+const MODIFIERS = {
+  HYPHEN: 0x2d, //-
+  E: 0x45, //E
+  B: 0x42, //B
+}
+
 const TAGS = {
   WILDCARD: 0x3f,
   LESS_THAN: 0x3c,
@@ -65,6 +71,7 @@ const TAGS = {
 } as const
 
 const BOOL = {
+  TRUE_DOUBLE: 0x2,
   TRUE: 0x1,
   FALSE: 0x0,
 } as const
@@ -94,8 +101,8 @@ export class HTMLBytesToESCPOSCommands {
   underlineTranslate(): HTMLBytesToESCPOSCommands {
     this._boolCommands.underline = {
       state: {
-        on: new Uint8Array([CONTROL.ESC, 0x2d, BOOL.TRUE]),
-        off: new Uint8Array([CONTROL.ESC, 0x2d, BOOL.FALSE]),
+        on: new Uint8Array([CONTROL.ESC, MODIFIERS.HYPHEN, BOOL.TRUE_DOUBLE]), // Always use 2 dots underline, 1 dot is very small and ugly (can change to 0x01 to test)
+        off: new Uint8Array([CONTROL.ESC, MODIFIERS.HYPHEN, BOOL.FALSE]),
       },
       html: {
         open: new Uint8Array([TAGS.LESS_THAN, TAGS.U, TAGS.GREATER_THAN]),
@@ -108,8 +115,8 @@ export class HTMLBytesToESCPOSCommands {
   boldTranslate(): HTMLBytesToESCPOSCommands {
     this._boolCommands.bold = {
       state: {
-        on: new Uint8Array([CONTROL.ESC, 0x45, BOOL.TRUE]),
-        off: new Uint8Array([CONTROL.ESC, 0x45, BOOL.FALSE]),
+        on: new Uint8Array([CONTROL.ESC, MODIFIERS.B, BOOL.TRUE]),
+        off: new Uint8Array([CONTROL.ESC, MODIFIERS.B, BOOL.FALSE]),
       },
       html: {
         open: new Uint8Array([TAGS.LESS_THAN, ...TAGS.STRONG, TAGS.GREATER_THAN]),
@@ -121,8 +128,8 @@ export class HTMLBytesToESCPOSCommands {
   invertTranslate(invert: string): HTMLBytesToESCPOSCommands {
     this._boolCommands.invert = {
       state: {
-        on: new Uint8Array([CONTROL.GS, 0x42, BOOL.TRUE]),
-        off: new Uint8Array([CONTROL.GS, 0x42, BOOL.FALSE]),
+        on: new Uint8Array([CONTROL.GS, MODIFIERS.E, BOOL.TRUE]),
+        off: new Uint8Array([CONTROL.GS, MODIFIERS.E, BOOL.FALSE]),
       },
       html: {
         open: new Uint8Array(this.hexArrayFromString(invert)),
