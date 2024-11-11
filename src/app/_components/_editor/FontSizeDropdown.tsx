@@ -29,7 +29,11 @@ const DropdownItem = memo(
     isSelected: boolean
   }) => (
     <button
-      onClick={() => onClick(size.value)}
+      type="button"
+      onMouseDown={(e) => {
+        e.preventDefault() // Prevent focus change
+        onClick(size.value)
+      }}
       className={`w-full px-2 py-1 text-left text-black text-sm hover:bg-[#e4d3b2] 
     ${isSelected ? "bg-[#e4d3b2]" : ""}`}
     >
@@ -108,7 +112,10 @@ const FontSizeDropdown: React.FC<FontSizeDropdownProps> = ({ editor }) => {
     <div className="relative select-none z-[1]" data-font-dropdown>
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
+        onMouseDown={(e) => {
+          e.preventDefault() // Prevent focus change
+          setIsOpen(!isOpen)
+        }}
         className={`
           group
           h-7 px-2 
