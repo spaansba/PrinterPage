@@ -131,25 +131,6 @@ export function Toolbar({ editor }: ToolbarProps) {
                 }
               />
             </Toggle>
-
-            <Toggle
-              className={`${
-                editor.isActive("textStyle", { spanClass: "text-[32px]" })
-                  ? "border-t-[#808080] border-l-[#808080] border-b-white border-r-white bg-[#bdb9b3] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]"
-                  : "border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080]"
-              }  size-7 flex items-center justify-center bg-[#d4d0c8] border active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white`}
-              onPressedChange={() => editor.chain().focus().toggleCustomMark("text-[32px]").run()}
-              pressed={editor.isActive("textStyle", { spanClass: "text-[32px]" })}
-            >
-              <Code
-                size={15}
-                style={
-                  editor.isActive("textStyle", { spanClass: "text-[32px]" })
-                    ? { transform: "translate(0.5px, 0.5px)" }
-                    : undefined
-                }
-              />
-            </Toggle>
           </div>
           {/* Media Buttons */}
           <div className="flex items-center gap-px p-[3px] bg-[#d4d0c8] border border-[#808080] shadow-[inset_1px_1px_1px_rgba(255,255,255,0.5)]">

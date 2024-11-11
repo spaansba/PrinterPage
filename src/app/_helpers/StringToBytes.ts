@@ -4,8 +4,10 @@ import { HTMLBytesToESCPOSCommands } from "../_classes/HTMLBytesToESCPOSCommands
 
 export const htmlContentToBytesWithCommands = async (
   text: string,
-  sender: string
+  sender: string,
+  imageUrl: string
 ): Promise<Uint8Array> => {
+  console.log(imageUrl)
   const cleanText = text
     .replaceAll("<p>", "")
     .replaceAll("</p>", "")
@@ -15,7 +17,7 @@ export const htmlContentToBytesWithCommands = async (
   let utf8Encode = new TextEncoder()
   const encodedText = utf8Encode.encode(cleanText)
   let HTMLByteToEscpos = new HTMLBytesToESCPOSCommands(encodedText)
-  const openTag = printingOpenTag(sender)
+  const openTag = await printingOpenTag(sender, imageUrl)
   const userText = HTMLByteToEscpos.boldTranslate()
     .underlineTranslate()
     .invertTranslate(
@@ -29,30 +31,56 @@ export const htmlContentToBytesWithCommands = async (
   return combinedMultiple
 }
 
-function printingOpenTag(sender: string): Uint8Array {
-  let encoder = new ReceiptPrinterEncoder({
+async function printingOpenTag(sender: string, imageUrl: string): Promise<Uint8Array> {
+  const encoder = new ReceiptPrinterEncoder({
     printerModel: "pos-8360",
     columns: 32,
     newLine: "\n",
     imageMode: "raster",
     font: "9x17",
+    // autoFlush: false, // Disable auto-flushing to prevent automatic line feeds
   })
-  return encoder
-    .initialize()
-    .font("a")
-    .underline(false)
-    .italic(false)
-    .align("left")
-    .bold(false)
-    .size(1)
-    .invert(false)
-    .line("----------NEW MESSAGE----------")
-    .invert(false)
-    .line(`Sender:  ${sender}`)
-    .line("Send at: " + getFormattedDateTime())
-    .rule()
-    .underline(2)
-    .encode()
+
+  return new Promise<Uint8Array>((resolve, reject) => {
+    const img = new Image()
+    img.crossOrigin = "anonymous"
+    img.src = imageUrl
+
+    img.onload = function () {
+      try {
+        const result = encoder
+          .initialize()
+          .font("a")
+          .underline(false)
+          .italic(false)
+          .align("left")
+          .bold(false)
+          .size(1)
+          .invert(false)
+          .line("----------NEW MESSAGE----------")
+          .invert(false)
+          .text(`Sender:  ${sender}`)
+          .image(img, 64, 64, "atkinson")
+          .text("Send at: " + getFormattedDateTime())
+          .rule()
+          .underline(2)
+          .encode()
+
+        resolve(result)
+      } catch (error) {
+        reject(error)
+      }
+    }
+
+    img.onerror = function (error) {
+      reject(new Error("Failed to load image: " + error))
+    }
+
+    // Optional: Add timeout to prevent hanging
+    setTimeout(() => {
+      reject(new Error("Image loading timed out"))
+    }, 10000) // 10 second timeout
+  })
 }
 
 async function printingClosingTag(): Promise<Uint8Array> {

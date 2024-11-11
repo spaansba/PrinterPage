@@ -62,7 +62,11 @@ const RetroTextEditor = ({
     const htmlContentWithLineBreaks = addLineBreaks(hTMLContent, lines)
 
     const username = await getUserName(user.id)
-    const content = await htmlContentToBytesWithCommands(htmlContentWithLineBreaks, username)
+    const content = await htmlContentToBytesWithCommands(
+      htmlContentWithLineBreaks,
+      username,
+      user.imageUrl
+    )
     if (!selectedRecipient) {
       return
     }
