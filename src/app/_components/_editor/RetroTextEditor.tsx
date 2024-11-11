@@ -378,6 +378,10 @@ const RetroTextEditor = ({
       const text = editor.getText()
       handleTextChange(text, editor.getHTML())
     },
+    onCreate: ({ editor }) => {
+      // Set initial font size when editor is created
+      editor.commands.toggleCustomMark("text-[13px]")
+    },
   })
 
   // Get the first form error message if any exist

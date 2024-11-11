@@ -56,14 +56,23 @@ const FontSizeDropdown: React.FC<FontSizeDropdownProps> = ({ editor }) => {
 
   const handleFontSizeChange = useCallback(
     (selectedValue: string) => {
-      editor.chain().focus().toggleCustomMark(selectedValue).run()
+      // If current size is 13px and user clicks 13px, do nothing
+      if (currentSize === "text-[13px]" && selectedValue === "text-[13px]") {
+        setIsOpen(false)
+        return
+      }
+
+      // Otherwise, proceed with the size change
+      editor
+        .chain()
+        .focus()
+        .unsetMark("customMark")
+        .setMark("customMark", { class: selectedValue })
+        .run()
       setIsOpen(false)
-      const activeSize = fontSizes.find((size) =>
-        editor.isActive("customMark", { class: size.value })
-      )
-      setCurrentSize(activeSize?.value || fontSizes[0].value)
+      setCurrentSize(selectedValue)
     },
-    [editor]
+    [editor, currentSize]
   )
 
   useEffect(() => {
@@ -108,7 +117,6 @@ const FontSizeDropdown: React.FC<FontSizeDropdownProps> = ({ editor }) => {
           w-[70px] cursor-pointer rounded-none text-sm text-left
           flex items-center justify-between
           active:border-t-[#808080] active:border-l-[#808080] active:border-r-white active:border-b-white
-
         `}
       >
         <span className="truncate">{currentLabel}</span>
