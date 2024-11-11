@@ -43,14 +43,13 @@ body {
 }
 
 .editorStyles {
-  font-family: "Courier New", Courier, monospace !important;
+  font-family: var(--font-ibm-plex-mono) !important;
   font-size: 13px !important;
   letter-spacing: 0 !important;
   line-height: 1.2 !important;
-  font-feature-settings: "tnum" on, "lnum" on !important;
+  /* font-feature-settings: "tnum" on, "lnum" on !important;
   -webkit-font-feature-settings: "tnum" on, "lnum" on !important;
-  -moz-font-feature-settings: "tnum" on, "lnum" on !important;
-  box-sizing: border-box !important;
+  -moz-font-feature-settings: "tnum" on, "lnum" on !important; */
 }
 
 @supports (-webkit-touch-callout: none) {

@@ -1,6 +1,5 @@
 "use client"
-import React, { type Dispatch, type SetStateAction, useEffect, useState } from "react"
-import { Square, Minus, X } from "lucide-react"
+import { type Dispatch, type SetStateAction, useEffect, useState } from "react"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -40,7 +39,6 @@ type Lines = { characters: string; characterCount: number }[]
 type Pages = "Printer" | "Account"
 
 const RetroTextEditor = ({
-  textContent,
   setTextContent,
   status,
   setStatus,
@@ -70,6 +68,7 @@ const RetroTextEditor = ({
     }
 
     try {
+      console.log(selectedRecipient.printerId)
       const response = await fetch(`https://${selectedRecipient.printerId}.toasttexter.com/print`, {
         method: "POST",
         headers: {
@@ -110,7 +109,6 @@ const RetroTextEditor = ({
     let result = ""
     let insideTag = false
     let insideEntity = false
-    let entityBuffer = ""
     let currentLineIndex = 0
     let visibleCharCount = 0
     let nextBreakAt = lines[0]?.characterCount || 0
@@ -176,25 +174,34 @@ const RetroTextEditor = ({
 
   function getVisualLines(element: HTMLElement): Lines {
     const lines: Lines = []
-    const positions: { char: string; center: number }[] = []
+    const positions: { char: string; baseline: number }[] = []
     const range = document.createRange()
 
-    // Get every character and its vertical center position
+    // Get every character and calculate its baseline position
     const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT)
     let node
 
     while ((node = walker.nextNode())) {
       const text = node.textContent || ""
+      const parentElement = node.parentElement
+
       for (let i = 0; i < text.length; i++) {
         try {
           range.setStart(node, i)
           range.setEnd(node, i + 1)
           const rect = range.getBoundingClientRect()
-          // Use the vertical CENTER of each character instead of top
-          const center = rect.top + rect.height / 2
+
+          // Get the computed font size of the parent element
+          const style = window.getComputedStyle(parentElement!)
+          const fontSize = parseFloat(style.fontSize)
+
+          // Calculate the baseline position
+          // The baseline is typically around 20% from the bottom for most fonts
+          const baseline = rect.bottom - fontSize * 0.2
+
           positions.push({
             char: text[i],
-            center: Math.round(center),
+            baseline: Math.round(baseline),
           })
         } catch (e) {
           console.error("Error measuring character:", e)
@@ -202,19 +209,22 @@ const RetroTextEditor = ({
       }
     }
 
-    // Group by vertical center with a tolerance for different text heights
+    // Sort positions by baseline to handle potential out-of-order characters
+    positions.sort((a, b) => a.baseline - b.baseline)
+
+    // Group by baseline position with a tolerance for different font sizes
     let currentLine = ""
-    let lastCenter = positions[0]?.center
-    const TOLERANCE = 15 // Adjust based on your font sizes
+    let lastBaseline = positions[0]?.baseline
+    const TOLERANCE = 3 // Slightly larger tolerance to account for baseline calculation
 
     for (const pos of positions) {
-      // If the center difference is greater than our tolerance, it's a new line
-      if (Math.abs((lastCenter || 0) - pos.center) > TOLERANCE) {
+      // If the baseline difference is greater than our tolerance, it's a new line
+      if (Math.abs((lastBaseline || 0) - pos.baseline) > TOLERANCE) {
         if (currentLine.trim()) {
           lines.push({ characters: currentLine.trim(), characterCount: currentLine.length })
         }
         currentLine = pos.char
-        lastCenter = pos.center
+        lastBaseline = pos.baseline
       } else {
         currentLine += pos.char
       }
@@ -228,7 +238,6 @@ const RetroTextEditor = ({
     range.detach()
     return lines
   }
-
   function updateLineCount() {
     if (!editor?.view?.dom) {
       return { lines: [], count: 0 }
@@ -315,7 +324,6 @@ const RetroTextEditor = ({
     }
   }, [pageActivated])
 
-  const textEditorValue = form.watch("textEditorInput")
   const handleTextChange = (inputText: string, inputHTML: string) => {
     setStatus("Editing")
     setTextContent(inputText)
@@ -334,23 +342,41 @@ const RetroTextEditor = ({
 
   const editor = useEditor({
     extensions: [
-      StarterKit.configure(),
+      StarterKit.configure({
+        history: {
+          depth: 100,
+          newGroupDelay: 500,
+        },
+        dropcursor: false,
+        gapcursor: false,
+      }),
       Underline,
       Highlight.configure({ multicolor: true, HTMLAttributes: { class: "color-white" } }),
       TextStyle,
       CustomMark,
     ],
-    immediatelyRender: false,
-    content: textEditorValue,
     editorProps: {
       attributes: {
         class:
-          "editorStyles text-[13px] font-mono w-full px-4 py-2 min-h-[200px] bg-white border-[1px] border-gray-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] focus:outline-none whitespace-pre-wrap",
+          "editorStyles text-[13px] font-mono w-full px-4 py-4 min-h-[200px] bg-white border-[1px] border-gray-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] focus:outline-none whitespace-pre-wrap break-word touch-manipulation [--webkit-user-modify:read-write-plaintext-only] [--webkit-text-size-adjust:none] [word-wrap:break-word] [overflow-wrap:break-word] [white-space:pre-wrap] [max-width:100%]",
+      },
+      handleKeyDown: (view, event) => {
+        if (event.key === "Backspace") {
+          const { from, to } = view.state.selection
+          if (from === to) {
+            // If no text is selected
+            // Get the current position and delete the previous character
+            const tr = view.state.tr.delete(from - 1, from)
+            view.dispatch(tr)
+            return true
+          }
+        }
+        return false
       },
     },
-    onUpdate({ editor }) {
-      handleTextChange(editor.getText(), editor.getHTML())
-      form.clearErrors()
+    onUpdate: ({ editor }) => {
+      const text = editor.getText()
+      handleTextChange(text, editor.getHTML())
     },
   })
 
@@ -405,6 +431,7 @@ const RetroTextEditor = ({
                 <div className="text-[13px]">
                   <EditorContent
                     {...form.register("textEditorInput")}
+                    id="editorwrapper"
                     editor={editor}
                     spellCheck="false"
                   />
