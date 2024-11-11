@@ -1,6 +1,7 @@
 "use client"
 import ReceiptPrinterEncoder from "@point-of-sale/receipt-printer-encoder"
 import { HTMLBytesToESCPOSCommands } from "../_classes/HTMLBytesToESCPOSCommands"
+import { appendImageCommand, processImageForPrinter } from "./appendImageToPrint"
 
 export const htmlContentToBytesWithCommands = async (
   text: string,
@@ -18,6 +19,7 @@ export const htmlContentToBytesWithCommands = async (
   const encodedText = utf8Encode.encode(cleanText)
   let HTMLByteToEscpos = new HTMLBytesToESCPOSCommands(encodedText)
   const openTag = await printingOpenTag(sender, imageUrl)
+  const closingTag = await printingClosingTag()
   const userText = HTMLByteToEscpos.boldTranslate()
     .underlineTranslate()
     .invertTranslate(
@@ -25,10 +27,19 @@ export const htmlContentToBytesWithCommands = async (
     )
     .textSizeTranslate()
     .encode()
+  try {
+    const imageData = await processImageForPrinter(imageUrl, {
+      size: 64, // Image will be 200 pixels on its longest side
+    })
+    const finalOutput = appendImageCommand(userText, imageData)
 
-  const closingTag = await printingClosingTag()
-  const combinedMultiple = combineMultipleUint8Arrays([openTag, userText, closingTag])
-  return combinedMultiple
+    const combinedMultiple = combineMultipleUint8Arrays([openTag, finalOutput, closingTag])
+    return combinedMultiple
+  } catch (error) {
+    console.error("Failed to process image:", error)
+    // If image fails, return just the text
+    return userText
+  }
 }
 
 async function printingOpenTag(sender: string, imageUrl: string): Promise<Uint8Array> {
@@ -59,9 +70,9 @@ async function printingOpenTag(sender: string, imageUrl: string): Promise<Uint8A
           .invert(false)
           .line("----------NEW MESSAGE----------")
           .invert(false)
-          .text(`Sender:  ${sender}`)
+          .line(`Sender:  ${sender}`)
           .image(img, 64, 64, "atkinson")
-          .text("Send at: " + getFormattedDateTime())
+          .line("Send at: " + getFormattedDateTime())
           .rule()
           .underline(2)
           .encode()
