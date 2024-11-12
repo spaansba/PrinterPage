@@ -167,7 +167,7 @@ export class HTMLBytesToESCPOSCommands {
     return Array.from(str).map((char) => char.charCodeAt(0))
   }
 
-  encode(): Uint8Array {
+  public async encode(): Promise<Uint8Array> {
     Object.entries(this._boolCommands).forEach(([key, command]) => {
       const [replacedOpen] = htmlTagsToESCPOSEncoder(
         this._bytes,
@@ -188,38 +188,87 @@ export class HTMLBytesToESCPOSCommands {
 
     this.addLineBreaks()
     this.convertEntitiesToHex()
-    this.convertImages()
+    await this.convertImages() // Wait for image processing to complete
+    console.log("this", this._bytes) // Now shows the updated array
     return this._bytes
   }
-  private convertImages() {
-    const blob = new Uint8Array([0x62, 0x6c, 0x6f, 0x62])
+
+  private async convertImages(): Promise<void> {
+    const blobPrefix = new Uint8Array([0x62, 0x6c, 0x6f, 0x62, 0x3a])
+    const replacements = new Map<number, { data: Uint8Array; length: number }>()
+    const processingPromises: Promise<void>[] = []
 
     for (let i = 0; i < this._bytes.length; i++) {
       let match = true
-      for (let j = 0; j < 4; j++) {
-        if (this._bytes[i + j] !== blob[j]) {
+      for (let j = 0; j < blobPrefix.length; j++) {
+        if (this._bytes[i + j] !== blobPrefix[j]) {
           match = false
           break
         }
       }
+
       if (match) {
-        // calculate size of blob array
-        let blobSize = 0
-        for (let j = 0; j < this._bytes.length; j++) {
-          if (this._bytes[i + j] !== 0x20) {
-            blobSize++
-          } else {
-            break
-          }
+        let urlEnd = i
+        while (urlEnd < this._bytes.length && this._bytes[urlEnd] !== 0x20) {
+          urlEnd++
         }
-        let blobArray = new Uint8Array(blobSize)
-        for (let j = 0; j < blobSize; j++) {
-          blobArray[j] = this._bytes[i + j]
-        }
-        processImage(blobArray)
+
+        const urlBytes = this._bytes.slice(i, urlEnd)
+        const blobUrl = String.fromCharCode.apply(null, Array.from(urlBytes))
+
+        // Create a promise for processing each image
+        const processPromise = processImage(blobUrl)
+          .then((processedBlob) => {
+            if (!processedBlob || !processedBlob.data) {
+              throw new Error("Invalid processed blob data")
+            }
+            replacements.set(i, {
+              data: processedBlob.data,
+              length: urlEnd - i,
+            })
+          })
+          .catch((error) => {
+            console.error("Error processing image:", error)
+          })
+
+        processingPromises.push(processPromise)
       }
     }
+
+    // Wait for all images to be processed
+    await Promise.all(processingPromises)
+
+    // Only proceed with array reconstruction after all images are processed
+    if (replacements.size > 0) {
+      let newSize = this._bytes.length
+      for (const replacement of replacements.values()) {
+        newSize = newSize - replacement.length + replacement.data.length
+      }
+
+      const newArray = new Uint8Array(newSize)
+      let targetIndex = 0
+      let sourceIndex = 0
+
+      const sortedIndices = Array.from(replacements.keys()).sort((a, b) => a - b)
+      for (const replaceIndex of sortedIndices) {
+        while (sourceIndex < replaceIndex) {
+          newArray[targetIndex++] = this._bytes[sourceIndex++]
+        }
+
+        const replacement = replacements.get(replaceIndex)!
+        newArray.set(replacement.data, targetIndex)
+        targetIndex += replacement.data.length
+        sourceIndex += replacement.length
+      }
+
+      while (sourceIndex < this._bytes.length) {
+        newArray[targetIndex++] = this._bytes[sourceIndex++]
+      }
+
+      this._bytes = newArray
+    }
   }
+
   private convertEntitiesToHex() {
     Object.values(HTML_ENTITIES).forEach((entity) => {
       const findSequence = new Uint8Array(entity.entity)

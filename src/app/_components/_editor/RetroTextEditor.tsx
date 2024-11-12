@@ -74,7 +74,6 @@ const RetroTextEditor = ({
     }
 
     try {
-      console.log(selectedRecipient.printerId)
       const response = await fetch(`https://${selectedRecipient.printerId}.toasttexter.com/print`, {
         method: "POST",
         headers: {
@@ -434,7 +433,6 @@ const RetroTextEditor = ({
   // Get the first form error message if any exist
   const getFirstFormError = () => {
     if (form.formState.errors.recipient) {
-      console.log(form.formState.errors.recipient.message)
       return form.formState.errors.recipient.message
     }
     if (form.formState.errors.textEditorInput) {

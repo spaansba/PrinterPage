@@ -95,7 +95,7 @@ function AccountPage() {
 
     try {
       setIsUpdatingUsername(true)
-      console.log(data.name)
+
       await updatedUserName(user.id, data.name)
       setDbUsername(data.name)
       setIsEditingUsername(false)

@@ -27,7 +27,7 @@ export const htmlContentToBytesWithCommands = async (
   let HTMLByteToEscpos = new HTMLBytesToESCPOSCommands(encodedText)
   const openTag = await printingOpenTag(sender, imageUrl)
   const closingTag = await printingClosingTag()
-  const userText = HTMLByteToEscpos.boldTranslate()
+  const userText = await HTMLByteToEscpos.boldTranslate()
     .underlineTranslate()
     .invertTranslate(
       `<mark class="color-white" data-color="rgb(49, 49, 49)" style="background-color: rgb(49, 49, 49); color: inherit">`

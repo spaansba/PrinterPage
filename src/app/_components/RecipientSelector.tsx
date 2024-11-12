@@ -121,7 +121,6 @@ const RecipientSelector = ({
   }
 
   async function handleNewName(data: z.infer<typeof recipientNameSchema>, printerId: string) {
-    console.log("here")
     if (!user) {
       setErrorEdit("root", { message: "User Doesnt Exist" })
       return
