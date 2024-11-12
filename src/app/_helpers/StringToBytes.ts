@@ -10,10 +10,10 @@ export const htmlContentToBytesWithCommands = async (
 ): Promise<Uint8Array> => {
   console.log(imageUrl)
   const cleanText = text
-    .replaceAll("<p>", "")
-    .replaceAll("</p>", "")
-    .replaceAll("<span>", "")
-    .replaceAll("</span>", "")
+    .replace(/<p[^>]*>/g, "")
+    .replace(/<\/p>/g, "")
+    .replace(/<span[^>]*>/g, "")
+    .replace(/<\/span>/g, "")
   console.log(text)
   let utf8Encode = new TextEncoder()
   const encodedText = utf8Encode.encode(cleanText)
@@ -33,7 +33,7 @@ export const htmlContentToBytesWithCommands = async (
     })
     const finalOutput = appendImageCommand(userText, imageData)
 
-    const combinedMultiple = combineMultipleUint8Arrays([openTag, finalOutput, closingTag])
+    const combinedMultiple = combineMultipleUint8Arrays([openTag, userText, closingTag])
     return combinedMultiple
   } catch (error) {
     console.error("Failed to process image:", error)
@@ -71,7 +71,7 @@ async function printingOpenTag(sender: string, imageUrl: string): Promise<Uint8A
           .line("----------NEW MESSAGE----------")
           .invert(false)
           .line(`Sender:  ${sender}`)
-          .image(img, 64, 64, "atkinson")
+          // .image(img, 64, 64, "atkinson")
           .line("Send at: " + getFormattedDateTime())
           .rule()
           .underline(2)
@@ -132,7 +132,6 @@ async function printingClosingTag(): Promise<Uint8Array> {
     console.error("Error loading image:", error)
     return encoder
       .newline(1)
-
       .rule({ style: "double" })
       .newline(3)
       .text("Image loading failed")

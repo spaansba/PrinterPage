@@ -14,6 +14,7 @@ import {
   Underline,
 } from "lucide-react"
 import FontSizeDropdown from "./FontSizeDropdown"
+import { useRef } from "react"
 
 type ToolbarProps = {
   editor: Editor | null
@@ -31,17 +32,52 @@ const TextStyles = `
   .wide-text {
     font-size: 26px
   }
-
 `
 
 export function Toolbar({ editor }: ToolbarProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
   if (!editor) {
     return null
+  }
+
+  const handleImageUpload = (file: File) => {
+    // Here you would typically upload the file to your server/storage
+    // For now, we'll use a local URL
+    const url = URL.createObjectURL(file)
+    editor.chain().focus().setImage({ src: url }).run()
+  }
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      handleImageUpload(file)
+    }
+  }
+
+  const triggerImageUpload = () => {
+    // Check if the device has camera support
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+    if (fileInputRef.current) {
+      // On mobile, allow both camera and file selection
+      fileInputRef.current.accept = isMobile ? "image/*;capture=camera" : "image/*"
+      fileInputRef.current.click()
+    }
   }
 
   return (
     <>
       <style>{TextStyles}</style>
+
+      {/* Hidden file input */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        className="hidden"
+        onChange={handleFileChange}
+        accept="image/*"
+        capture="environment"
+      />
 
       <div>
         {/* Top Row - Text Formatting */}
@@ -56,17 +92,11 @@ export function Toolbar({ editor }: ToolbarProps) {
               <FlaskRound size={15} />
             </button>
 
-            <button
-              //   onMouseDown={htmlTest}
-              className="size-7 flex items-center justify-center border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
-            >
+            <button className="size-7 flex items-center justify-center border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white">
               <Aperture size={15} />
             </button>
-            {/* Delete Button */}
-            <button
-              //   onMouseDown={() => setTextContent("")}
-              className="size-7  flex items-center justify-center border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
-            >
+
+            <button className="size-7  flex items-center justify-center border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white">
               <Trash2 size={15} />
             </button>
           </div>
@@ -134,7 +164,13 @@ export function Toolbar({ editor }: ToolbarProps) {
           </div>
           {/* Media Buttons */}
           <div className="flex items-center gap-px p-[3px] bg-[#d4d0c8] border border-[#808080] shadow-[inset_1px_1px_1px_rgba(255,255,255,0.5)]">
-            {[Barcode, QrCode, ImageIcon].map((Icon, index) => (
+            <button
+              onClick={() => triggerImageUpload()}
+              className="w-7 h-7 flex items-center justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
+            >
+              <ImageIcon size={15} />
+            </button>
+            {[Barcode, QrCode].map((Icon, index) => (
               <button
                 key={index}
                 className="w-7 h-7 flex items-center justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"

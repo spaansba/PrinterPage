@@ -1,5 +1,4 @@
-// appendImageToPrint.ts
-
+// AI to the rescue
 interface ImageProcessingOptions {
   size?: number // Image size in pixels, will be adjusted to multiple of 8
 }

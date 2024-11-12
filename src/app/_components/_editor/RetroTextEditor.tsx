@@ -4,7 +4,7 @@ import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { SignedIn, SignedOut, SignInButton, useUser } from "@clerk/nextjs"
-import { EditorContent, useEditor } from "@tiptap/react"
+import { Editor, EditorContent, useEditor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import { Toolbar } from "./Toolbar"
 import Underline from "@tiptap/extension-underline"
@@ -16,6 +16,7 @@ import type { Recipient } from "../RecipientSelector"
 import RecipientSelector from "../RecipientSelector"
 import { htmlContentToBytesWithCommands } from "../../_helpers/StringToBytes"
 import { getAssociatedPrintersById, getUserName, updateLastSendMessage } from "@/lib/queries"
+import Image from "@tiptap/extension-image"
 
 type RetroTextEditorProps = {
   setTextContent: Dispatch<SetStateAction<string>>
@@ -335,15 +336,6 @@ const RetroTextEditor = ({
     form.setValue("textEditorInput", inputText)
   }
 
-  const handlePaste = (e: React.ClipboardEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    document.execCommand("inserttext", false, e.clipboardData.getData("text/plain"))
-  }
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
-  }
-
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -351,18 +343,24 @@ const RetroTextEditor = ({
           depth: 100,
           newGroupDelay: 500,
         },
-        dropcursor: false,
-        gapcursor: false,
+        paragraph: {
+          HTMLAttributes: {
+            // We have the editor on 16px so it doesnt zoom in on mobile automatically. This hack makes it 13px again
+            class: "text-[13px]",
+          },
+        },
       }),
       Underline,
       Highlight.configure({ multicolor: true, HTMLAttributes: { class: "color-white" } }),
       TextStyle,
       CustomMark,
+      Image,
     ],
     editorProps: {
       attributes: {
         class:
           "editorStyles text-[13px] font-mono w-full px-4 py-4 min-h-[200px] bg-white border-[1px] border-gray-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] focus:outline-none whitespace-pre-wrap break-word touch-manipulation [--webkit-user-modify:read-write-plaintext-only] [--webkit-text-size-adjust:none] [word-wrap:break-word] [overflow-wrap:break-word] [white-space:pre-wrap] [max-width:100%]",
+        "data-gramm": "false", // existing attributes if any
       },
       handleKeyDown: (view, event) => {
         if (event.key === "Backspace") {
@@ -377,14 +375,58 @@ const RetroTextEditor = ({
         }
         return false
       },
+      // Turn dropped in text to plain text without formatting
+      handleDrop: (view, event) => {
+        const dt = event.dataTransfer
+        if (!dt) return true
+
+        // If user is dragging an image aroun, actually accept the drop (not from outside the editor, only inside to inside)
+        const html = dt.getData("text/html")
+        if (html && (html.includes("<img") || html.includes("data:image"))) {
+          return false
+        }
+
+        const text = dt.getData("text/plain")
+        if (text) {
+          const pos = view.posAtCoords({ left: event.clientX, top: event.clientY })
+          if (pos) {
+            view.dispatch(view.state.tr.insertText(text, pos.pos))
+          }
+        }
+        return true
+      },
+      handlePaste: (view, event) => {
+        if (event?.clipboardData) {
+          const text = event.clipboardData.getData("text/plain")
+          view.dispatch(view.state.tr.insertText(text))
+          return true
+        }
+        return false
+      },
+      handleClick: (view, pos, event) => {
+        const isTouchDevice = "ontouchstart" in window || navigator.maxTouchPoints > 0
+        if (isTouchDevice) {
+          return false
+        }
+
+        // Remove selected image class on all images not clicked
+        view.state.doc.descendants((_, position) => {
+          const element = view.nodeDOM(position) as Element
+          if (element instanceof HTMLImageElement) {
+            element.classList.remove("selected-image")
+          }
+        })
+
+        // Add selected image class on the clicked image
+        const clickedNode = event.target as Element
+        if (clickedNode instanceof HTMLImageElement) {
+          clickedNode.classList.toggle("selected-image")
+        }
+      },
     },
     onUpdate: ({ editor }) => {
       const text = editor.getText()
       handleTextChange(text, editor.getHTML())
-    },
-    onCreate: ({ editor }) => {
-      // Set initial font size when editor is created
-      editor.commands.toggleCustomMark("text-[13px]")
     },
   })
 
@@ -435,8 +477,8 @@ const RetroTextEditor = ({
                 onSelectRecipient={setSelectedRecipient}
               />
               <Toolbar editor={editor} />
-              <form onPaste={handlePaste} className="text-[16px]">
-                <div className="text-[13px]">
+              <form className="text-[16px]">
+                <div>
                   <EditorContent
                     {...form.register("textEditorInput")}
                     id="editorwrapper"

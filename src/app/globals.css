@@ -47,9 +47,11 @@ body {
   font-size: 16px !important;
   letter-spacing: 0 !important;
   line-height: 1.2 !important;
-  /* font-feature-settings: "tnum" on, "lnum" on !important;
-  -webkit-font-feature-settings: "tnum" on, "lnum" on !important;
-  -moz-font-feature-settings: "tnum" on, "lnum" on !important; */
+  min-height: 260px !important;
+}
+
+.selected-image {
+  filter: brightness(0.5);
 }
 
 @supports (-webkit-touch-callout: none) {
