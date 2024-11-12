@@ -35,49 +35,45 @@ const TextStyles = `
 `
 
 export function Toolbar({ editor }: ToolbarProps) {
-  const fileInputRef = useRef<HTMLInputElement>(null)
-
   if (!editor) {
     return null
   }
 
-  const handleImageUpload = (file: File) => {
-    // Here you would typically upload the file to your server/storage
-    // For now, we'll use a local URL
-    const url = URL.createObjectURL(file)
-    editor.chain().focus().setImage({ src: url }).run()
-  }
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      handleImageUpload(file)
-    }
-  }
-
   const triggerImageUpload = () => {
     // Check if the device has camera support
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
-    if (fileInputRef.current) {
-      // On mobile, allow both camera and file selection
-      fileInputRef.current.accept = isMobile ? "image/*;capture=camera" : "image/*"
-      fileInputRef.current.click()
-    }
+    var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    )
+    const inputElement = document.createElement("input")
+    inputElement.type = "file"
+    inputElement.accept = isMobile ? "image/*" : "image/png, image/jpeg"
+    inputElement.className = "hidden"
+
+    // Add it to document temp for mobile to work
+    document.body.appendChild(inputElement)
+    inputElement.addEventListener("change", (e) => {
+      const target = e.target as HTMLInputElement
+      const file = target.files?.[0]
+      if (file) {
+        const url = URL.createObjectURL(file)
+        const pos = editor.state.selection.from
+        editor
+          .chain()
+          .focus()
+          .setImage({ src: url })
+          .setTextSelection(pos + 3) // make us unselect the image, so that if you type you dont instantly delete the image
+          .run()
+        target.remove()
+      }
+      // Clean up by removing the input element after handling the file
+      inputElement.remove()
+    })
+    inputElement.click()
   }
 
   return (
     <>
       <style>{TextStyles}</style>
-
-      {/* Hidden file input */}
-      <input
-        type="file"
-        ref={fileInputRef}
-        className="hidden"
-        onChange={handleFileChange}
-        accept="image/*"
-        capture="environment"
-      />
 
       <div>
         {/* Top Row - Text Formatting */}

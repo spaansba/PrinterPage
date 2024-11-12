@@ -1,20 +1,27 @@
 "use client"
 import ReceiptPrinterEncoder from "@point-of-sale/receipt-printer-encoder"
 import { HTMLBytesToESCPOSCommands } from "../_classes/HTMLBytesToESCPOSCommands"
-import { appendImageCommand, processImageForPrinter } from "./appendImageToPrint"
+import { processImage } from "./appendImageToPrint"
 
 export const htmlContentToBytesWithCommands = async (
   text: string,
   sender: string,
   imageUrl: string
 ): Promise<Uint8Array> => {
-  console.log(imageUrl)
-  const cleanText = text
+  const replaceImgTagsWithSrc = text.replace(
+    /<img[^>]*src=["']([^"']+)["'][^>]*>/g,
+    (_, srcUrl) => ` ${srcUrl} `
+  )
+
+  const cleanText = replaceImgTagsWithSrc
     .replace(/<p[^>]*>/g, "")
     .replace(/<\/p>/g, "")
     .replace(/<span[^>]*>/g, "")
     .replace(/<\/span>/g, "")
-  console.log(text)
+    .replace(/<br[^>]*>/g, "")
+    .replace(/<\/br>/g, "")
+
+  console.log("clean", cleanText)
   let utf8Encode = new TextEncoder()
   const encodedText = utf8Encode.encode(cleanText)
   let HTMLByteToEscpos = new HTMLBytesToESCPOSCommands(encodedText)
@@ -28,12 +35,16 @@ export const htmlContentToBytesWithCommands = async (
     .textSizeTranslate()
     .encode()
   try {
-    const imageData = await processImageForPrinter(imageUrl, {
+    const imageData = await processImage(imageUrl, {
       size: 64, // Image will be 200 pixels on its longest side
     })
-    const finalOutput = appendImageCommand(userText, imageData)
 
-    const combinedMultiple = combineMultipleUint8Arrays([openTag, userText, closingTag])
+    const combinedMultiple = combineMultipleUint8Arrays([
+      openTag,
+      userText,
+      imageData.data,
+      closingTag,
+    ])
     return combinedMultiple
   } catch (error) {
     console.error("Failed to process image:", error)
@@ -140,7 +151,7 @@ async function printingClosingTag(): Promise<Uint8Array> {
   }
 }
 
-function combineMultipleUint8Arrays(arrays: Uint8Array[]) {
+export function combineMultipleUint8Arrays(arrays: Uint8Array[]) {
   const totalLength = arrays.reduce((acc, arr) => acc + arr.length, 0)
   const combined = new Uint8Array(totalLength)
   let offset = 0

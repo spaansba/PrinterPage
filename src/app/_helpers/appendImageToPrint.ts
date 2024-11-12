@@ -1,9 +1,44 @@
-// AI to the rescue
 interface ImageProcessingOptions {
   size?: number // Image size in pixels, will be adjusted to multiple of 8
 }
 
-export async function processImageForPrinter(
+// Unified function that accepts either input type
+export async function processImage(
+  input: string | Uint8Array,
+  options: ImageProcessingOptions = {}
+): Promise<{ data: Uint8Array }> {
+  let result
+
+  if (input instanceof Uint8Array) {
+    result = await processImageFromArray(input, options)
+  } else {
+    result = await processImageFromUrl(input, options)
+  }
+
+  // Create command array for raster mode
+  const command = new Uint8Array([
+    0x1d,
+    0x76,
+    0x30,
+    0x00, // GS v 0 0 (raster mode)
+    result.width / 8,
+    0, // xL xH (bytes per line)
+    result.height & 0xff,
+    (result.height >> 8) & 0xff, // yL yH (total lines)
+  ])
+
+  // Create the final byte array
+  const combinedData = new Uint8Array(command.length + result.data.length)
+
+  let offset = 0
+  combinedData.set(command, offset)
+  offset += command.length
+  combinedData.set(result.data, offset)
+  return { data: combinedData }
+}
+
+// Function to process image from URL string
+async function processImageFromUrl(
   imageUrl: string,
   options: ImageProcessingOptions = {}
 ): Promise<{ data: Uint8Array; width: number; height: number }> {
@@ -22,6 +57,46 @@ export async function processImageForPrinter(
     img.src = imageUrl
   })
 
+  return processImageElement(img, targetSize)
+}
+
+// Function to process image from Uint8Array
+async function processImageFromArray(
+  imageData: Uint8Array,
+  options: ImageProcessingOptions = {}
+): Promise<{ data: Uint8Array; width: number; height: number }> {
+  // Convert Uint8Array to blob
+  const blob = new Blob([imageData], { type: "image/png" })
+  const imageUrl = URL.createObjectURL(blob)
+
+  try {
+    // Default to 384 if no size specified
+    let targetSize = options.size ?? 384
+
+    // Round to nearest multiple of 8 (required for printer)
+    targetSize = Math.round(targetSize / 8) * 8
+
+    // Load image
+    const img = new Image()
+    img.crossOrigin = "anonymous"
+    await new Promise((resolve, reject) => {
+      img.onload = resolve
+      img.onerror = reject
+      img.src = imageUrl
+    })
+
+    return processImageElement(img, targetSize)
+  } finally {
+    // Clean up the blob URL
+    URL.revokeObjectURL(imageUrl)
+  }
+}
+
+// Shared processing logic for both methods
+function processImageElement(
+  img: HTMLImageElement,
+  targetSize: number
+): { data: Uint8Array; width: number; height: number } {
   // Calculate dimensions maintaining aspect ratio
   let finalWidth, finalHeight
   if (img.width >= img.height) {
@@ -84,6 +159,7 @@ export async function processImageForPrinter(
   }
 }
 
+// Keep the existing applyAtkinsonDithering function
 function applyAtkinsonDithering(data: Uint8ClampedArray, width: number, height: number): void {
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
@@ -115,41 +191,4 @@ function applyAtkinsonDithering(data: Uint8ClampedArray, width: number, height: 
       }
     }
   }
-}
-
-export function appendImageCommand(
-  text: Uint8Array,
-  imageData: { data: Uint8Array; width: number; height: number }
-): Uint8Array {
-  const { data: rasterData, width, height } = imageData
-
-  // ESC/POS commands for printing raster graphics
-  const command = new Uint8Array([
-    0x1d,
-    0x76,
-    0x30,
-    0x00, // GS v 0 0 (raster mode)
-    width / 8,
-    0, // xL xH (bytes per line)
-    height & 0xff,
-    (height >> 8) & 0xff, // yL yH (total lines)
-  ])
-
-  // Add line feeds before and after for spacing
-  const lineFeeds = new Uint8Array([0x0a, 0x0a])
-
-  // Create the final byte array
-  const result = new Uint8Array(text.length + lineFeeds.length + command.length + rasterData.length)
-
-  // Combine everything
-  let offset = 0
-  result.set(text, offset)
-  offset += text.length
-  result.set(lineFeeds, offset)
-  offset += lineFeeds.length
-  result.set(command, offset)
-  offset += command.length
-  result.set(rasterData, offset)
-
-  return result
 }

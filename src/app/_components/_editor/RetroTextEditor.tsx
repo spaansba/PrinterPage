@@ -68,6 +68,7 @@ const RetroTextEditor = ({
       username,
       user.imageUrl
     )
+
     if (!selectedRecipient) {
       return
     }

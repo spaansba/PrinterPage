@@ -1,6 +1,7 @@
 "use client"
 
 import { array } from "zod"
+import { processImage } from "../_helpers/appendImageToPrint"
 
 const TextJustify = {
   Left: 0,
@@ -187,16 +188,42 @@ export class HTMLBytesToESCPOSCommands {
 
     this.addLineBreaks()
     this.convertEntitiesToHex()
+    this.convertImages()
     return this._bytes
   }
+  private convertImages() {
+    const blob = new Uint8Array([0x62, 0x6c, 0x6f, 0x62])
 
+    for (let i = 0; i < this._bytes.length; i++) {
+      let match = true
+      for (let j = 0; j < 4; j++) {
+        if (this._bytes[i + j] !== blob[j]) {
+          match = false
+          break
+        }
+      }
+      if (match) {
+        // calculate size of blob array
+        let blobSize = 0
+        for (let j = 0; j < this._bytes.length; j++) {
+          if (this._bytes[i + j] !== 0x20) {
+            blobSize++
+          } else {
+            break
+          }
+        }
+        let blobArray = new Uint8Array(blobSize)
+        for (let j = 0; j < blobSize; j++) {
+          blobArray[j] = this._bytes[i + j]
+        }
+        processImage(blobArray)
+      }
+    }
+  }
   private convertEntitiesToHex() {
-    // Process each HTML entity
     Object.values(HTML_ENTITIES).forEach((entity) => {
       const findSequence = new Uint8Array(entity.entity)
       const replaceSequence = new Uint8Array([entity.value])
-
-      // Use the existing encoder to replace entities with their hex values
       const [result] = htmlTagsToESCPOSEncoder(
         this._bytes,
         findSequence,
@@ -204,7 +231,6 @@ export class HTMLBytesToESCPOSCommands {
         "entity",
         true
       )
-
       this._bytes = result
     })
   }
