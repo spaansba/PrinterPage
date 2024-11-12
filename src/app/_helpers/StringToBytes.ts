@@ -11,6 +11,7 @@ export const htmlContentToBytesWithCommands = async (
     /<img[^>]*src=["']([^"']+)["'][^>]*>/g,
     (_, srcUrl) => `${srcUrl}|`
   )
+  console.log(replaceImgTagsWithSrc)
 
   const cleanText = replaceImgTagsWithSrc
     .replace(/<p[^>]*>/g, "")

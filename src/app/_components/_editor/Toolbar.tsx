@@ -14,8 +14,8 @@ import {
   Underline,
 } from "lucide-react"
 import FontSizeDropdown from "./FontSizeDropdown"
-import { useRef } from "react"
 import SmileyDropdown from "./SmileyDropdown"
+import QRCode from "qrcode"
 
 type ToolbarProps = {
   editor: Editor | null
@@ -40,7 +40,18 @@ export function Toolbar({ editor }: ToolbarProps) {
     return null
   }
 
-  const triggerImageUpload = () => {
+  function handleQRCode() {
+    QRCode.toDataURL("I am a pony!")
+      .then((url) => {
+        pasteImageToEditor(url)
+        console.log(url)
+      })
+      .catch((err) => {
+        console.error(err)
+      })
+  }
+
+  function triggerImageUpload() {
     // Check if the device has camera support
     var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
       navigator.userAgent
@@ -57,13 +68,7 @@ export function Toolbar({ editor }: ToolbarProps) {
       const file = target.files?.[0]
       if (file) {
         const url = URL.createObjectURL(file)
-        const pos = editor.state.selection.from
-        editor
-          .chain()
-          .focus()
-          .setImage({ src: url })
-          .setTextSelection(pos + 3) // make us unselect the image, so that if you type you dont instantly delete the image
-          .run()
+        pasteImageToEditor(url)
         target.remove()
       }
       // Clean up by removing the input element after handling the file
@@ -72,6 +77,15 @@ export function Toolbar({ editor }: ToolbarProps) {
     inputElement.click()
   }
 
+  function pasteImageToEditor(url: string) {
+    const pos = editor!.state.selection.from
+    editor!
+      .chain()
+      .focus()
+      .setImage({ src: url })
+      .setTextSelection(pos + 3) // make us unselect the image, so that if you type you dont instantly delete the image
+      .run()
+  }
   return (
     <>
       <style>{TextStyles}</style>
@@ -162,19 +176,17 @@ export function Toolbar({ editor }: ToolbarProps) {
           {/* Media Buttons */}
           <div className="flex items-center gap-px p-[3px] bg-[#d4d0c8] border border-[#808080] shadow-[inset_1px_1px_1px_rgba(255,255,255,0.5)]">
             <button
-              onClick={() => triggerImageUpload()}
+              onMouseDown={() => triggerImageUpload()}
               className="w-7 h-7 flex items-center justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
             >
               <ImageIcon size={15} />
             </button>
-            {[Barcode, QrCode].map((Icon, index) => (
-              <button
-                key={index}
-                className="w-7 h-7 flex items-center justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
-              >
-                <Icon size={15} />
-              </button>
-            ))}
+            <button
+              onMouseDown={() => handleQRCode()}
+              className="w-7 h-7 flex items-center justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
+            >
+              <QrCode size={15} />
+            </button>
           </div>
         </div>
       </div>

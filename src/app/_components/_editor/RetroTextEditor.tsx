@@ -354,7 +354,7 @@ const RetroTextEditor = ({
       Highlight.configure({ multicolor: true, HTMLAttributes: { class: "color-white" } }),
       TextStyle,
       CustomMark,
-      Image,
+      Image.configure({ HTMLAttributes: { class: "justify-self-center" } }),
     ],
     editorProps: {
       attributes: {

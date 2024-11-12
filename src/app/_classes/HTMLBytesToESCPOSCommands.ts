@@ -271,29 +271,43 @@ export class HTMLBytesToESCPOSCommands {
 
   private async convertImages(): Promise<void> {
     const blobPrefix = new Uint8Array([0x62, 0x6c, 0x6f, 0x62, 0x3a]) // blob:
+    const dataImagePrefix = new Uint8Array([
+      0x64, 0x61, 0x74, 0x61, 0x3a, 0x69, 0x6d, 0x61, 0x67, 0x65,
+    ]) // data:image
     const replacements = new Map<number, { data: Uint8Array; length: number }>()
     const processingPromises: Promise<void>[] = []
 
     for (let i = 0; i < this._bytes.length; i++) {
-      let match = true
+      let isBlob = true
+      let isDataImage = true
+
+      // Check for blob: prefix
       for (let j = 0; j < blobPrefix.length; j++) {
         if (this._bytes[i + j] !== blobPrefix[j]) {
-          match = false
+          isBlob = false
           break
         }
       }
 
-      if (match) {
+      // Check for data:image prefix
+      for (let j = 0; j < dataImagePrefix.length; j++) {
+        if (this._bytes[i + j] !== dataImagePrefix[j]) {
+          isDataImage = false
+          break
+        }
+      }
+
+      if (isBlob || isDataImage) {
         let urlEnd = i
         while (urlEnd < this._bytes.length && this._bytes[urlEnd] !== TAGS.PIPE) {
           urlEnd++
         }
 
         const urlBytes = this._bytes.slice(i, urlEnd)
-        const blobUrl = String.fromCharCode.apply(null, Array.from(urlBytes))
+        const imageUrl = String.fromCharCode.apply(null, Array.from(urlBytes))
 
         // Create a promise for processing each image
-        const processPromise = processImage(blobUrl)
+        const processPromise = processImage(imageUrl)
           .then((processedBlob) => {
             if (!processedBlob || !processedBlob.data) {
               throw new Error("Invalid processed blob data")
