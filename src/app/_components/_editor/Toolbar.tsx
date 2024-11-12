@@ -12,7 +12,9 @@ import {
   QrCode,
   Trash2,
   Underline,
+  X,
 } from "lucide-react"
+import { useState } from "react"
 import FontSizeDropdown from "./FontSizeDropdown"
 import SmileyDropdown from "./SmileyDropdown"
 import QRCode from "qrcode"
@@ -36,15 +38,25 @@ const TextStyles = `
 `
 
 export function Toolbar({ editor }: ToolbarProps) {
+  const [showQRInput, setShowQRInput] = useState(false)
+  const [qrInputText, setQRInputText] = useState("")
+
   if (!editor) {
     return null
   }
 
   function handleQRCode() {
-    QRCode.toDataURL("I am a pony!")
+    setShowQRInput(true)
+  }
+
+  function generateQRCode() {
+    if (!qrInputText.trim()) return
+
+    QRCode.toDataURL(qrInputText)
       .then((url) => {
         pasteImageToEditor(url)
-        console.log(url)
+        setShowQRInput(false)
+        setQRInputText("")
       })
       .catch((err) => {
         console.error(err)
@@ -86,6 +98,7 @@ export function Toolbar({ editor }: ToolbarProps) {
       .setTextSelection(pos + 3) // make us unselect the image, so that if you type you dont instantly delete the image
       .run()
   }
+
   return (
     <>
       <style>{TextStyles}</style>
@@ -190,6 +203,58 @@ export function Toolbar({ editor }: ToolbarProps) {
           </div>
         </div>
       </div>
+
+      {/* QR Code Input Modal */}
+      {showQRInput && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+          <div className="bg-[#d4d0c8] border-2 border-[#dfdfdf] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] w-80">
+            {/* Title Bar */}
+            <div className="bg-[#735721] px-2 py-1 flex items-center justify-between text-white">
+              <div className="flex items-center gap-2">
+                <QrCode size={14} />
+                <span className="text-sm">Generate QR Code</span>
+              </div>
+              <button
+                onClick={() => setShowQRInput(false)}
+                className="size-7 flex items-center justify-center border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
+              >
+                <X size={14} />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-4">
+              <div className="mb-2">
+                <label className="block mb-2 text-sm">Enter text/url for QR code:</label>
+                <input
+                  type="text"
+                  value={qrInputText}
+                  onChange={(e) => setQRInputText(e.target.value)}
+                  className="w-full px-2 py-1 border-2 border-[#808080] shadow-[inset_-1px_-1px_#dfdfdf,inset_1px_1px_#000] bg-white focus:outline-none"
+                  placeholder="Enter your text here..."
+                />
+              </div>
+
+              {/* Buttons Container with matching style */}
+              <div className="flex justify-end gap-1  bg-[#d4d0c8]  ">
+                <button
+                  onClick={generateQRCode}
+                  disabled={!qrInputText.trim()}
+                  className="h-7 px-4 flex items-center justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white disabled:opacity-50 disabled:pointer-events-none"
+                >
+                  Generate
+                </button>
+                <button
+                  onClick={() => setShowQRInput(false)}
+                  className="h-7 px-4 flex items-center justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }
