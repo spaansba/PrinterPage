@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 import FontSizeDropdown from "./FontSizeDropdown"
 import { useRef } from "react"
+import SmileyDropdown from "./SmileyDropdown"
 
 type ToolbarProps = {
   editor: Editor | null
@@ -79,7 +80,7 @@ export function Toolbar({ editor }: ToolbarProps) {
         {/* Top Row - Text Formatting */}
         <div className="px-1 py-1 flex items-center gap-1 border-b border-[#808080]">
           <FontSizeDropdown editor={editor} />
-
+          <SmileyDropdown editor={editor} />
           <div className="flex items-center justify-center ml-auto">
             <button
               onClick={() => console.log("asd")}

@@ -41,6 +41,7 @@ const DropdownItem = memo(
     </button>
   )
 )
+
 DropdownItem.displayName = "DropdownItem"
 
 const FontSizeDropdown: React.FC<FontSizeDropdownProps> = ({ editor }) => {
