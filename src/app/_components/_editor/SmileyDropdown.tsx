@@ -1,4 +1,5 @@
 import type { Editor } from "@tiptap/core"
+import { Smile } from "lucide-react"
 import React, { memo, useEffect, useState } from "react"
 
 type SmileyDropdownProps = {
@@ -72,39 +73,25 @@ export default function SmileyDropdown({ editor }: SmileyDropdownProps) {
   ]
 
   return (
-    <div className="relative select-none z-[1]" data-smiley-dropdown>
+    <div className="relative select-none z-[3]" data-smiley-dropdown>
       <button
         type="button"
         onMouseDown={(e) => {
           e.preventDefault()
           setIsOpen(!isOpen)
         }}
-        className="
-          group h-7 px-2 
-          border-t-[1px] border-l-[1px] border-r-[1px] border-b-[1px]
-          border-t-white border-l-white border-r-[#808080] border-b-[#808080]
-          w-[70px] cursor-pointer rounded-none text-sm text-left
-          flex items-center justify-between
-          active:border-t-[#808080] active:border-l-[#808080] active:border-r-white active:border-b-white
-        "
+        className="size-7 flex items-center justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
       >
-        <span>{`:)`}</span>
-        <span
-          className="
-            ml-1 border-l-4 border-r-4 border-t-4 
-            border-l-transparent border-r-transparent border-t-black 
-            group-active:mt-[1px] group-active:ml-[2px]
-          "
-        />
+        <Smile size={15} />
       </button>
 
       {isOpen && (
         <div
           className="
-            absolute top-full left-[-55%]
+            absolute top-full left-[-80%]
             border-t-[1px] border-l-[1px] border-r-2 border-b-2
             border-t-white border-l-white border-r-[#808080] border-b-[#808080]
-            w-[150px]
+            w-[160px]
           "
         >
           <div className="bg-[#d4d0c8] shadow-[inset_-1px_-1px_white] grid grid-cols-2">

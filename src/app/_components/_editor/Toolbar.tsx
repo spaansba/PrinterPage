@@ -10,6 +10,7 @@ import {
   Highlighter,
   ImageIcon,
   QrCode,
+  Smile,
   Trash2,
   Underline,
   X,
@@ -107,7 +108,7 @@ export function Toolbar({ editor }: ToolbarProps) {
         {/* Top Row - Text Formatting */}
         <div className="px-1 py-1 flex items-center gap-1 border-b border-[#808080]">
           <FontSizeDropdown editor={editor} />
-          <SmileyDropdown editor={editor} />
+
           <div className="flex items-center justify-center ml-auto">
             <button
               onClick={() => console.log("asd")}
@@ -190,16 +191,17 @@ export function Toolbar({ editor }: ToolbarProps) {
           <div className="flex items-center gap-px p-[3px] bg-[#d4d0c8] border border-[#808080] shadow-[inset_1px_1px_1px_rgba(255,255,255,0.5)]">
             <button
               onMouseDown={() => triggerImageUpload()}
-              className="w-7 h-7 flex items-center justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
+              className="size-7 flex items-center justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
             >
               <ImageIcon size={15} />
             </button>
             <button
               onMouseDown={() => handleQRCode()}
-              className="w-7 h-7 flex items-center justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
+              className="size-7 flex items-center justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
             >
               <QrCode size={15} />
             </button>
+            <SmileyDropdown editor={editor} />
           </div>
         </div>
       </div>

@@ -156,7 +156,7 @@ function AccountPage() {
                   >
                     <input
                       {...registerEdit("name")}
-                      className="w-[120px] border-[1px] px-1 py-0.5 rounded"
+                      className="w-[120px] border-[1px] text-[16px] px-1 py-0.5 rounded"
                       defaultValue={dbUsername}
                       placeholder="Enter username"
                     />

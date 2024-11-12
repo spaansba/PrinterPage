@@ -296,7 +296,15 @@ const RetroTextEditor = ({
     textEditorInput: z
       .string()
       .min(0, { message: "Message is a bit on the short side" })
-      .max(300, { message: "Message is a bit on the long side" }), //TODO: Max lines instead of chars based on word wrap
+      .refine(
+        () => {
+          const editorElement = editor?.view?.dom as HTMLElement
+          if (!editorElement) return true
+          const lines = getVisualLines(editorElement)
+          return lines.length <= 35
+        },
+        { message: "Message cannot exceed 35 lines" }
+      ), //TODO: Max lines instead of chars based on word wrap
     recipient: z
       .object(
         {

@@ -203,7 +203,7 @@ const RecipientSelector = ({
                 }}
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="flex items-center">
+                <div className="flex items-center text-[16px]">
                   <input
                     {...registerEdit("name")}
                     // ref={editNameInputRef}
@@ -314,7 +314,7 @@ const RecipientSelector = ({
                     <input
                       {...registerNew("printerId")}
                       placeholder="xxxxxxxxxx"
-                      className="border-solid border border-gray-300 px-2 py-1 rounded"
+                      className="border-solid border border-gray-300 px-2 text-[16px] py-1 rounded"
                       id="printerId"
                       autoComplete="off"
                       spellCheck="false"
@@ -334,7 +334,7 @@ const RecipientSelector = ({
                       {...registerNew("name")}
                       id="name"
                       placeholder="Yasmin en Bart"
-                      className="border-solid border border-gray-300 px-2 py-1 rounded"
+                      className="border-solid border border-gray-300 text-[16px] px-2 py-1 rounded"
                     />
                     <div className="col-span-2 text-red-600 pt-1">
                       {errorsNew.name?.message && <p key="name_error">{errorsNew.name?.message}</p>}
