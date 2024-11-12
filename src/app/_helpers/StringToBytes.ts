@@ -1,7 +1,6 @@
 "use client"
 import ReceiptPrinterEncoder from "@point-of-sale/receipt-printer-encoder"
 import { HTMLBytesToESCPOSCommands } from "../_classes/HTMLBytesToESCPOSCommands"
-import { processImage } from "./appendImageToPrint"
 
 export const htmlContentToBytesWithCommands = async (
   text: string,
@@ -10,7 +9,7 @@ export const htmlContentToBytesWithCommands = async (
 ): Promise<Uint8Array> => {
   const replaceImgTagsWithSrc = text.replace(
     /<img[^>]*src=["']([^"']+)["'][^>]*>/g,
-    (_, srcUrl) => ` ${srcUrl} `
+    (_, srcUrl) => `${srcUrl}|`
   )
 
   const cleanText = replaceImgTagsWithSrc
@@ -34,23 +33,9 @@ export const htmlContentToBytesWithCommands = async (
     )
     .textSizeTranslate()
     .encode()
-  try {
-    const imageData = await processImage(imageUrl, {
-      size: 64, // Image will be 200 pixels on its longest side
-    })
 
-    const combinedMultiple = combineMultipleUint8Arrays([
-      openTag,
-      userText,
-      imageData.data,
-      closingTag,
-    ])
-    return combinedMultiple
-  } catch (error) {
-    console.error("Failed to process image:", error)
-    // If image fails, return just the text
-    return userText
-  }
+  const combinedMultiple = combineMultipleUint8Arrays([openTag, userText, closingTag])
+  return combinedMultiple
 }
 
 async function printingOpenTag(sender: string, imageUrl: string): Promise<Uint8Array> {

@@ -295,7 +295,7 @@ const RetroTextEditor = ({
   const formSchema = z.object({
     textEditorInput: z
       .string()
-      .min(4, { message: "Message is a bit on the short side" })
+      .min(0, { message: "Message is a bit on the short side" })
       .max(300, { message: "Message is a bit on the long side" }), //TODO: Max lines instead of chars based on word wrap
     recipient: z
       .object(

@@ -65,6 +65,7 @@ const TAGS = {
   LESS_THAN: 0x3c,
   GREATER_THAN: 0x3e,
   FSLASH: 0x2f,
+  PIPE: 0x7c,
   STRONG: [0x73, 0x74, 0x72, 0x6f, 0x6e, 0x67],
   U: 0x75,
   SPAN: [0x73, 0x70, 0x61, 0x6e],
@@ -188,13 +189,13 @@ export class HTMLBytesToESCPOSCommands {
 
     this.addLineBreaks()
     this.convertEntitiesToHex()
-    await this.convertImages() // Wait for image processing to complete
-    console.log("this", this._bytes) // Now shows the updated array
+    await this.convertImages()
+    console.log("this", this._bytes)
     return this._bytes
   }
 
   private async convertImages(): Promise<void> {
-    const blobPrefix = new Uint8Array([0x62, 0x6c, 0x6f, 0x62, 0x3a])
+    const blobPrefix = new Uint8Array([0x62, 0x6c, 0x6f, 0x62, 0x3a]) // blob:
     const replacements = new Map<number, { data: Uint8Array; length: number }>()
     const processingPromises: Promise<void>[] = []
 
@@ -209,7 +210,7 @@ export class HTMLBytesToESCPOSCommands {
 
       if (match) {
         let urlEnd = i
-        while (urlEnd < this._bytes.length && this._bytes[urlEnd] !== 0x20) {
+        while (urlEnd < this._bytes.length && this._bytes[urlEnd] !== TAGS.PIPE) {
           urlEnd++
         }
 
@@ -224,7 +225,7 @@ export class HTMLBytesToESCPOSCommands {
             }
             replacements.set(i, {
               data: processedBlob.data,
-              length: urlEnd - i,
+              length: urlEnd - i + 1, // +1 to include the pipe character
             })
           })
           .catch((error) => {
