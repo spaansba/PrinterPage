@@ -52,7 +52,7 @@ export function Toolbar({ editor }: ToolbarProps) {
   function generateQRCode() {
     if (!qrInputText.trim()) return
 
-    QRCode.toDataURL(qrInputText)
+    QRCode.toDataURL(qrInputText, { scale: 4 })
       .then((url) => {
         pasteImageToEditor(url)
         setShowQRInput(false)

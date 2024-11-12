@@ -15,10 +15,6 @@ export async function processImage(
     result = await processImageFromUrl(input, options)
   }
 
-  // ESC/POS commands
-  const CENTER_ALIGN = new Uint8Array([0x1b, 0x61, 0x01]) // ESC a 1
-  const LEFT_ALIGN = new Uint8Array([0x1b, 0x61, 0x00]) // ESC a 0
-
   // Create command array for raster mode
   const command = new Uint8Array([
     0x1d,
@@ -32,15 +28,9 @@ export async function processImage(
   ])
 
   // Create the final byte array including alignment commands
-  const combinedData = new Uint8Array(
-    CENTER_ALIGN.length + command.length + result.data.length + LEFT_ALIGN.length
-  )
+  const combinedData = new Uint8Array(command.length + result.data.length)
 
   let offset = 0
-
-  // Add center alignment
-  combinedData.set(CENTER_ALIGN, offset)
-  offset += CENTER_ALIGN.length
 
   // Add raster command
   combinedData.set(command, offset)
@@ -49,9 +39,6 @@ export async function processImage(
   // Add image data
   combinedData.set(result.data, offset)
   offset += result.data.length
-
-  // Add left alignment (reset)
-  combinedData.set(LEFT_ALIGN, offset)
 
   return { data: combinedData }
 }
