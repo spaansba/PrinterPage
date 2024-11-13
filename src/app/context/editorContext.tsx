@@ -39,7 +39,7 @@ export const EditorContext = createContext<EditorContextProps | undefined>(undef
 
 export function CustomEditorProvider({ children, handleTextChange }: CustomEditorProviderProps) {
   const editor = useEditor({
-    immediatelyRender: true,
+    immediatelyRender: false,
     content: "",
     extensions: [
       StarterKit.configure({
