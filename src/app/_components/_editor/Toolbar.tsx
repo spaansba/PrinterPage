@@ -1,6 +1,7 @@
 "use client"
 import { Toggle } from "@radix-ui/react-toggle"
 import {
+  AlertTriangle,
   Aperture,
   Bold,
   FlaskRound,
@@ -30,10 +31,10 @@ const TextStyles = `
     font-size: 26px
   }
 `
-
 export function Toolbar() {
   const [showQRInput, setShowQRInput] = useState(false)
   const [qrInputText, setQRInputText] = useState("")
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const { editor } = useEditorContext()
 
   if (!editor) {
@@ -94,111 +95,131 @@ export function Toolbar() {
       .run()
   }
 
+  function clearEditor() {
+    editor!.chain().focus().clearContent().run()
+    setShowDeleteConfirm(false)
+  }
+
   return (
     <>
       <style>{TextStyles}</style>
 
-      <div>
-        {/* Top Row - Text Formatting */}
-        <div className="px-1 py-1 flex items-center gap-1 border-b border-[#808080]">
-          <FontSizeDropdown editor={editor} />
+      <div className="px-1 py-1 flex items-center ">
+        <FontSizeDropdown editor={editor} />
 
-          <div className="flex items-center justify-center ml-auto">
-            <button
-              onClick={() => console.log("asd")}
-              className="size-7 flex items-center justify-center border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
-            >
-              <FlaskRound size={15} />
-            </button>
+        <Toggle
+          className={`${
+            editor.isActive("bold")
+              ? "border-t-[#808080] border-l-[#808080] border-b-white border-r-white bg-[#bdb9b3] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]"
+              : "border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080]"
+          } size-7 flex items-center justify-center bg-[#d4d0c8] border`}
+          onPressedChange={() => editor.chain().focus().toggleBold().run()}
+          pressed={editor.isActive("bold")}
+        >
+          <Bold size={15} />
+        </Toggle>
 
-            <button className="size-7 flex items-center justify-center border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white">
-              <Aperture size={15} />
-            </button>
+        <Toggle
+          className={`${
+            editor.isActive("underline")
+              ? "border-t-[#808080] border-l-[#808080] border-b-white border-r-white bg-[#bdb9b3] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]"
+              : "border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080]"
+          } size-7 flex items-center justify-center bg-[#d4d0c8] border`}
+          onPressedChange={() => editor.chain().focus().toggleUnderline().run()}
+          pressed={editor.isActive("underline")}
+        >
+          <Underline size={15} />
+        </Toggle>
 
-            <button className="size-7  flex items-center justify-center border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white">
-              <Trash2 size={15} />
-            </button>
-          </div>
-        </div>
+        <Toggle
+          className={`${
+            editor.isActive("highlight")
+              ? "border-t-[#808080] border-l-[#808080] border-b-white border-r-white bg-[#bdb9b3] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]"
+              : "border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080]"
+          } size-7 flex items-center justify-center bg-[#d4d0c8] border`}
+          onPressedChange={() =>
+            editor.chain().focus().toggleHighlight({ color: "rgb(49, 49, 49)" }).run()
+          }
+          pressed={editor.isActive("highlight")}
+        >
+          <Highlighter size={15} />
+        </Toggle>
 
-        {/* Bottom Row - Font and Media */}
-        <div className="px-1 py-1 flex items-center gap-1">
-          <div className="flex items-center gap-px p-[3px] bg-[#d4d0c8] border border-[#808080] shadow-[inset_1px_1px_1px_rgba(255,255,255,0.5)]">
-            <Toggle
-              className={`${
-                editor.isActive("bold")
-                  ? "border-t-[#808080] border-l-[#808080] border-b-white border-r-white bg-[#bdb9b3] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]"
-                  : "border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080]"
-              }  size-7 flex items-center justify-center bg-[#d4d0c8] border active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white`}
-              onPressedChange={() => editor.chain().focus().toggleBold().run()}
-              pressed={editor.isActive("bold")}
-            >
-              <Bold
-                size={15}
-                style={
-                  editor.isActive("bold") ? { transform: "translate(0.5px, 0.5px)" } : undefined
-                }
-              />
-            </Toggle>
+        {/* Simple divider line */}
+        <div className="w-px h-6 bg-[#808080] mx-1"></div>
 
-            <Toggle
-              className={`${
-                editor.isActive("underline")
-                  ? "border-t-[#808080] border-l-[#808080] border-b-white border-r-white bg-[#bdb9b3] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]"
-                  : "border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080]"
-              }  size-7 flex items-center justify-center bg-[#d4d0c8] border active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white `}
-              onPressedChange={() => editor.chain().focus().toggleUnderline().run()}
-              pressed={editor.isActive("underline")}
-            >
-              <Underline
-                size={15}
-                style={
-                  editor.isActive("underline")
-                    ? { transform: "translate(0.5px, 0.5px)" }
-                    : undefined
-                }
-              />
-            </Toggle>
+        <button
+          onMouseDown={() => triggerImageUpload()}
+          className="size-7 flex items-center justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080]"
+        >
+          <ImageIcon size={15} />
+        </button>
 
-            <Toggle
-              className={`${
-                editor.isActive("highlight")
-                  ? "border-t-[#808080] border-l-[#808080] border-b-white border-r-white bg-[#bdb9b3] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]"
-                  : "border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080]"
-              }  size-7 flex items-center justify-center bg-[#d4d0c8] border active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white`}
-              onPressedChange={() =>
-                editor.chain().focus().toggleHighlight({ color: "rgb(49, 49, 49)" }).run()
+        <button
+          onMouseDown={() => handleQRCode()}
+          className="size-7 flex items-center justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080]"
+        >
+          <QrCode size={15} />
+        </button>
+
+        <SmileyDropdown editor={editor} />
+
+        <div className="w-px h-6 bg-[#808080] mx-1"></div>
+        <div className="ml-1">
+          <button
+            onMouseDown={() => {
+              if (editor.state.selection.from > 1) {
+                setShowDeleteConfirm(true)
               }
-              pressed={editor.isActive("highlight")}
-            >
-              <Highlighter
-                size={15}
-                style={
-                  editor.isActive("highlight")
-                    ? { transform: "translate(0.5px, 0.5px)" }
-                    : undefined
-                }
-              />
-            </Toggle>
-          </div>
-          {/* Media Buttons */}
-          <div className="flex items-center gap-px p-[3px] bg-[#d4d0c8] border border-[#808080] shadow-[inset_1px_1px_1px_rgba(255,255,255,0.5)]">
-            <button
-              onMouseDown={() => triggerImageUpload()}
-              className="size-7 flex items-center justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
-            >
-              <ImageIcon size={15} />
-            </button>
-            <button
-              onMouseDown={() => handleQRCode()}
-              className="size-7 flex items-center justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
-            >
-              <QrCode size={15} />
-            </button>
-            <SmileyDropdown editor={editor} />
-          </div>
+            }}
+            className="size-7 flex items-center justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080]"
+          >
+            <Trash2 size={15} />
+          </button>
         </div>
       </div>
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+          <div className="bg-[#d4d0c8] border-2 border-[#dfdfdf] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] w-80">
+            {/* Title Bar */}
+            <div className="bg-[#735721] px-2 py-1 flex items-center justify-between text-white">
+              <div className="flex items-center gap-2">
+                <AlertTriangle size={14} />
+                <span className="text-sm">Confirm Delete</span>
+              </div>
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="size-7 flex items-center justify-center border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
+              >
+                <X size={14} />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-4">
+              <div className="mb-4">
+                <p className="text-sm">Are you sure? </p>
+              </div>
+
+              {/* Buttons Container */}
+              <div className="flex justify-end gap-1 bg-[#d4d0c8]">
+                <button
+                  onClick={clearEditor}
+                  className="h-7 px-4 flex items-center justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
+                >
+                  Delete
+                </button>
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="h-7 px-4 flex items-center justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* QR Code Input Modal */}
       {showQRInput && (

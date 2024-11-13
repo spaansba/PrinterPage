@@ -192,8 +192,8 @@ export class HTMLBytesToESCPOSCommands {
   boldTranslate(): HTMLBytesToESCPOSCommands {
     this._boolCommands.bold = {
       state: {
-        on: new Uint8Array([CONTROL.ESC, MODIFIERS.B, BOOL.TRUE]),
-        off: new Uint8Array([CONTROL.ESC, MODIFIERS.B, BOOL.FALSE]),
+        on: new Uint8Array([CONTROL.ESC, MODIFIERS.E, BOOL.TRUE]),
+        off: new Uint8Array([CONTROL.ESC, MODIFIERS.E, BOOL.FALSE]),
       },
       html: {
         open: new Uint8Array([TAGS.LESS_THAN, ...TAGS.STRONG, TAGS.GREATER_THAN]),
@@ -205,8 +205,8 @@ export class HTMLBytesToESCPOSCommands {
   invertTranslate(invert: string): HTMLBytesToESCPOSCommands {
     this._boolCommands.invert = {
       state: {
-        on: new Uint8Array([CONTROL.GS, MODIFIERS.E, BOOL.TRUE]),
-        off: new Uint8Array([CONTROL.GS, MODIFIERS.E, BOOL.FALSE]),
+        on: new Uint8Array([CONTROL.GS, MODIFIERS.B, BOOL.TRUE]),
+        off: new Uint8Array([CONTROL.GS, MODIFIERS.B, BOOL.FALSE]),
       },
       html: {
         open: new Uint8Array(this.hexArrayFromString(invert)),
@@ -265,7 +265,6 @@ export class HTMLBytesToESCPOSCommands {
     this.addLineBreaks()
     this.convertEntitiesToHex()
     await this.convertImages()
-    console.log("this", this._bytes)
     return this._bytes
   }
 

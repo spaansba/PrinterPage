@@ -184,7 +184,7 @@ const RecipientSelector = ({
 
   const RecipientItem = ({ recipient }: { recipient: Recipient }) => {
     return (
-      <div className="group/recipient hover:bg-[#e4d3b2]">
+      <div className="group/recipient hover:bg-[#e4d3b2] bg-[#e8e8e8]">
         <div
           onClick={() => handleSelect(recipient)}
           className="flex w-full items-center px-4 py-2 hover:bg-[#e4d3b2] cursor-pointer"
@@ -273,7 +273,7 @@ const RecipientSelector = ({
       <button
         type="button"
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        className="w-full px-4 py-2 bg-white border-[1px] border-gray-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] cursor-pointer flex items-center justify-between"
+        className="w-full px-4 py-2 bg-[#e8e8e8] border-[1px] border-gray-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] cursor-pointer flex items-center justify-between"
       >
         <div className="flex items-center">
           {selectedRecipient ? (
@@ -352,7 +352,7 @@ const RecipientSelector = ({
                 </form>
               ) : (
                 <button
-                  className="flex items-center w-full px-4 py-2 hover:bg-[#e4d3b2] cursor-pointer"
+                  className="flex items-center w-full px-4 py-2 hover:bg-[#e4d3b2] cursor-pointer bg-[#e8e8e8]"
                   onClick={handleNewRecipientClick} // Dont change to mouse down!!
                 >
                   <div className="w-4 h-4 bg-[#d4d0c8] border border-gray-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] flex items-center justify-center mr-2">

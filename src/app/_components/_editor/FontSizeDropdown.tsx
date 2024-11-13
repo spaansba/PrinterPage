@@ -12,10 +12,10 @@ interface FontSizeDropdownProps {
 }
 
 const fontSizes: readonly FontSize[] = [
-  { label: "13px", value: "text-[13px]" },
-  { label: "26px", value: "text-[26px]" },
-  { label: "42px", value: "text-[42px]" },
-  { label: "52px", value: "text-[52px]" },
+  { label: "13", value: "text-[13px]" },
+  { label: "26", value: "text-[26px]" },
+  { label: "42", value: "text-[42px]" },
+  { label: "52", value: "text-[52px]" },
 ] as const
 
 const DropdownItem = memo(
@@ -110,7 +110,7 @@ const FontSizeDropdown: React.FC<FontSizeDropdownProps> = ({ editor }) => {
   const currentLabel = fontSizes.find((size) => size.value === currentSize)?.label || "13px"
 
   return (
-    <div className="relative select-none z-[1]" data-font-dropdown>
+    <div className="relative select-none z-[1] mr-1" data-font-dropdown>
       <button
         type="button"
         onMouseDown={(e) => {
@@ -122,7 +122,7 @@ const FontSizeDropdown: React.FC<FontSizeDropdownProps> = ({ editor }) => {
           h-7 px-2 
           border-t-[1px] border-l-[1px] border-r-[1px] border-b-[1px]
           border-t-white border-l-white border-r-[#808080] border-b-[#808080]
-          w-[70px] cursor-pointer rounded-none text-sm text-left
+          w-[50px] cursor-pointer rounded-none text-sm text-left
           flex items-center justify-between
           active:border-t-[#808080] active:border-l-[#808080] active:border-r-white active:border-b-white
         `}
@@ -141,7 +141,7 @@ const FontSizeDropdown: React.FC<FontSizeDropdownProps> = ({ editor }) => {
         <>
           {/* Dropdown shadow/border */}
           <div
-            className="absolute top-full left-0 w-[70px] 
+            className="absolute top-full left-0 
             border-t-[1px] border-l-[1px] border-r-2 border-b-2
             border-t-white border-l-white border-r-[#808080] border-b-[#808080]
           "

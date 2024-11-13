@@ -11,7 +11,6 @@ export const htmlContentToBytesWithCommands = async (
     /<img[^>]*src=["']([^"']+)["'][^>]*>/g,
     (_, srcUrl) => `${srcUrl}|`
   )
-  console.log(replaceImgTagsWithSrc)
 
   const cleanText = replaceImgTagsWithSrc
     .replace(/<p[^>]*>/g, "")
@@ -21,7 +20,6 @@ export const htmlContentToBytesWithCommands = async (
     .replace(/<br[^>]*>/g, "")
     .replace(/<\/br>/g, "")
 
-  console.log("clean", cleanText)
   let utf8Encode = new TextEncoder()
   const encodedText = utf8Encode.encode(cleanText)
   let HTMLByteToEscpos = new HTMLBytesToESCPOSCommands(encodedText)

@@ -88,7 +88,7 @@ export default function SmileyDropdown({ editor }: SmileyDropdownProps) {
       {isOpen && (
         <div
           className="
-            absolute top-full left-[-80%]
+            absolute top-full left-[-220%]
             border-t-[1px] border-l-[1px] border-r-2 border-b-2
             border-t-white border-l-white border-r-[#808080] border-b-[#808080]
             w-[160px]
