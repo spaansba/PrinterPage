@@ -1,16 +1,12 @@
 "use client"
 import { Toggle } from "@radix-ui/react-toggle"
-import type { Editor } from "@tiptap/react"
 import {
   Aperture,
-  Barcode,
   Bold,
-  Code,
   FlaskRound,
   Highlighter,
   ImageIcon,
   QrCode,
-  Smile,
   Trash2,
   Underline,
   X,
@@ -19,10 +15,7 @@ import { useState } from "react"
 import FontSizeDropdown from "./FontSizeDropdown"
 import SmileyDropdown from "./SmileyDropdown"
 import QRCode from "qrcode"
-
-type ToolbarProps = {
-  editor: Editor | null
-}
+import { useEditorContext } from "@/app/context/editorContext"
 
 const TextStyles = `
   .tall-text {
@@ -38,9 +31,10 @@ const TextStyles = `
   }
 `
 
-export function Toolbar({ editor }: ToolbarProps) {
+export function Toolbar() {
   const [showQRInput, setShowQRInput] = useState(false)
   const [qrInputText, setQRInputText] = useState("")
+  const { editor } = useEditorContext()
 
   if (!editor) {
     return null

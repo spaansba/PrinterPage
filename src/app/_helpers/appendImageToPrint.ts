@@ -15,30 +15,32 @@ export async function processImage(
     result = await processImageFromUrl(input, options)
   }
 
+  const centerCommand = new Uint8Array([0x1b, 0x61, 0x01]) // ESC a 1 (center)
+  const leftCommand = new Uint8Array([0x1b, 0x61, 0x00]) // ESC a 0 (left)
   // Create command array for raster mode
-  const command = new Uint8Array([
-    0x1d,
-    0x76,
-    0x30,
-    0x00, // GS v 0 0 (raster mode)
+  const rasterCommand = new Uint8Array([
+    0x1d, // GS
+    0x76, // v
+    0x30, // 0
+    0x00, // 0
     result.width / 8,
     0, // xL xH (bytes per line)
     result.height & 0xff,
     (result.height >> 8) & 0xff, // yL yH (total lines)
   ])
 
-  // Create the final byte array including alignment commands
-  const combinedData = new Uint8Array(command.length + result.data.length)
+  const combinedData = new Uint8Array(
+    centerCommand.length + rasterCommand.length + result.data.length + leftCommand.length
+  )
 
   let offset = 0
-
-  // Add raster command
-  combinedData.set(command, offset)
-  offset += command.length
-
-  // Add image data
+  combinedData.set(centerCommand, offset)
+  offset += centerCommand.length
+  combinedData.set(rasterCommand, offset)
+  offset += rasterCommand.length
   combinedData.set(result.data, offset)
   offset += result.data.length
+  combinedData.set(leftCommand, offset)
 
   return { data: combinedData }
 }
