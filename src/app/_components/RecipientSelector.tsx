@@ -292,6 +292,7 @@ const RecipientSelector = ({
                   width={24}
                   height={24}
                   className="size-6"
+                  priority
                 />
               </div>
               <span>{selectedRecipient.name}</span>
