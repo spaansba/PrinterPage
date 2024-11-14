@@ -58,8 +58,8 @@ const RetroTextEditor = ({
     const username = await getUserName(user.id)
     const content = await htmlContentToBytesWithCommands(
       htmlContentWithLineBreaks,
-      username,
-      user.imageUrl
+      username
+      // user.imageUrl
     )
 
     if (!selectedRecipient) {
