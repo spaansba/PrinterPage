@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useUser } from "@clerk/nextjs"
 import { addAssociatedPrinters, changeNameAssociatedPrinters } from "@/lib/queries"
+import Image from "next/image"
 
 export type Recipient = {
   printerId: string
@@ -191,7 +192,13 @@ const RecipientSelector = ({
           title={`Toaster ID: ${recipient.printerId}`}
         >
           <div className=" flex items-center justify-center mr-2">
-            <img src="./images/Toastert.png" alt="Toaster" className="size-6" />
+            <Image
+              src="/images/Toastert.png"
+              alt="Toaster"
+              width={24}
+              height={24}
+              className="size-6"
+            />
           </div>
           <div className="flex flex-col">
             {editingId === recipient.printerId ? (
@@ -279,7 +286,13 @@ const RecipientSelector = ({
           {selectedRecipient ? (
             <>
               <div className=" flex items-center justify-center mr-2">
-                <img src="./images/Toastert.png" alt="Toaster" className="size-6" />
+                <Image
+                  src="/images/Toastert.png"
+                  alt="Toaster"
+                  width={24}
+                  height={24}
+                  className="size-6"
+                />
               </div>
               <span>{selectedRecipient.name}</span>
             </>
