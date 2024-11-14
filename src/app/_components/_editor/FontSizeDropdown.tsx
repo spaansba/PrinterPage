@@ -110,7 +110,10 @@ const FontSizeDropdown: React.FC<FontSizeDropdownProps> = ({ editor }) => {
   const currentLabel = fontSizes.find((size) => size.value === currentSize)?.label || "13px"
 
   return (
-    <div className="relative select-none z-[1] mr-1" data-font-dropdown>
+    <div
+      className="relative select-none z-[1] mr-1 px-1 border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080]"
+      data-font-dropdown
+    >
       <button
         type="button"
         onMouseDown={(e) => {
@@ -119,10 +122,9 @@ const FontSizeDropdown: React.FC<FontSizeDropdownProps> = ({ editor }) => {
         }}
         className={`
           group
-          h-7 px-2 
-          border-t-[1px] border-l-[1px] border-r-[1px] border-b-[1px]
-          border-t-white border-l-white border-r-[#808080] border-b-[#808080]
-          w-[50px] cursor-pointer rounded-none text-sm text-left
+          h-7 
+          
+          w-[35px] cursor-pointer rounded-none text-sm text-left
           flex items-center justify-between
           active:border-t-[#808080] active:border-l-[#808080] active:border-r-white active:border-b-white
         `}

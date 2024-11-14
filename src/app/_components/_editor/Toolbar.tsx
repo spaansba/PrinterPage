@@ -144,6 +144,8 @@ export function Toolbar() {
 
       <div className="px-1 py-1 flex items-center ">
         <FontSizeDropdown editor={editor} />
+        {/* Simple divider line */}
+        <div className="w-px h-6 bg-[#808080] mx-1"></div>
 
         <Toggle
           className={`${
