@@ -82,6 +82,35 @@ export function Toolbar() {
     inputElement.accept = isMobile ? "image/*" : "image/png, image/jpeg"
     inputElement.className = "hidden"
 
+    if (isMobile) {
+      // Allow switching between front and back cameras
+      // Note: You can toggle between "user" and "environment" here
+      inputElement.setAttribute("capture", "environment")
+
+      // Create camera constraints with correct types
+      const constraints: MediaStreamConstraints = {
+        video: {
+          facingMode: { ideal: "environment" },
+        },
+      }
+
+      // Apply constraints to media devices if available
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices
+          .getUserMedia(constraints)
+          .then((stream) => {
+            const videoTrack = stream.getVideoTracks()[0]
+
+            // Log available capabilities for debugging
+            console.log("Track capabilities:", videoTrack.getCapabilities())
+
+            // Stop the stream since we're just using the file input
+            stream.getTracks().forEach((track) => track.stop())
+          })
+          .catch((err) => console.log("Camera access error:", err))
+      }
+    }
+
     // Add it to document temp for mobile to work
     document.body.appendChild(inputElement)
     inputElement.addEventListener("change", (e) => {

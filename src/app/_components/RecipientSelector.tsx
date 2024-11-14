@@ -90,7 +90,7 @@ const RecipientSelector = ({
       }
     } catch (error) {
       setErrorNew("root", {
-        message: "Failed to add printer. Please try again.",
+        message: "Failed to add toaster. Please try again.",
       })
       console.error(error)
     }
@@ -188,10 +188,10 @@ const RecipientSelector = ({
         <div
           onClick={() => handleSelect(recipient)}
           className="flex w-full items-center px-4 py-2 hover:bg-[#e4d3b2] cursor-pointer"
-          title={`printer ID: ${recipient.printerId}`}
+          title={`Toaster ID: ${recipient.printerId}`}
         >
-          <div className="w-4 h-4 bg-[#d4d0c8] border border-gray-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] flex items-center justify-center mr-2">
-            <User size={14} />
+          <div className=" flex items-center justify-center mr-2">
+            <img src="./images/Toast.png" alt="Toaster" className="size-7" />
           </div>
           <div className="flex flex-col">
             {editingId === recipient.printerId ? (
@@ -278,8 +278,8 @@ const RecipientSelector = ({
         <div className="flex items-center">
           {selectedRecipient ? (
             <>
-              <div className="w-4 h-4 bg-[#d4d0c8] border border-gray-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] flex items-center justify-center mr-2">
-                <User size={12} />
+              <div className=" flex items-center justify-center mr-2">
+                <img src="./images/Toast.png" alt="Toaster" className="size-7" />
               </div>
               <span>{selectedRecipient.name}</span>
             </>
@@ -293,7 +293,7 @@ const RecipientSelector = ({
       {isDropdownOpen && (
         <div
           ref={dropdownRef}
-          className="absolute w-[120%] -translate-x-[10%] mt-1 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]  bg-white border border-gray-500 z-10"
+          className="absolute w-[120%] -translate-x-[10%] mt-1 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]  bg-[#e8e8e8] border border-gray-500 z-10"
         >
           <div className="max-h-[30rem] overflow-y-auto">
             {recipients.map((recipient) => (
@@ -309,7 +309,7 @@ const RecipientSelector = ({
                 >
                   <div className="grid grid-cols-2">
                     <label htmlFor="printerId" className="content-center">
-                      Printer ID:
+                      Toaster ID:
                     </label>
                     <input
                       {...registerNew("printerId")}
@@ -327,7 +327,7 @@ const RecipientSelector = ({
                   </div>
                   <div className="grid grid-cols-2">
                     <label htmlFor="name" className="content-center">
-                      Printer Name:
+                      Toaster Name:
                     </label>
 
                     <input
@@ -355,10 +355,10 @@ const RecipientSelector = ({
                   className="flex items-center w-full px-4 py-2 hover:bg-[#e4d3b2] cursor-pointer bg-[#e8e8e8]"
                   onClick={handleNewRecipientClick} // Dont change to mouse down!!
                 >
-                  <div className="w-4 h-4 bg-[#d4d0c8] border border-gray-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] flex items-center justify-center mr-2">
-                    <Plus size={12} />
+                  <div className="size-7 bg-[#d4d0c8] border border-gray-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] flex items-center justify-center mr-2">
+                    <Plus size={14} />
                   </div>
-                  <span>Add new recipient...</span>
+                  <span>Add new toaster...</span>
                 </button>
               )}
             </div>
