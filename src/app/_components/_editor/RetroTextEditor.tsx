@@ -238,6 +238,23 @@ const RetroTextEditor = ({
 
   return (
     <>
+      <svg aria-hidden="true" style={{ position: "absolute", width: 0, height: 0 }}>
+        <defs>
+          <filter id="grain">
+            <feTurbulence
+              type="fractalNoise"
+              baseFrequency="0.1"
+              numOctaves="1"
+              stitchTiles="stitch"
+            />
+            <feColorMatrix type="saturate" values="0" />
+            <feComponentTransfer>
+              <feFuncA type="discrete" tableValues="0 1" />
+            </feComponentTransfer>
+            <feComposite operator="in" in2="SourceGraphic" />
+          </filter>
+        </defs>
+      </svg>
       <style>{extraStyles}</style>
       <div className="w-[288px] border-t-2 border-l-2 border-white border-b-2 border-r-2 border-b-[#808080] border-r-[#808080] shadow-[2px_2px_8px_rgba(0,0,0,0.2)]">
         {/* Window Title Bar */}

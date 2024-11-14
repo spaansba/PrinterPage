@@ -58,7 +58,7 @@ export function CustomEditorProvider({ children, handleTextChange }: CustomEdito
       Highlight.configure({ multicolor: true, HTMLAttributes: { class: "color-white" } }),
       TextStyle,
       CustomMark,
-      Image.configure({ HTMLAttributes: { class: "justify-self-center" } }),
+      Image.configure({ HTMLAttributes: { class: "thermal-print-effect" } }), // Dont change the name since we remove it in the qr code function
     ],
     editorProps: {
       attributes: {

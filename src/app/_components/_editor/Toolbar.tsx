@@ -2,9 +2,7 @@
 import { Toggle } from "@radix-ui/react-toggle"
 import {
   AlertTriangle,
-  Aperture,
   Bold,
-  FlaskRound,
   Highlighter,
   ImageIcon,
   QrCode,
@@ -48,9 +46,24 @@ export function Toolbar() {
   function generateQRCode() {
     if (!qrInputText.trim()) return
 
-    QRCode.toDataURL(qrInputText, { scale: 4 })
+    QRCode.toDataURL(qrInputText, { scale: 4, margin: 3, color: { light: "#e8e8e8" } })
       .then((url) => {
-        pasteImageToEditor(url)
+        const pos = editor!.state.selection.from
+        editor!
+          .chain()
+          .focus()
+          .setImage({ src: url, alt: "[QR code]", title: `QR code for: ${qrInputText}` })
+          .setTextSelection(pos + 3)
+          .run()
+
+        // Find and remove the thermal-print-effect class from the newly added QR code
+        const editorElement = editor?.view?.dom as HTMLElement
+        const images = editorElement.getElementsByTagName("img")
+        const lastImage = images[images.length - 1]
+        if (lastImage) {
+          lastImage.classList.remove("thermal-print-effect")
+        }
+
         setShowQRInput(false)
         setQRInputText("")
       })
@@ -76,23 +89,19 @@ export function Toolbar() {
       const file = target.files?.[0]
       if (file) {
         const url = URL.createObjectURL(file)
-        pasteImageToEditor(url)
+        const pos = editor!.state.selection.from
+        editor!
+          .chain()
+          .focus()
+          .setImage({ src: url, alt: "[User image]" })
+          .setTextSelection(pos + 3)
+          .run()
         target.remove()
       }
       // Clean up by removing the input element after handling the file
       inputElement.remove()
     })
     inputElement.click()
-  }
-
-  function pasteImageToEditor(url: string) {
-    const pos = editor!.state.selection.from
-    editor!
-      .chain()
-      .focus()
-      .setImage({ src: url })
-      .setTextSelection(pos + 3) // make us unselect the image, so that if you type you dont instantly delete the image
-      .run()
   }
 
   function clearEditor() {
