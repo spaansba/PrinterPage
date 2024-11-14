@@ -52,13 +52,11 @@ async function printingOpenTag(sender: string): Promise<Uint8Array> {
 
     img.onload = function () {
       try {
-        // Set canvas dimensions to match image
         canvas.width = img.width
         canvas.height = img.height
 
         if (ctx) {
           ctx.drawImage(img, 0, 0)
-          // Get ImageData from canvas
           const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
 
           const result = encoder
@@ -67,15 +65,16 @@ async function printingOpenTag(sender: string): Promise<Uint8Array> {
             .underline(false)
             .italic(false)
             .invert(false)
-            .bold(false)
+
             .align("left")
             .size(1)
-            .image(imageData, 384, 128, "atkinson") // Use ImageData instead of direct image
+            .image(imageData, 384, 96, "atkinson")
             .rule()
+            .bold(true)
             .line(`Sender:  ${sender}`)
             .line("Send at: " + getFormattedDateTime())
+            .bold(false)
             .rule()
-            .underline(2)
             .encode()
 
           resolve(result)
@@ -92,7 +91,7 @@ async function printingOpenTag(sender: string): Promise<Uint8Array> {
     }
 
     // Load the local image from public directory
-    img.src = "/images/Header.png"
+    img.src = "/images/Toast.png"
 
     // Optional: Add timeout to prevent hanging
     setTimeout(() => {
@@ -132,5 +131,5 @@ const getFormattedDateTime = (): string => {
   const hours = now.getHours().toString().padStart(2, "0")
   const minutes = now.getMinutes().toString().padStart(2, "0")
   const seconds = now.getSeconds().toString().padStart(2, "0")
-  return `${day}/${month}/${year}, ${hours}:${minutes}:${seconds}`
+  return `${hours}:${minutes}:${seconds}, ${day}/${month}/${year}`
 }

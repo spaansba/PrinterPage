@@ -8,6 +8,8 @@ import { z } from "zod"
 import { recipientNameSchema } from "./RecipientSelector"
 import { getUserName, updatedUserName } from "@/lib/queries"
 
+const usernameCache = new Map<string, string>()
+
 function AccountPage() {
   const { user } = useUser()
   const [isUploading, setIsUploading] = useState(false)
@@ -20,12 +22,23 @@ function AccountPage() {
 
   useEffect(() => {
     const loadUsername = async () => {
+      if (!user) return
+
       try {
-        if (!user) {
+        setIsLoadingUsername(true)
+
+        // Check cache first
+        const cachedUsername = usernameCache.get(user.id)
+        if (cachedUsername) {
+          setDbUsername(cachedUsername)
+          setIsLoadingUsername(false)
           return
         }
-        setIsLoadingUsername(true)
+
+        // If not in cache, fetch from server
         const userName = await getUserName(user.id)
+        // Update cache
+        usernameCache.set(user.id, userName)
         setDbUsername(userName)
       } catch (error) {
         console.error("Error fetching username:", error)
@@ -36,7 +49,7 @@ function AccountPage() {
     }
 
     loadUsername()
-  }, [])
+  }, [user])
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -95,8 +108,9 @@ function AccountPage() {
 
     try {
       setIsUpdatingUsername(true)
-
       await updatedUserName(user.id, data.name)
+      // Update cache when username changes
+      usernameCache.set(user.id, data.name)
       setDbUsername(data.name)
       setIsEditingUsername(false)
     } catch (error) {
