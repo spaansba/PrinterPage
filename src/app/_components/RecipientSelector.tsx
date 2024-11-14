@@ -191,7 +191,7 @@ const RecipientSelector = ({
           title={`Toaster ID: ${recipient.printerId}`}
         >
           <div className=" flex items-center justify-center mr-2">
-            <img src="./images/Toast.png" alt="Toaster" className="size-7" />
+            <img src="./images/Toastert.png" alt="Toaster" className="size-6" />
           </div>
           <div className="flex flex-col">
             {editingId === recipient.printerId ? (
@@ -279,7 +279,7 @@ const RecipientSelector = ({
           {selectedRecipient ? (
             <>
               <div className=" flex items-center justify-center mr-2">
-                <img src="./images/Toast.png" alt="Toaster" className="size-7" />
+                <img src="./images/Toastert.png" alt="Toaster" className="size-6" />
               </div>
               <span>{selectedRecipient.name}</span>
             </>
@@ -355,7 +355,7 @@ const RecipientSelector = ({
                   className="flex items-center w-full px-4 py-2 hover:bg-[#e4d3b2] cursor-pointer bg-[#e8e8e8]"
                   onClick={handleNewRecipientClick} // Dont change to mouse down!!
                 >
-                  <div className="size-7 bg-[#d4d0c8] border border-gray-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] flex items-center justify-center mr-2">
+                  <div className="size-6 bg-[#d4d0c8] border border-gray-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] flex items-center justify-center mr-2">
                     <Plus size={14} />
                   </div>
                   <span>Add new toaster...</span>
