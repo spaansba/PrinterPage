@@ -130,7 +130,7 @@ export function CustomEditorProvider({ children, handleTextChange }: CustomEdito
     },
     onUpdate: ({ editor }) => {
       const text = editor.getText()
-      handleTextChange(text, editor.getHTML())
+      handleTextChange(text, editor.view.dom.innerHTML)
       editorForm.setValue("textEditorInput", text)
     },
   })

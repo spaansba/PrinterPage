@@ -16,21 +16,19 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: false,
   },
-  // Add these new configurations
   manifest: "/manifest.json",
   icons: {
-    // Standard favicon
     icon: [
       { url: "/favicon.ico" },
       { url: "/images/Logo16.png", sizes: "16x16", type: "image/png" },
       { url: "/images/Logo32.png", sizes: "32x32", type: "image/png" },
     ],
-    // Apple Touch Icons
+    // Apple Touch Icon (the one you see when you put the page on your homescreen as app)
     apple: [{ url: "/images/Logo256AppleIcon.png" }],
   },
   appleWebApp: {
-    capable: true,
-    statusBarStyle: "black",
+    capable: true, // runs full screen mode
+    statusBarStyle: "black-translucent",
     title: "Toaster", // Title for the Apple Touch Icon
   },
 }

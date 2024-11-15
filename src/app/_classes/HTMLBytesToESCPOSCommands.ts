@@ -264,6 +264,7 @@ export class HTMLBytesToESCPOSCommands {
 
     this.addLineBreaks()
     this.convertEntitiesToHex()
+    this.removeBasicTags()
     await this.convertImages()
     return this._bytes
   }
@@ -358,6 +359,59 @@ export class HTMLBytesToESCPOSCommands {
     }
   }
 
+  private removeBasicTags() {
+    const tagsToRemove = ["p", "span", "div"]
+
+    tagsToRemove.forEach((tag) => {
+      // Handle any tag variation (with or without class)
+      let openTag = new Uint8Array([TAGS.LESS_THAN, ...this.hexArrayFromString(tag)])
+
+      let i = 0
+      while (i < this._bytes.length) {
+        let matches = true
+        for (let j = 0; j < openTag.length; j++) {
+          if (this._bytes[i + j] !== openTag[j]) {
+            matches = false
+            break
+          }
+        }
+
+        if (matches) {
+          // Find the closing '>'
+          let end = i
+          while (end < this._bytes.length && this._bytes[end] !== TAGS.GREATER_THAN) {
+            end++
+          }
+
+          // Remove the entire tag
+          const newArray = new Uint8Array(this._bytes.length - (end - i + 1))
+          newArray.set(this._bytes.slice(0, i))
+          newArray.set(this._bytes.slice(end + 1), i)
+          this._bytes = newArray
+        } else {
+          i++
+        }
+      }
+
+      // Remove closing tags
+      const closeTag = new Uint8Array([
+        TAGS.LESS_THAN,
+        TAGS.FSLASH,
+        ...this.hexArrayFromString(tag),
+        TAGS.GREATER_THAN,
+      ])
+
+      const [result] = htmlTagsToESCPOSEncoder(
+        this._bytes,
+        closeTag,
+        new Uint8Array([]),
+        "remove",
+        false
+      )
+      this._bytes = result
+    })
+  }
+
   private convertEntitiesToHex() {
     Object.values(HTML_ENTITIES).forEach((entity) => {
       const findSequence = new Uint8Array(entity.entity)
@@ -375,11 +429,14 @@ export class HTMLBytesToESCPOSCommands {
 
   private addLineBreaks() {
     const lineBreakTag = new Uint8Array(this.hexArrayFromString("<line-break>"))
+    const emptyLineTag = new Uint8Array(
+      this.hexArrayFromString(`<br class="ProseMirror-trailingBreak">`)
+    )
     const lfByte = new Uint8Array([CONTROL.LF])
 
     const [result] = htmlTagsToESCPOSEncoder(this._bytes, lineBreakTag, lfByte, "linebreak", true)
-
-    this._bytes = result
+    const [result2] = htmlTagsToESCPOSEncoder(result, emptyLineTag, lfByte, "emptyLine", true)
+    this._bytes = result2
   }
 }
 

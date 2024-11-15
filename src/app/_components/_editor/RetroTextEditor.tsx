@@ -6,7 +6,7 @@ import { Toolbar } from "./Toolbar"
 import AccountPage from "../AccountPage"
 import type { Recipient } from "../RecipientSelector"
 import RecipientSelector from "../RecipientSelector"
-import { htmlContentToBytesWithCommands } from "../../_helpers/StringToBytes"
+import { PrepareTextToSend } from "../../_helpers/StringToBytes"
 import { getAssociatedPrintersById, getUserName, updateLastSendMessage } from "@/lib/queries"
 import { useEditorContext } from "@/app/context/editorContext"
 
@@ -29,17 +29,11 @@ const extraStyles = `
 `
 export type Lines = { characters: string; characterCount: number }[]
 
-type Pages = "Printer" | "Account"
+type Pages = "Toaster" | "Account"
 
-const RetroTextEditor = ({
-  setTextContent,
-  status,
-  setStatus,
-  hTMLContent,
-  setHTMLContent,
-}: RetroTextEditorProps) => {
+const RetroTextEditor = ({ status, setStatus, hTMLContent }: RetroTextEditorProps) => {
   const [selectedRecipient, setSelectedRecipient] = useState<Recipient | null>(null)
-  const [pageActivated, setPageActivated] = useState<Pages>("Printer")
+  const [pageActivated, setPageActivated] = useState<Pages>("Toaster")
   const { user } = useUser()
   const [recipients, setRecipients] = useState<Recipient[]>([])
   const { editor, editorForm, getVisualLines } = useEditorContext()
@@ -53,14 +47,10 @@ const RetroTextEditor = ({
     const editorElement = editor!.view.dom as HTMLElement
     const lines = getVisualLines(editorElement)
     // Log the lines and their count
+    console.log(hTMLContent)
     const htmlContentWithLineBreaks = addLineBreaks(hTMLContent, lines)
-
     const username = await getUserName(user.id)
-    const content = await htmlContentToBytesWithCommands(
-      htmlContentWithLineBreaks,
-      username
-      // user.imageUrl
-    )
+    const content = await PrepareTextToSend(htmlContentWithLineBreaks, username)
 
     if (!selectedRecipient) {
       return
@@ -183,8 +173,8 @@ const RetroTextEditor = ({
 
   const Title = () => {
     switch (pageActivated) {
-      case "Printer":
-        return "Thermal Printer"
+      case "Toaster":
+        return "Thermal Toaster"
       case "Account":
         return "User Profile"
       default:
@@ -220,7 +210,7 @@ const RetroTextEditor = ({
   }, [selectedRecipient])
 
   useEffect(() => {
-    if (pageActivated === "Printer") {
+    if (pageActivated === "Toaster") {
       editorForm.setFocus("textEditorInput")
     }
   }, [pageActivated])
@@ -262,12 +252,12 @@ const RetroTextEditor = ({
           <span className="text-white text-sm font-bold">{Title()}</span>
         </div>
 
-        <div className="h-6 bg-[#d4d0c8] border-t border-[#808080] border-b flex items-center px-2 text-xs gap-2">
+        <div className="h-6 bg-[#d4d0c8] border-t border-[#808080] border-b flex items-center px-2 text-xs gap-[0.7rem]">
           <button
-            onClick={() => setPageActivated("Printer")}
-            className={`${pageActivated === "Printer" ? "underline" : "hover:opacity-80"} `}
+            onClick={() => setPageActivated("Toaster")}
+            className={`${pageActivated === "Toaster" ? "underline" : "hover:opacity-80"} `}
           >
-            <u>P</u>rinter
+            <u>T</u>oaster
           </button>
           <button
             onClick={() => setPageActivated("Account")}
@@ -278,7 +268,7 @@ const RetroTextEditor = ({
         </div>
 
         {/* Editor Container */}
-        {pageActivated === "Printer" && (
+        {pageActivated === "Toaster" && (
           <div>
             <div>
               <RecipientSelector
@@ -334,7 +324,7 @@ const RetroTextEditor = ({
                   className="w-full h-8 border-t bg-[#e4d3b2] border border-b-transparent border-l-transparent border-r-transparent border-[#808080] hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
                 >
                   {selectedRecipient?.name
-                    ? `Send to ${selectedRecipient?.name}`
+                    ? `Toast ${selectedRecipient?.name}`
                     : "Choose Recipient"}
                 </button>
               </SignedIn>

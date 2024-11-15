@@ -2,25 +2,15 @@
 import ReceiptPrinterEncoder from "@point-of-sale/receipt-printer-encoder"
 import { HTMLBytesToESCPOSCommands } from "../_classes/HTMLBytesToESCPOSCommands"
 
-export const htmlContentToBytesWithCommands = async (
-  text: string,
-  sender: string
-): Promise<Uint8Array> => {
+export const PrepareTextToSend = async (text: string, sender: string): Promise<Uint8Array> => {
   const replaceImgTagsWithSrc = text.replace(
     /<img[^>]*src=["']([^"']+)["'][^>]*>/g,
     (_, srcUrl) => `${srcUrl}|`
   )
 
-  const cleanText = replaceImgTagsWithSrc
-    .replace(/<p[^>]*>/g, "")
-    .replace(/<\/p>/g, "")
-    .replace(/<span[^>]*>/g, "")
-    .replace(/<\/span>/g, "")
-    .replace(/<br[^>]*>/g, "")
-    .replace(/<\/br>/g, "")
-
+  console.log(replaceImgTagsWithSrc)
   let utf8Encode = new TextEncoder()
-  const encodedText = utf8Encode.encode(cleanText)
+  const encodedText = utf8Encode.encode(replaceImgTagsWithSrc)
   let HTMLByteToEscpos = new HTMLBytesToESCPOSCommands(encodedText)
   const openTag = await printingOpenTag(sender)
   const closingTag = await printingClosingTag()

@@ -4,8 +4,8 @@
   "description": "Toasting prints since 2024",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff",
+  "background_color": "#f5f5f5",
+  "theme_color": "#f5f5f5",
   "icons": [
     {
       "src": "/images/Logo256AppleIcon.png",

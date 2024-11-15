@@ -285,7 +285,7 @@ const RecipientSelector = ({
               <span>{selectedRecipient.name}</span>
             </>
           ) : (
-            <span className="text-gray-500">Select recipient...</span>
+            <span className="text-gray-500">Select toaster...</span>
           )}
         </div>
         <ChevronDown size={14} />

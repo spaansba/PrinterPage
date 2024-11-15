@@ -13,6 +13,7 @@ export default function Home() {
     setTextContent(inputText)
     setHTMLContent(inputHTML)
   }
+
   return (
     <div className="flex flex-col items-center justify-center p-2 gap-6 font-mono text-black bg-[#d4d0c8]">
       {/* Main Editor Window */}
