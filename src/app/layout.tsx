@@ -21,13 +21,16 @@ export const metadata: Metadata = {
       { url: "/favicon.ico" },
       { url: "/images/Logo16.png", sizes: "16x16", type: "image/png" },
       { url: "/images/Logo32.png", sizes: "32x32", type: "image/png" },
+      { url: "/images/Logo128.png", sizes: "128x128", type: "image/png" },
+      { url: "/images/Logo256.png", sizes: "256x256", type: "image/png" },
+      { url: "/images/Logo512.png", sizes: "512x512", type: "image/png" },
     ],
     // Apple Touch Icon (the one you see when you put the page on your homescreen as app)
     apple: [{ url: "/images/Logo256AppleIcon.png" }],
   },
   appleWebApp: {
     capable: true, // runs full screen mode
-    startupImage: "/images/Logo512AppleIcon.png",
+    startupImage: "/images/Logo512.png",
     statusBarStyle: "black",
     title: "Toaster", // Title for the Apple Touch Icon
   },
