@@ -192,7 +192,7 @@ const RecipientSelector = ({
           title={`Toaster ID: ${recipient.printerId}`}
         >
           <div className=" flex items-center justify-center mr-2">
-            <Image src="/images/Toastert.png" alt="Toaster" width={24} height={24} />
+            <Image src="/images/toasted.png" alt="Toaster" width={24} height={24} />
           </div>
           <div className="flex flex-col">
             {editingId === recipient.printerId ? (
@@ -280,7 +280,7 @@ const RecipientSelector = ({
           {selectedRecipient ? (
             <>
               <div className=" flex items-center justify-center mr-2">
-                <Image src="/images/Toastert.png" alt="Toaster" width={24} height={24} />
+                <Image src="/images/toasted.png" alt="Toaster" width={24} height={24} />
               </div>
               <span>{selectedRecipient.name}</span>
             </>
