@@ -10,9 +10,6 @@
 html {
   scrollbar-gutter: stable;
 }
-input {
-  -webkit-return-key-type: done;
-}
 body {
   background-color: #d4d0c8;
   font-size: 13px;

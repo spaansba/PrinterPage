@@ -16,7 +16,6 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: false,
   },
-  manifest: "/manifest.json",
   icons: {
     icon: [
       { url: "/favicon.ico" },
@@ -28,7 +27,8 @@ export const metadata: Metadata = {
   },
   appleWebApp: {
     capable: true, // runs full screen mode
-    statusBarStyle: "black-translucent",
+    startupImage: "/images/Logo512AppleIcon.png",
+    statusBarStyle: "black",
     title: "Toaster", // Title for the Apple Touch Icon
   },
 }
