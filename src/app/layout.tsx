@@ -12,12 +12,28 @@ const ibmPlexMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: "Toaster",
-  description: "Toast",
+  description: "Toasting prints since 2024",
   formatDetection: {
     telephone: false,
   },
+  // Add these new configurations
+  manifest: "/manifest.json",
+  icons: {
+    // Standard favicon
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/images/Logo16.png", sizes: "16x16", type: "image/png" },
+      { url: "/images/Logo32.png", sizes: "32x32", type: "image/png" },
+    ],
+    // Apple Touch Icons
+    apple: [{ url: "/images/Logo256AppleIcon.png" }],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black",
+    title: "Toaster", // Title for the Apple Touch Icon
+  },
 }
-
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1.0,
