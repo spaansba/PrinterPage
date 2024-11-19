@@ -1,6 +1,6 @@
-import React, { useCallback, useRef, useState, useEffect } from "react"
-import { Camera, CameraType } from "react-camera-pro"
-import { X, Camera as CameraIcon, AlertTriangle } from "lucide-react"
+import React, { useRef } from "react"
+import { Camera } from "react-camera-pro"
+import { X, Camera as CameraIcon } from "lucide-react"
 
 interface CameraModalProps {
   isOpen: boolean
@@ -8,154 +8,29 @@ interface CameraModalProps {
   onCapture: (photoData: string) => void
 }
 
+interface CameraRef {
+  takePhoto: (type?: "base64url" | "imgData") => string
+  switchCamera: () => "user" | "environment"
+  getNumberOfCameras: () => number
+  toggleTorch: () => boolean
+  torchSupported: boolean
+}
+
 const CameraModal: React.FC<CameraModalProps> = ({ isOpen, onClose, onCapture }) => {
-  const camera = useRef<CameraType | null>(null)
-  const [numberOfCameras, setNumberOfCameras] = useState<number>(0)
-  const [image, setImage] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [isCameraSupported, setIsCameraSupported] = useState<boolean>(false)
-  const streamRef = useRef<MediaStream | null>(null)
+  const camera = useRef<CameraRef | null>(null)
 
-  useEffect(() => {
-    const checkCameraSupport = async () => {
-      try {
-        // Check if running in a secure context
-        if (!window.isSecureContext) {
-          throw new Error("Camera access requires a secure context (HTTPS)")
-        }
-
-        // Check for getUserMedia support across different browsers
-        const getUserMedia =
-          navigator.mediaDevices?.getUserMedia ||
-          (navigator as any).webkitGetUserMedia ||
-          (navigator as any).mozGetUserMedia ||
-          (navigator as any).msGetUserMedia
-
-        if (!getUserMedia) {
-          throw new Error("Camera API is not supported in your browser")
-        }
-
-        // Request camera access
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: "environment", // Prefer back camera on mobile
-            width: { ideal: 1920 },
-            height: { ideal: 1080 },
-          },
-        })
-
-        // Store stream reference
-        streamRef.current = stream
-
-        // Check if we actually got video tracks
-        if (!stream.getVideoTracks().length) {
-          throw new Error("No camera device found")
-        }
-
-        setIsCameraSupported(true)
-        setError(null)
-      } catch (err) {
-        console.error("Camera initialization error:", err)
-        let errorMessage = "Failed to initialize camera"
-
-        if (err instanceof Error) {
-          // Provide more user-friendly error messages
-          if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
-            errorMessage = "Camera permission was denied. Please allow camera access and try again."
-          } else if (err.name === "NotFoundError" || err.name === "DevicesNotFoundError") {
-            errorMessage = "No camera device was found on your device."
-          } else if (err.name === "NotReadableError" || err.name === "TrackStartError") {
-            errorMessage =
-              "Your camera is busy or not available. Please close other apps using the camera."
-          } else if (err.name === "OverconstrainedError") {
-            errorMessage = "Could not find a suitable camera. Please try a different device."
-          } else if (err.message) {
-            errorMessage = err.message
-          }
-        }
-
-        setError(errorMessage)
-        setIsCameraSupported(false)
-      }
-    }
-
-    if (isOpen) {
-      checkCameraSupport()
-    }
-
-    return () => {
-      if (streamRef.current) {
-        const tracks = streamRef.current.getTracks()
-        tracks.forEach((track) => track.stop())
-        streamRef.current = null
-      }
-    }
-  }, [isOpen])
-
-  const handleTakePhoto = useCallback((): void => {
+  const handleCapture = (): void => {
     if (camera.current) {
-      try {
-        const photo = camera.current.takePhoto()
-        if (photo instanceof ImageData) {
-          const canvas = document.createElement("canvas")
-          canvas.width = photo.width
-          canvas.height = photo.height
-          const ctx = canvas.getContext("2d")
-          if (ctx) {
-            ctx.putImageData(photo, 0, 0)
-            setImage(canvas.toDataURL("image/jpeg"))
-          }
-        } else {
-          setImage(photo)
-        }
-        setError(null)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to take photo")
-      }
+      const photoData = camera.current.takePhoto()
+      onCapture(photoData)
     }
-  }, [])
-
-  const handleAcceptPhoto = useCallback((): void => {
-    if (image) {
-      onCapture(image)
-      setImage(null)
-      onClose()
-    }
-  }, [image, onCapture, onClose])
-
-  const handleRetake = useCallback((): void => {
-    setImage(null)
-    setError(null)
-  }, [])
-
-  // Fallback to file input if camera is not supported
-  const handleFileInput = useCallback(() => {
-    const input = document.createElement("input")
-    input.type = "file"
-    input.accept = "image/*"
-    input.capture = "environment"
-
-    input.onchange = (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0]
-      if (file) {
-        const reader = new FileReader()
-        reader.onload = (event) => {
-          const dataUrl = event.target?.result as string
-          onCapture(dataUrl)
-          onClose()
-        }
-        reader.readAsDataURL(file)
-      }
-    }
-
-    input.click()
-  }, [onCapture, onClose])
+  }
 
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/90 z-50">
-      <div className="w-full max-w-md bg-[#d4d0c8] border-2 border-[#dfdfdf] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+      <div className="bg-[#d4d0c8] border-2 border-[#dfdfdf] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] w-full max-w-xl">
         <div className="bg-[#735721] px-2 py-1 flex items-center justify-between text-white">
           <div className="flex items-center gap-2">
             <CameraIcon size={14} />
@@ -164,73 +39,51 @@ const CameraModal: React.FC<CameraModalProps> = ({ isOpen, onClose, onCapture })
           <button
             onClick={onClose}
             type="button"
-            className="size-7 flex items-center justify-center border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080]"
+            className="size-7 flex items-center justify-center border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
           >
             <X size={14} />
           </button>
         </div>
 
-        <div className="relative bg-black">
-          {error ? (
-            <div className="p-8 flex flex-col items-center justify-center text-white gap-4">
-              <AlertTriangle className="text-yellow-400" size={24} />
-              <p className="text-center">{error}</p>
-              <button
-                onClick={handleFileInput}
-                type="button"
-                className="mt-2 h-7 px-4 flex items-center justify-center bg-[#d4d0c8] text-black border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080]"
-              >
-                Select from Gallery
-              </button>
-            </div>
-          ) : !image && isCameraSupported ? (
+        <div className="p-4">
+          <div className="relative w-full h-64 mb-4 bg-black overflow-hidden">
             <Camera
               ref={camera}
-              numberOfCamerasCallback={setNumberOfCameras}
-              facingMode="environment"
-              aspectRatio={16 / 9}
               errorMessages={{
-                noCameraAccessible: "No camera device accessible",
-                permissionDenied:
-                  "Permission denied. Please refresh and grant access to your camera.",
+                noCameraAccessible:
+                  "No camera device accessible. Please connect your camera or try a different browser.",
+                permissionDenied: "Permission denied. Please refresh and give camera permission.",
                 switchCamera:
                   "It is not possible to switch camera to different one because there is only one video device accessible.",
                 canvas: "Canvas is not supported.",
               }}
+              aspectRatio="cover"
+              facingMode="user"
+              numberOfCamerasCallback={(number: number) => {
+                console.log(`Number of cameras: ${number}`)
+              }}
+              videoReadyCallback={() => {
+                console.log("Video ready")
+              }}
             />
-          ) : (
-            image && <img src={image} alt="Captured photo" className="w-full h-auto" />
-          )}
-        </div>
+          </div>
 
-        <div className="p-4 flex justify-end gap-2">
-          {!error && !image ? (
+          <div className="flex justify-end gap-1 bg-[#d4d0c8]">
             <button
-              onClick={handleTakePhoto}
+              onClick={handleCapture}
               type="button"
-              disabled={!isCameraSupported}
-              className="h-7 px-4 flex items-center justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="h-7 px-4 flex items-center justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
             >
-              Take Photo
+              Capture
             </button>
-          ) : image ? (
-            <>
-              <button
-                onClick={handleRetake}
-                type="button"
-                className="h-7 px-4 flex items-center justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080]"
-              >
-                Retake
-              </button>
-              <button
-                onClick={handleAcceptPhoto}
-                type="button"
-                className="h-7 px-4 flex items-center justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080]"
-              >
-                Accept
-              </button>
-            </>
-          ) : null}
+            <button
+              onClick={onClose}
+              type="button"
+              className="h-7 px-4 flex items-center justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
+            >
+              Cancel
+            </button>
+          </div>
         </div>
       </div>
     </div>
