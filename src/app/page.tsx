@@ -1,15 +1,16 @@
 "use client"
 import { useState } from "react"
 import RetroTextEditor from "./_components/_editor/RetroTextEditor"
-import { CustomEditorProvider } from "./context/editorContext"
+import { CustomEditorProvider, useEditorContext } from "./context/editorContext"
 
 export default function Home() {
   const [status, setStatus] = useState("")
   const [textContent, setTextContent] = useState("")
   const [hTMLContent, setHTMLContent] = useState("")
-
   const handleTextChange = (inputText: string, inputHTML: string) => {
-    setStatus("Editing")
+    if (inputText.length > 0) {
+      setStatus("Editing")
+    }
     setTextContent(inputText)
     setHTMLContent(inputHTML)
   }

@@ -8,7 +8,6 @@ export const PrepareTextToSend = async (text: string, sender: string): Promise<U
     (_, srcUrl) => `${srcUrl}|`
   )
 
-  console.log(replaceImgTagsWithSrc)
   let utf8Encode = new TextEncoder()
   const encodedText = utf8Encode.encode(replaceImgTagsWithSrc)
   let HTMLByteToEscpos = new HTMLBytesToESCPOSCommands(encodedText)

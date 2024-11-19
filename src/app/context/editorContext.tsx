@@ -1,7 +1,7 @@
 "use client"
 
 import { useEditor, type Editor } from "@tiptap/react"
-import React, { createContext, useContext, useMemo } from "react"
+import React, { createContext, useContext, useEffect, useMemo } from "react"
 import StarterKit from "@tiptap/starter-kit"
 import Underline from "@tiptap/extension-underline"
 import Highlight from "@tiptap/extension-highlight"
@@ -62,8 +62,7 @@ export function CustomEditorProvider({ children, handleTextChange }: CustomEdito
     ],
     editorProps: {
       attributes: {
-        class:
-          "editorStyles text-[13px] font-mono w-full px-4 py-4 min-h-[200px] bg-white border-[1px] border-gray-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] focus:outline-none whitespace-pre-wrap break-word touch-manipulation [--webkit-user-modify:read-write-plaintext-only] [--webkit-text-size-adjust:none] [word-wrap:break-word] [overflow-wrap:break-word] [white-space:pre-wrap] [max-width:100%]",
+        class: `text-[13px] font-mono  [&[contenteditable=false]]:!opacity-70 w-full px-4 py-4 min-h-[200px] border-[1px] border-gray-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] focus:outline-none whitespace-pre-wrap break-word touch-manipulation [--webkit-user-modify:read-write-plaintext-only] [--webkit-text-size-adjust:none] [word-wrap:break-word] [overflow-wrap:break-word] [white-space:pre-wrap] [max-width:100%]`,
         "data-gramm": "false", // existing attributes if any
       },
       handleKeyDown: (view, event) => {

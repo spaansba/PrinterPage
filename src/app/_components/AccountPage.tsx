@@ -35,9 +35,7 @@ function AccountPage() {
           return
         }
 
-        // If not in cache, fetch from server
         const userName = await getUserName(user.id)
-        // Update cache
         usernameCache.set(user.id, userName)
         setDbUsername(userName)
       } catch (error) {
@@ -93,8 +91,6 @@ function AccountPage() {
 
     setIsEditingUsername(true)
     resetEdit()
-
-    // Give inputbox automatic focus for UX
     setTimeout(() => {
       setEditFocus("name")
     }, 0)
@@ -128,7 +124,6 @@ function AccountPage() {
       <SignedIn>
         <div className="p-2 border-t border-[1px] border-gray-500 bg-white flex flex-col gap-2 relative">
           <div className="flex gap-2">
-            {/* Profile Image */}
             <div
               className="relative size-[5rem] flex-shrink-0 border-[1px] border-[#808080] overflow-hidden bg-gray-100 group"
               onMouseEnter={() => setIsHovered(true)}
@@ -140,7 +135,6 @@ function AccountPage() {
                 <div></div>
               )}
 
-              {/* Upload Overlay */}
               <label
                 className={`absolute inset-0 flex flex-col items-center justify-center bg-black/50 cursor-pointer transition-opacity
                 ${isHovered || isUploading ? "opacity-100" : "opacity-0"}`}
@@ -218,7 +212,7 @@ function AccountPage() {
             Edit Profile
           </button>
         </div>
-        {/* Modal */}
+
         {isModalOpen && (
           <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
             <div className="relative">

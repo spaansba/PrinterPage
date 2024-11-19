@@ -42,12 +42,11 @@ const RetroTextEditor = ({ status, setStatus, hTMLContent }: RetroTextEditorProp
     if (!user) {
       return
     }
+    editor?.setEditable(false)
     setStatus("Sending...")
-
     const editorElement = editor!.view.dom as HTMLElement
     const lines = getVisualLines(editorElement)
-    // Log the lines and their count
-    console.log(hTMLContent)
+
     const htmlContentWithLineBreaks = addLineBreaks(hTMLContent, lines)
     const username = await getUserName(user.id)
     const content = await PrepareTextToSend(htmlContentWithLineBreaks, username)
@@ -61,7 +60,6 @@ const RetroTextEditor = ({ status, setStatus, hTMLContent }: RetroTextEditorProp
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // Add CORS headers if needed
           Accept: "application/json",
         },
         body: JSON.stringify({
@@ -77,6 +75,7 @@ const RetroTextEditor = ({ status, setStatus, hTMLContent }: RetroTextEditorProp
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}, body: ${responseText}`)
       }
+      editor?.commands.clearContent()
       setStatus("Sent successfully!")
     } catch (error) {
       console.error("Error sending to printer:", error)
@@ -89,6 +88,7 @@ const RetroTextEditor = ({ status, setStatus, hTMLContent }: RetroTextEditorProp
     }
 
     if (editor) {
+      editor.setEditable(true)
       editor.commands.focus()
     }
   }
