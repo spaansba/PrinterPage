@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next"
 import { IBM_Plex_Mono } from "next/font/google"
 import "./globals.css"
-import { ClerkProvider, SignedIn, SignedOut, SignIn, SignInButton, UserButton } from "@clerk/nextjs"
+import { ClerkProvider } from "@clerk/nextjs"
 
 const ibmPlexMono = IBM_Plex_Mono({
   subsets: ["latin"],

@@ -3,6 +3,7 @@ import { Toggle } from "@radix-ui/react-toggle"
 import {
   AlertTriangle,
   Bold,
+  Camera,
   Highlighter,
   ImageIcon,
   QrCode,
@@ -10,11 +11,12 @@ import {
   Underline,
   X,
 } from "lucide-react"
-import { useState } from "react"
+import { useRef, useState } from "react"
 import FontSizeDropdown from "./FontSizeDropdown"
 import SmileyDropdown from "./SmileyDropdown"
 import QRCode from "qrcode"
 import { useEditorContext } from "@/app/context/editorContext"
+import CameraModal from "./CameraModal"
 
 const TextStyles = `
   .tall-text {
@@ -34,6 +36,9 @@ export function Toolbar() {
   const [qrInputText, setQRInputText] = useState("")
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const { editor } = useEditorContext()
+  const [showCamera, setShowCamera] = useState(false)
+  const camera = useRef(null)
+  const [image, setImage] = useState(null)
 
   if (!editor) {
     return null
@@ -73,45 +78,21 @@ export function Toolbar() {
   }
 
   function triggerImageUpload() {
-    // Check if the device has camera support
-    var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
       navigator.userAgent
     )
-    const inputElement = document.createElement("input")
-    inputElement.type = "file"
-    inputElement.accept = isMobile ? "image/*" : "image/png, image/jpeg"
-    inputElement.className = "hidden"
 
     if (isMobile) {
-      // Allow switching between front and back cameras
-      // Note: You can toggle between "user" and "environment" here
-      inputElement.setAttribute("capture", "environment")
-
-      // Create camera constraints with correct types
-      const constraints: MediaStreamConstraints = {
-        video: {
-          facingMode: { ideal: "environment" },
-        },
-      }
-
-      // Apply constraints to media devices if available
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices
-          .getUserMedia(constraints)
-          .then((stream) => {
-            const videoTrack = stream.getVideoTracks()[0]
-
-            // Log available capabilities for debugging
-            console.log("Track capabilities:", videoTrack.getCapabilities())
-
-            // Stop the stream since we're just using the file input
-            stream.getTracks().forEach((track) => track.stop())
-          })
-          .catch((err) => console.log("Camera access error:", err))
-      }
+      setShowCamera(true)
+      return
     }
 
-    // Add it to document temp for mobile to work
+    // Your existing file input code for desktop
+    const inputElement = document.createElement("input")
+    inputElement.type = "file"
+    inputElement.accept = "image/png, image/jpeg"
+    inputElement.className = "hidden"
+
     document.body.appendChild(inputElement)
     inputElement.addEventListener("change", (e) => {
       const target = e.target as HTMLInputElement
@@ -125,14 +106,22 @@ export function Toolbar() {
           .setImage({ src: url, alt: "[User image]" })
           .setTextSelection(pos + 3)
           .run()
-        target.remove()
       }
-      // Clean up by removing the input element after handling the file
       inputElement.remove()
     })
     inputElement.click()
   }
 
+  const handleCameraCapture = (photoData: string) => {
+    const pos = editor!.state.selection.from
+    editor!
+      .chain()
+      .focus()
+      .setImage({ src: photoData, alt: "[Camera photo]" })
+      .setTextSelection(pos + 3)
+      .run()
+    setShowCamera(false)
+  }
   function clearEditor() {
     editor!.chain().focus().clearContent().run()
     setShowDeleteConfirm(false)
@@ -141,10 +130,16 @@ export function Toolbar() {
   return (
     <>
       <style>{TextStyles}</style>
-
+      {showCamera && (
+        <CameraModal
+          isOpen={showCamera}
+          onClose={() => setShowCamera(false)}
+          onCapture={handleCameraCapture}
+        />
+      )}
       <div className="px-1 py-1 flex items-center ">
         <FontSizeDropdown editor={editor} />
-        {/* Simple divider line */}
+
         <div className="w-px h-6 bg-[#808080] mx-1"></div>
 
         <Toggle
@@ -185,7 +180,7 @@ export function Toolbar() {
           <Highlighter size={15} />
         </Toggle>
 
-        {/* Simple divider line */}
+        {/* divider line */}
         <div className="w-px h-6 bg-[#808080] mx-1"></div>
 
         <button
@@ -218,10 +213,10 @@ export function Toolbar() {
           </button>
         </div>
       </div>
+
       {showDeleteConfirm && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
           <div className="bg-[#d4d0c8] border-2 border-[#dfdfdf] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] w-80">
-            {/* Title Bar */}
             <div className="bg-[#735721] px-2 py-1 flex items-center justify-between text-white">
               <div className="flex items-center gap-2">
                 <AlertTriangle size={14} />
@@ -234,14 +229,11 @@ export function Toolbar() {
                 <X size={14} />
               </button>
             </div>
-
-            {/* Content */}
             <div className="p-4">
               <div className="mb-4">
                 <p className="text-sm">Are you sure? </p>
               </div>
 
-              {/* Buttons Container */}
               <div className="flex justify-end gap-1 bg-[#d4d0c8]">
                 <button
                   onClick={clearEditor}
@@ -265,7 +257,6 @@ export function Toolbar() {
       {showQRInput && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
           <div className="bg-[#d4d0c8] border-2 border-[#dfdfdf] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] w-80">
-            {/* Title Bar */}
             <div className="bg-[#735721] px-2 py-1 flex items-center justify-between text-white">
               <div className="flex items-center gap-2">
                 <QrCode size={14} />
@@ -279,7 +270,6 @@ export function Toolbar() {
               </button>
             </div>
 
-            {/* Content */}
             <div className="p-4">
               <div className="mb-2">
                 <label className="block mb-2 text-sm">Enter text/url for QR code:</label>
@@ -292,7 +282,6 @@ export function Toolbar() {
                 />
               </div>
 
-              {/* Buttons Container with matching style */}
               <div className="flex justify-end gap-1  bg-[#d4d0c8]  ">
                 <button
                   onClick={generateQRCode}

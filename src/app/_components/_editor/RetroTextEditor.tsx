@@ -82,7 +82,7 @@ const RetroTextEditor = ({ status, setStatus, hTMLContent }: RetroTextEditorProp
       console.error("Error sending to printer:", error)
       // More detailed error message
       if (error instanceof TypeError && error.message === "Failed to fetch") {
-        setStatus("Could not connect to printer. Please check if it's online.")
+        setStatus("Could not connect to printer. It might be unplugged")
       } else {
         // setStatus(`Error: ${error.message}`)
       }
