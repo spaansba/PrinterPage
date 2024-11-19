@@ -1,6 +1,6 @@
 import React, { useCallback, useRef, useState, useEffect } from "react"
 import { Camera, CameraType } from "react-camera-pro"
-import { X, Camera as CameraIcon, AlertTriangle, Upload } from "lucide-react"
+import { X, Camera as CameraIcon, AlertTriangle } from "lucide-react"
 
 interface CameraModalProps {
   isOpen: boolean
@@ -10,84 +10,89 @@ interface CameraModalProps {
 
 const CameraModal: React.FC<CameraModalProps> = ({ isOpen, onClose, onCapture }) => {
   const camera = useRef<CameraType | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [numberOfCameras, setNumberOfCameras] = useState<number>(0)
+  const [image, setImage] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [isCameraSupported, setIsCameraSupported] = useState<boolean>(false)
   const streamRef = useRef<MediaStream | null>(null)
 
-  const [permissionState, setPermissionState] = useState<"prompt" | "granted" | "denied">("prompt")
-  const [error, setError] = useState<string | null>(null)
-  const [image, setImage] = useState<string | null>(null)
-
-  // Request camera access when needed
-  const requestCameraAccess = async () => {
-    try {
-      // Check if mediaDevices is supported
-      if (!navigator.mediaDevices?.getUserMedia) {
-        throw new Error("Camera API is not supported in this browser")
-      }
-
-      console.log("Requesting camera access...")
-
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: { ideal: "environment" },
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
-        },
-      })
-
-      console.log("Camera access granted")
-
-      streamRef.current = stream
-      setError(null)
-      setPermissionState("granted")
-      return true
-    } catch (err) {
-      console.error("Camera access error:", err)
-
-      if (err instanceof Error) {
-        switch (err.name) {
-          case "NotAllowedError":
-          case "PermissionDeniedError":
-            setPermissionState("denied")
-            setError("Camera permission was denied. Please allow camera access and try again.")
-            break
-          case "NotFoundError":
-          case "DevicesNotFoundError":
-            setError("No camera device was found on your device.")
-            break
-          case "NotReadableError":
-          case "TrackStartError":
-            setError(
-              "Your camera is busy or not available. Please close other apps using the camera."
-            )
-            break
-          default:
-            setError(`Camera Error: ${err.message}`)
-        }
-      } else {
-        setError("Failed to initialize camera")
-      }
-      return false
-    }
-  }
-
   useEffect(() => {
+    const checkCameraSupport = async () => {
+      try {
+        // Check if running in a secure context
+        if (!window.isSecureContext) {
+          throw new Error("Camera access requires a secure context (HTTPS)")
+        }
+
+        // Check for getUserMedia support across different browsers
+        const getUserMedia =
+          navigator.mediaDevices?.getUserMedia ||
+          (navigator as any).webkitGetUserMedia ||
+          (navigator as any).mozGetUserMedia ||
+          (navigator as any).msGetUserMedia
+
+        if (!getUserMedia) {
+          throw new Error("Camera API is not supported in your browser")
+        }
+
+        // Request camera access
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: "environment", // Prefer back camera on mobile
+            width: { ideal: 1920 },
+            height: { ideal: 1080 },
+          },
+        })
+
+        // Store stream reference
+        streamRef.current = stream
+
+        // Check if we actually got video tracks
+        if (!stream.getVideoTracks().length) {
+          throw new Error("No camera device found")
+        }
+
+        setIsCameraSupported(true)
+        setError(null)
+      } catch (err) {
+        console.error("Camera initialization error:", err)
+        let errorMessage = "Failed to initialize camera"
+
+        if (err instanceof Error) {
+          // Provide more user-friendly error messages
+          if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
+            errorMessage = "Camera permission was denied. Please allow camera access and try again."
+          } else if (err.name === "NotFoundError" || err.name === "DevicesNotFoundError") {
+            errorMessage = "No camera device was found on your device."
+          } else if (err.name === "NotReadableError" || err.name === "TrackStartError") {
+            errorMessage =
+              "Your camera is busy or not available. Please close other apps using the camera."
+          } else if (err.name === "OverconstrainedError") {
+            errorMessage = "Could not find a suitable camera. Please try a different device."
+          } else if (err.message) {
+            errorMessage = err.message
+          }
+        }
+
+        setError(errorMessage)
+        setIsCameraSupported(false)
+      }
+    }
+
+    if (isOpen) {
+      checkCameraSupport()
+    }
+
     return () => {
       if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => {
-          track.stop()
-        })
+        const tracks = streamRef.current.getTracks()
+        tracks.forEach((track) => track.stop())
         streamRef.current = null
       }
     }
-  }, [])
+  }, [isOpen])
 
-  const handleTakePhoto = useCallback(async () => {
-    if (permissionState === "prompt") {
-      const granted = await requestCameraAccess()
-      if (!granted) return
-    }
-
+  const handleTakePhoto = useCallback((): void => {
     if (camera.current) {
       try {
         const photo = camera.current.takePhoto()
@@ -108,41 +113,9 @@ const CameraModal: React.FC<CameraModalProps> = ({ isOpen, onClose, onCapture })
         setError(err instanceof Error ? err.message : "Failed to take photo")
       }
     }
-  }, [permissionState])
-
-  const handleFileSelect = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0]
-      if (file) {
-        if (!file.type.startsWith("image/")) {
-          setError("Please select an image file")
-          return
-        }
-
-        const reader = new FileReader()
-        reader.onload = (e) => {
-          const result = e.target?.result
-          if (typeof result === "string") {
-            onCapture(result)
-            onClose()
-          }
-        }
-        reader.onerror = () => {
-          setError("Failed to read the selected file")
-        }
-        reader.readAsDataURL(file)
-      }
-    },
-    [onCapture, onClose]
-  )
-
-  const openGallery = useCallback(() => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click()
-    }
   }, [])
 
-  const handleAcceptPhoto = useCallback(() => {
+  const handleAcceptPhoto = useCallback((): void => {
     if (image) {
       onCapture(image)
       setImage(null)
@@ -150,10 +123,33 @@ const CameraModal: React.FC<CameraModalProps> = ({ isOpen, onClose, onCapture })
     }
   }, [image, onCapture, onClose])
 
-  const handleRetake = useCallback(() => {
+  const handleRetake = useCallback((): void => {
     setImage(null)
     setError(null)
   }, [])
+
+  // Fallback to file input if camera is not supported
+  const handleFileInput = useCallback(() => {
+    const input = document.createElement("input")
+    input.type = "file"
+    input.accept = "image/*"
+    input.capture = "environment"
+
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0]
+      if (file) {
+        const reader = new FileReader()
+        reader.onload = (event) => {
+          const dataUrl = event.target?.result as string
+          onCapture(dataUrl)
+          onClose()
+        }
+        reader.readAsDataURL(file)
+      }
+    }
+
+    input.click()
+  }, [onCapture, onClose])
 
   if (!isOpen) return null
 
@@ -163,9 +159,7 @@ const CameraModal: React.FC<CameraModalProps> = ({ isOpen, onClose, onCapture })
         <div className="bg-[#735721] px-2 py-1 flex items-center justify-between text-white">
           <div className="flex items-center gap-2">
             <CameraIcon size={14} />
-            <span className="text-sm">
-              {permissionState === "granted" ? "Take Photo" : "Camera Access"}
-            </span>
+            <span className="text-sm">Take Photo</span>
           </div>
           <button
             onClick={onClose}
@@ -176,23 +170,23 @@ const CameraModal: React.FC<CameraModalProps> = ({ isOpen, onClose, onCapture })
           </button>
         </div>
 
-        <div className="relative bg-black min-h-[300px]">
+        <div className="relative bg-black">
           {error ? (
             <div className="p-8 flex flex-col items-center justify-center text-white gap-4">
               <AlertTriangle className="text-yellow-400" size={24} />
               <p className="text-center">{error}</p>
               <button
-                onClick={openGallery}
+                onClick={handleFileInput}
                 type="button"
-                className="mt-2 h-7 px-4 flex items-center justify-center gap-2 bg-[#d4d0c8] text-black border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080]"
+                className="mt-2 h-7 px-4 flex items-center justify-center bg-[#d4d0c8] text-black border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080]"
               >
-                <Upload size={14} />
                 Select from Gallery
               </button>
             </div>
-          ) : !image && permissionState === "granted" ? (
+          ) : !image && isCameraSupported ? (
             <Camera
               ref={camera}
+              numberOfCamerasCallback={setNumberOfCameras}
               facingMode="environment"
               aspectRatio={16 / 9}
               errorMessages={{
@@ -204,40 +198,21 @@ const CameraModal: React.FC<CameraModalProps> = ({ isOpen, onClose, onCapture })
                 canvas: "Canvas is not supported.",
               }}
             />
-          ) : image ? (
-            <img src={image} alt="Captured photo" className="w-full h-auto" />
           ) : (
-            <div className="p-8 flex flex-col items-center justify-center text-white gap-4">
-              <p className="text-center">
-                {permissionState === "prompt"
-                  ? 'Click "Enable Camera" to start using your camera'
-                  : "Camera access was denied. Please enable camera access in your browser settings."}
-              </p>
-            </div>
+            image && <img src={image} alt="Captured photo" className="w-full h-auto" />
           )}
         </div>
 
         <div className="p-4 flex justify-end gap-2">
           {!error && !image ? (
-            <>
-              <button
-                onClick={openGallery}
-                type="button"
-                className="h-7 px-4 flex items-center justify-center gap-2 bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080]"
-              >
-                <Upload size={14} />
-                Gallery
-              </button>
-              {permissionState !== "denied" && (
-                <button
-                  onClick={handleTakePhoto}
-                  type="button"
-                  className="h-7 px-4 flex items-center justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080]"
-                >
-                  {permissionState === "prompt" ? "Enable Camera" : "Take Photo"}
-                </button>
-              )}
-            </>
+            <button
+              onClick={handleTakePhoto}
+              type="button"
+              disabled={!isCameraSupported}
+              className="h-7 px-4 flex items-center justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Take Photo
+            </button>
           ) : image ? (
             <>
               <button
@@ -257,14 +232,6 @@ const CameraModal: React.FC<CameraModalProps> = ({ isOpen, onClose, onCapture })
             </>
           ) : null}
         </div>
-
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleFileSelect}
-          className="hidden"
-        />
       </div>
     </div>
   )
