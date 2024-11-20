@@ -218,7 +218,7 @@ export class HTMLBytesToESCPOSCommands {
         }
 
         const urlBytes = this._bytes.slice(i, urlEnd)
-        const imageUrl = String.fromCharCode.apply(null, Array.from(urlBytes))
+        const imageUrl = byteArrayToString(urlBytes)
 
         // Create a promise for processing each image
         const processPromise = processImage(imageUrl)
@@ -348,6 +348,19 @@ export class HTMLBytesToESCPOSCommands {
     const [result2] = htmlTagsToESCPOSEncoder(result, emptyLineTag, lfByte, "emptyLine", true)
     this._bytes = result2
   }
+}
+
+//Do it in chunks to avoid call stack error
+function byteArrayToString(bytes: Uint8Array): string {
+  const chunkSize = 8192 // Process 8KB chunks at a time
+  let result = ""
+
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.slice(i, i + chunkSize)
+    result += String.fromCharCode.apply(null, Array.from(chunk))
+  }
+
+  return result
 }
 
 export function htmlTagsToESCPOSEncoder(

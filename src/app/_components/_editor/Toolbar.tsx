@@ -78,38 +78,8 @@ export function Toolbar() {
   }
 
   function triggerImageUpload() {
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent
-    )
-
-    // if (isMobile) {
+    // Shows the camera modal, if no camera model is found and on pc it opens the users directory
     setShowCamera(true)
-    return
-    // }
-
-    // Your existing file input code for desktop
-    const inputElement = document.createElement("input")
-    inputElement.type = "file"
-    inputElement.accept = "image/png, image/jpeg"
-    inputElement.className = "hidden"
-
-    document.body.appendChild(inputElement)
-    inputElement.addEventListener("change", (e) => {
-      const target = e.target as HTMLInputElement
-      const file = target.files?.[0]
-      if (file) {
-        const url = URL.createObjectURL(file)
-        const pos = editor!.state.selection.from
-        editor!
-          .chain()
-          .focus()
-          .setImage({ src: url, alt: "[User image]" })
-          .setTextSelection(pos + 3)
-          .run()
-      }
-      inputElement.remove()
-    })
-    inputElement.click()
   }
 
   const handleCameraCapture = (photoData: string) => {

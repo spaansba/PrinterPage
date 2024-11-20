@@ -17,6 +17,13 @@ const CameraModal: React.FC<CameraModalProps> = ({ isOpen, onClose, onCapture })
   const [isStreaming, setIsStreaming] = useState(false)
   const hasCheckedCameraRef = useRef(false)
 
+  // Define consistent dimensions that match the editor's needs
+  const videoConstraints = {
+    width: 480, // Reduced width for better editor compatibility
+    height: 480, // Square aspect ratio for consistent results
+    facingMode: facingMode,
+  }
+
   useEffect(() => {
     if (!isOpen) {
       hasCheckedCameraRef.current = false
@@ -60,38 +67,41 @@ const CameraModal: React.FC<CameraModalProps> = ({ isOpen, onClose, onCapture })
         }
       })
       .catch((error) => {
+        console.info("No camera found: ", error)
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
           navigator.userAgent
         )
-
         // When we dont find a camera, go to the users directory and let them pick a picture
         if (!isMobile) {
-          console.info("No camera found: ", error)
-          const inputElement = document.createElement("input")
-          inputElement.type = "file"
-          inputElement.accept = "image/png, image/jpeg"
-          inputElement.className = "hidden"
-
-          document.body.appendChild(inputElement)
-          inputElement.addEventListener("change", (e) => {
-            const target = e.target as HTMLInputElement
-            const file = target.files?.[0]
-            if (file) {
-              const reader = new FileReader()
-              reader.onloadend = () => {
-                if (typeof reader.result === "string") {
-                  onCapture(reader.result)
-                }
-              }
-              reader.readAsDataURL(file)
-            }
-            inputElement.remove()
-          })
-          inputElement.click()
+          openFileSystem()
         }
         onClose()
       })
   }, [isOpen])
+
+  function openFileSystem() {
+    const inputElement = document.createElement("input")
+    inputElement.type = "file"
+    inputElement.accept = "image/png, image/jpeg"
+    inputElement.className = "hidden"
+
+    document.body.appendChild(inputElement)
+    inputElement.addEventListener("change", (e) => {
+      const target = e.target as HTMLInputElement
+      const file = target.files?.[0]
+      if (file) {
+        const reader = new FileReader()
+        reader.onloadend = () => {
+          if (typeof reader.result === "string") {
+            onCapture(reader.result)
+          }
+        }
+        reader.readAsDataURL(file)
+      }
+      inputElement.remove()
+    })
+    inputElement.click()
+  }
 
   const handleSwitchCamera = (): void => {
     if (webcamRef.current) {
@@ -101,7 +111,11 @@ const CameraModal: React.FC<CameraModalProps> = ({ isOpen, onClose, onCapture })
 
   function captureWebcam() {
     if (webcamRef.current) {
-      const imageSrc = webcamRef.current.getScreenshot({ height: 1280, width: 720 })
+      // Use the same dimensions as the video constraints
+      const imageSrc = webcamRef.current.getScreenshot({
+        width: videoConstraints.width,
+        height: videoConstraints.height,
+      })
       if (imageSrc) {
         onCapture(imageSrc)
       }
@@ -128,7 +142,7 @@ const CameraModal: React.FC<CameraModalProps> = ({ isOpen, onClose, onCapture })
         </div>
 
         <div className="p-4">
-          <div className="relative w-full h-96 mb-4 bg-black overflow-hidden">
+          <div className="relative w-full aspect-square mb-4 bg-black overflow-hidden">
             {!isStreaming && (
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-white">Loading camera...</div>
@@ -143,14 +157,10 @@ const CameraModal: React.FC<CameraModalProps> = ({ isOpen, onClose, onCapture })
               <Webcam
                 ref={webcamRef}
                 audio={false}
-                mirrored={true}
+                mirrored={facingMode === "user"}
                 screenshotFormat="image/jpeg"
                 className="absolute inset-0 w-full h-full object-cover"
-                videoConstraints={{
-                  facingMode: facingMode,
-                  width: 1280,
-                  height: 720,
-                }}
+                videoConstraints={videoConstraints}
                 onUserMedia={() => setIsStreaming(true)}
               />
             </div>
