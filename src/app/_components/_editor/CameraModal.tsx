@@ -19,8 +19,8 @@ const CameraModal: React.FC<CameraModalProps> = ({ isOpen, onClose, onCapture })
 
   // Define consistent dimensions that match the editor's needs
   const videoConstraints = {
-    width: 480, // Reduced width for better editor compatibility
-    height: 480, // Square aspect ratio for consistent results
+    width: 480,
+    height: 480,
     facingMode: facingMode,
   }
 
@@ -111,7 +111,6 @@ const CameraModal: React.FC<CameraModalProps> = ({ isOpen, onClose, onCapture })
 
   function captureWebcam() {
     if (webcamRef.current) {
-      // Use the same dimensions as the video constraints
       const imageSrc = webcamRef.current.getScreenshot({
         width: videoConstraints.width,
         height: videoConstraints.height,
