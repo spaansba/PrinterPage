@@ -1,19 +1,10 @@
 "use client"
-
-import { array } from "zod"
-import { processImage } from "../_helpers/appendImageToPrint"
+import { processImage } from "../_helpers/ImageToBytes"
 
 const TextJustify = {
   Left: 0,
   Center: 1,
   Right: 2,
-} as const
-
-const QRCodeErrorCorrectionLevel = {
-  L: 48,
-  M: 49,
-  Q: 50,
-  H: 51,
 } as const
 
 const TEXT_SIZE_MAP = {
@@ -22,81 +13,6 @@ const TEXT_SIZE_MAP = {
   "42": 0x22,
   "52": 0x33,
 } as const
-
-const SMILE_EMOJI = new Uint8Array([
-  0x00,
-  0x00,
-  0x00, // 24 pixels wide (3 bytes per row)
-  0x00,
-  0x7e,
-  0x00, // Different patterns for each row
-  0x03,
-  0xff,
-  0xc0, // Create a simple smiley face
-  0x07,
-  0xff,
-  0xe0,
-  0x0f,
-  0xff,
-  0xf0,
-  0x1f,
-  0xff,
-  0xf8,
-  0x1f,
-  0xff,
-  0xf8,
-  0x3f,
-  0xff,
-  0xfc,
-  0x3f,
-  0xff,
-  0xfc,
-  0x3f,
-  0x00,
-  0xfc,
-  0x3f,
-  0x00,
-  0xfc,
-  0x3f,
-  0x00,
-  0xfc,
-  0x3f,
-  0x81,
-  0xfc,
-  0x3f,
-  0x81,
-  0xfc,
-  0x3f,
-  0xff,
-  0xfc,
-  0x3f,
-  0x7e,
-  0xfc,
-  0x1f,
-  0x3c,
-  0xf8,
-  0x1f,
-  0xff,
-  0xf8,
-  0x0f,
-  0xff,
-  0xf0,
-  0x07,
-  0xff,
-  0xe0,
-  0x03,
-  0xff,
-  0xc0,
-  0x00,
-  0x7e,
-  0x00,
-  0x00,
-  0x00,
-  0x00,
-  0x00,
-  0x00,
-  0x00,
-])
 
 const HTML_ENTITIES = {
   LT: {
@@ -281,7 +197,6 @@ export class HTMLBytesToESCPOSCommands {
       let isBlob = true
       let isDataImage = true
 
-      // Check for blob: prefix
       for (let j = 0; j < blobPrefix.length; j++) {
         if (this._bytes[i + j] !== blobPrefix[j]) {
           isBlob = false
@@ -289,7 +204,6 @@ export class HTMLBytesToESCPOSCommands {
         }
       }
 
-      // Check for data:image prefix
       for (let j = 0; j < dataImagePrefix.length; j++) {
         if (this._bytes[i + j] !== dataImagePrefix[j]) {
           isDataImage = false
@@ -325,10 +239,8 @@ export class HTMLBytesToESCPOSCommands {
       }
     }
 
-    // Wait for all images to be processed
     await Promise.all(processingPromises)
 
-    // Only proceed with array reconstruction after all images are processed
     if (replacements.size > 0) {
       let newSize = this._bytes.length
       for (const replacement of replacements.values()) {
@@ -383,7 +295,6 @@ export class HTMLBytesToESCPOSCommands {
             end++
           }
 
-          // Remove the entire tag
           const newArray = new Uint8Array(this._bytes.length - (end - i + 1))
           newArray.set(this._bytes.slice(0, i))
           newArray.set(this._bytes.slice(end + 1), i)
@@ -393,7 +304,6 @@ export class HTMLBytesToESCPOSCommands {
         }
       }
 
-      // Remove closing tags
       const closeTag = new Uint8Array([
         TAGS.LESS_THAN,
         TAGS.FSLASH,
@@ -489,7 +399,6 @@ export function htmlTagsToESCPOSEncoder(
     }
   }
 
-  // Calculate new array size
   const sizeDiff = replaceSequence.length - findSequence.length
   const newSize = array.length + sizeDiff * replacements.size
   let newBitArray = new Uint8Array(newSize)
@@ -500,20 +409,16 @@ export function htmlTagsToESCPOSEncoder(
   // Sort the match indices to process them in order
   const sortedIndices = Array.from(replacements.keys()).sort((a, b) => a - b)
 
-  // Process each segment
   sortedIndices.forEach((matchIndex) => {
-    // Copy bytes up to the match
     while (currentIndex < matchIndex) {
       newBitArray[targetIndex++] = array[currentIndex++]
     }
 
-    // Get and copy the specific replacement sequence for this match
     const currentReplaceSequence = replacements.get(matchIndex)!
     for (let j = 0; j < currentReplaceSequence.length; j++) {
       newBitArray[targetIndex++] = currentReplaceSequence[j]
     }
 
-    // Skip the original sequence
     currentIndex += findSequence.length
   })
 

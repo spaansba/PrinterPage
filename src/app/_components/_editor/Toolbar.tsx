@@ -82,10 +82,10 @@ export function Toolbar() {
       navigator.userAgent
     )
 
-    if (isMobile) {
-      setShowCamera(true)
-      return
-    }
+    // if (isMobile) {
+    setShowCamera(true)
+    return
+    // }
 
     // Your existing file input code for desktop
     const inputElement = document.createElement("input")

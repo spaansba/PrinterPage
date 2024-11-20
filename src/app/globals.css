@@ -21,7 +21,7 @@ body {
 }
 
 .thermal-print-effect {
-  filter: grayscale(100%) contrast(85%) brightness(110%) opacity(90%) saturate(0) blur(0.3px);
+  /* filter: grayscale(100%) contrast(85%) brightness(110%) opacity(90%) saturate(0) blur(0.3px); */
   background-color: #f5f5f5;
 }
 .selected-image {

@@ -135,11 +135,11 @@ function processImageElement(
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
   const pixels = imageData.data
 
-  // Convert to grayscale
-  for (let i = 0; i < pixels.length; i += 4) {
-    const grayscale = Math.floor(pixels[i] * 0.299 + pixels[i + 1] * 0.587 + pixels[i + 2] * 0.114)
-    pixels[i] = pixels[i + 1] = pixels[i + 2] = grayscale
-  }
+  // Convert to grayscale for more defined pixels
+  // for (let i = 0; i < pixels.length; i += 4) {
+  //   const grayscale = Math.floor(pixels[i] * 0.299 + pixels[i + 1] * 0.587 + pixels[i + 2] * 0.114)
+  //   pixels[i] = pixels[i + 1] = pixels[i + 2] = grayscale
+  // }
 
   // Apply dithering
   applyAtkinsonDithering(pixels, canvas.width, canvas.height)
@@ -167,7 +167,11 @@ function processImageElement(
   }
 }
 
-// Keep the existing applyAtkinsonDithering function
+// Algorithm based on error diffusion, 6/8th of the residual is pushed into neighbouring pixels like this: (1/8 for all leaving 1/4 pixels left over)
+// x x * 1 1
+// x 1 1 1 x
+// x x 1 x x
+//
 function applyAtkinsonDithering(data: Uint8ClampedArray, width: number, height: number): void {
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {

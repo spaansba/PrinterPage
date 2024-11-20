@@ -76,19 +76,21 @@ const RetroTextEditor = ({ status, setStatus, hTMLContent }: RetroTextEditorProp
         throw new Error(`HTTP error! status: ${response.status}, body: ${responseText}`)
       }
       editor?.commands.clearContent()
+      editor?.setEditable(true)
       setStatus("Sent successfully!")
     } catch (error) {
+      editor?.setEditable(true)
       console.error("Error sending to printer:", error)
-      // More detailed error message
-      if (error instanceof TypeError && error.message === "Failed to fetch") {
-        setStatus("Could not connect to printer. It might be unplugged")
+      if (typeof error === "string") {
+        setStatus(error)
+      } else if (error instanceof Error) {
+        setStatus(error.message)
       } else {
-        // setStatus(`Error: ${error.message}`)
+        setStatus("Error sending the message")
       }
     }
 
     if (editor) {
-      editor.setEditable(true)
       editor.commands.focus()
     }
   }
