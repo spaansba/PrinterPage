@@ -1,28 +1,21 @@
 "use client"
 import ReceiptPrinterEncoder from "@point-of-sale/receipt-printer-encoder"
-import { HTMLBytesToESCPOSCommands } from "../_classes/HTMLBytesToESCPOSCommands"
+import { HtmlEncoder } from "./HtmlEncoder"
 
 export const PrepareTextToSend = async (text: string, sender: string): Promise<Uint8Array> => {
   const replaceImgTagsWithSrc = processImgTags(text)
   console.log(replaceImgTagsWithSrc)
   let utf8Encode = new TextEncoder()
   const encodedText = utf8Encode.encode(replaceImgTagsWithSrc.text)
-  let HTMLByteToEscpos = new HTMLBytesToESCPOSCommands(encodedText)
   const openTag = await printingOpenTag(sender)
   const resetPrinterCommands = new Uint8Array([0x1b, 0x40])
   const closingTag = await printingClosingTag()
-  const userText = await HTMLByteToEscpos.boldTranslate()
-    .underlineTranslate()
-    .invertTranslate(
-      `<mark class="color-white" data-color="rgb(49, 49, 49)" style="background-color: rgb(49, 49, 49); color: inherit">`
-    )
-    .textSizeTranslate()
-    .encode(replaceImgTagsWithSrc.images)
+  const userMessage = await HtmlEncoder(encodedText, replaceImgTagsWithSrc.images)
   const combinedMultiple = combineMultipleUint8Arrays([
     resetPrinterCommands,
     openTag,
     resetPrinterCommands,
-    userText,
+    userMessage,
     resetPrinterCommands,
     closingTag,
   ])
