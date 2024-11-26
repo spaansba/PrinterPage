@@ -6,7 +6,7 @@ interface ImageProcessingOptions {
 export async function processImage(
   input: string | Uint8Array,
   options: ImageProcessingOptions = {}
-): Promise<{ data: Uint8Array }> {
+): Promise<Uint8Array> {
   let result
 
   if (input instanceof Uint8Array) {
@@ -42,7 +42,7 @@ export async function processImage(
   offset += result.data.length
   combinedData.set(leftCommand, offset)
 
-  return { data: combinedData }
+  return combinedData
 }
 
 // Function to process image from URL string

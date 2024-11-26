@@ -54,6 +54,7 @@ const RetroTextEditor = ({ status, setStatus, hTMLContent }: RetroTextEditorProp
     if (!selectedRecipient) {
       return
     }
+    // editor?.setEditable(true)
     // return
     try {
       const response = await fetch(`https://${selectedRecipient.printerId}.toasttexter.com/print`, {

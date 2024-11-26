@@ -3,13 +3,10 @@ import ReceiptPrinterEncoder from "@point-of-sale/receipt-printer-encoder"
 import { HTMLBytesToESCPOSCommands } from "../_classes/HTMLBytesToESCPOSCommands"
 
 export const PrepareTextToSend = async (text: string, sender: string): Promise<Uint8Array> => {
-  const replaceImgTagsWithSrc = text.replace(
-    /<img[^>]*src=["']([^"']+)["'][^>]*>/g,
-    (_, srcUrl) => `${srcUrl}|`
-  )
-
+  const replaceImgTagsWithSrc = processImgTags(text)
+  console.log(replaceImgTagsWithSrc)
   let utf8Encode = new TextEncoder()
-  const encodedText = utf8Encode.encode(replaceImgTagsWithSrc)
+  const encodedText = utf8Encode.encode(replaceImgTagsWithSrc.text)
   let HTMLByteToEscpos = new HTMLBytesToESCPOSCommands(encodedText)
   const openTag = await printingOpenTag(sender)
   const closingTag = await printingClosingTag()
@@ -19,10 +16,19 @@ export const PrepareTextToSend = async (text: string, sender: string): Promise<U
       `<mark class="color-white" data-color="rgb(49, 49, 49)" style="background-color: rgb(49, 49, 49); color: inherit">`
     )
     .textSizeTranslate()
-    .encode()
-
+    .encode(replaceImgTagsWithSrc.images)
   const combinedMultiple = combineMultipleUint8Arrays([openTag, userText, closingTag])
   return combinedMultiple
+}
+
+function processImgTags(rawText: string): { text: string; images: string[] } {
+  const images: string[] = []
+  const text = rawText.replaceAll(/<img[^>]*src=["']([^"']+)["'][^>]*>/g, (_, srcUrl: string) => {
+    images.push(srcUrl)
+    return `|&^%image:${images.length - 1}`
+  })
+
+  return { text, images }
 }
 
 async function printingOpenTag(sender: string): Promise<Uint8Array> {

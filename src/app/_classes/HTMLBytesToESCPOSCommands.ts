@@ -1,4 +1,5 @@
 "use client"
+import { array } from "zod"
 import { processImage } from "../_helpers/ImageToBytes"
 
 const TextJustify = {
@@ -61,6 +62,7 @@ const TAGS = {
   U: 0x75,
   SPAN: [0x73, 0x70, 0x61, 0x6e],
   MARK: [0x6d, 0x61, 0x72, 0x6b],
+  IMAGE_MARKER: [0x7c, 0x26, 0x5e, 0x25, 0x69, 0x6d, 0x61, 0x67, 0x65, 0x3a], // |&^%image:
 } as const
 
 const BOOL = {
@@ -159,7 +161,7 @@ export class HTMLBytesToESCPOSCommands {
     return Array.from(str).map((char) => char.charCodeAt(0))
   }
 
-  public async encode(): Promise<Uint8Array> {
+  public async encode(imageArray: string[]): Promise<Uint8Array> {
     Object.entries(this._boolCommands).forEach(([key, command]) => {
       const [replacedOpen] = htmlTagsToESCPOSEncoder(
         this._bytes,
@@ -181,12 +183,84 @@ export class HTMLBytesToESCPOSCommands {
     this.addLineBreaks()
     this.convertEntitiesToHex()
     this.removeBasicTags()
-    await this.convertImages()
+    // await this.convertImages()
+    if (imageArray.length > 0) {
+      await this.convertImages2(imageArray)
+      console.log(this._bytes)
+    }
     return this._bytes
   }
 
+  private async convertImages2(imageArray: string[]): Promise<void> {
+    const imageMarker = new Uint8Array([...TAGS.IMAGE_MARKER])
+    const replacements = new Map<number, Uint8Array>()
+    let replacementCount = 0
+    let imageByteArray: Uint8Array[] = []
+    for (let i = 0; i < this._bytes.length; i++) {
+      let isImageMarker = true
+      for (let j = 0; j < imageMarker.length; j++) {
+        if (this._bytes[i + j] !== imageMarker[j]) {
+          isImageMarker = false
+          break
+        }
+      }
+      if (isImageMarker) {
+        const image = await processImage(imageArray[replacementCount])
+        replacements.set(i, image)
+        replacementCount++
+      }
+    }
+
+    if (replacementCount > 0) {
+      const arraySizeWithoutImagePrefix =
+        this._bytes.length - imageArray.length * imageMarker.length
+      const totalImageArraySize = imageByteArray.reduce((total, currentArray) => {
+        return total + currentArray.length
+      }, 0)
+      const newSize = arraySizeWithoutImagePrefix + totalImageArraySize
+      const bitArrayWithImages = this.replaceArrays(replacements, newSize, imageMarker.length)
+      this._bytes = bitArrayWithImages
+    }
+  }
+
+  private replaceArrays(
+    replacements: Map<number, Uint8Array>,
+    newArraySize: number,
+    replaceSize: number
+  ): Uint8Array {
+    let newBitArray = new Uint8Array(newArraySize)
+    let totalIndex = 0
+    let currentIndex = 0
+
+    // Sort the match indices to process them in order
+    const sortedIndices = Array.from(replacements.keys()).sort((a, b) => a - b)
+
+    sortedIndices.forEach((matchIndex) => {
+      while (currentIndex < matchIndex) {
+        newBitArray[totalIndex++] = this._bytes[currentIndex++]
+      }
+
+      const currentReplacementSequence = replacements.get(matchIndex)!
+      for (let j = 0; j < currentReplacementSequence.length; j++) {
+        newBitArray[totalIndex++] = currentReplacementSequence[j]
+      }
+      currentIndex += replaceSize
+    })
+
+    // Copy any remaining bytes
+    while (currentIndex < array.length) {
+      newBitArray[totalIndex++] = this._bytes[currentIndex++]
+    }
+
+    console.log(this._bytes.length)
+    console.log(replaceSize)
+
+    console.log(newBitArray)
+    return newBitArray
+  }
+
   private async convertImages(): Promise<void> {
-    const blobPrefix = new Uint8Array([0x62, 0x6c, 0x6f, 0x62, 0x3a]) // blob:
+    const blobPrefix = new Uint8Array([...TAGS.IMAGE_MARKER])
     const dataImagePrefix = new Uint8Array([
       0x64, 0x61, 0x74, 0x61, 0x3a, 0x69, 0x6d, 0x61, 0x67, 0x65,
     ]) // data:image
@@ -224,11 +298,11 @@ export class HTMLBytesToESCPOSCommands {
         // Create a promise for processing each image
         const processPromise = processImage(imageUrl)
           .then((processedBlob) => {
-            if (!processedBlob || !processedBlob.data) {
+            if (!processedBlob || !processedBlob) {
               throw new Error("Invalid processed blob data")
             }
             replacements.set(i, {
-              data: processedBlob.data,
+              data: processedBlob,
               length: urlEnd - i + 1, // +1 to include the pipe character
             })
           })
@@ -404,7 +478,7 @@ export function htmlTagsToESCPOSEncoder(
   const newSize = array.length + sizeDiff * replacements.size
   let newBitArray = new Uint8Array(newSize)
 
-  let targetIndex = 0
+  let totalIndex = 0
   let currentIndex = 0
 
   // Sort the match indices to process them in order
@@ -412,12 +486,12 @@ export function htmlTagsToESCPOSEncoder(
 
   sortedIndices.forEach((matchIndex) => {
     while (currentIndex < matchIndex) {
-      newBitArray[targetIndex++] = array[currentIndex++]
+      newBitArray[totalIndex++] = array[currentIndex++]
     }
 
     const currentReplaceSequence = replacements.get(matchIndex)!
     for (let j = 0; j < currentReplaceSequence.length; j++) {
-      newBitArray[targetIndex++] = currentReplaceSequence[j]
+      newBitArray[totalIndex++] = currentReplaceSequence[j]
     }
 
     currentIndex += findSequence.length
@@ -425,7 +499,7 @@ export function htmlTagsToESCPOSEncoder(
 
   // Copy any remaining bytes
   while (currentIndex < array.length) {
-    newBitArray[targetIndex++] = array[currentIndex++]
+    newBitArray[totalIndex++] = array[currentIndex++]
   }
 
   return [newBitArray, replacementCount]
