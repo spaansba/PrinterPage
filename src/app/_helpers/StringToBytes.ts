@@ -9,6 +9,7 @@ export const PrepareTextToSend = async (text: string, sender: string): Promise<U
   const encodedText = utf8Encode.encode(replaceImgTagsWithSrc.text)
   let HTMLByteToEscpos = new HTMLBytesToESCPOSCommands(encodedText)
   const openTag = await printingOpenTag(sender)
+  const resetPrinterCommands = new Uint8Array([0x1b, 0x40])
   const closingTag = await printingClosingTag()
   const userText = await HTMLByteToEscpos.boldTranslate()
     .underlineTranslate()
@@ -17,7 +18,14 @@ export const PrepareTextToSend = async (text: string, sender: string): Promise<U
     )
     .textSizeTranslate()
     .encode(replaceImgTagsWithSrc.images)
-  const combinedMultiple = combineMultipleUint8Arrays([openTag, userText, closingTag])
+  const combinedMultiple = combineMultipleUint8Arrays([
+    resetPrinterCommands,
+    openTag,
+    resetPrinterCommands,
+    userText,
+    resetPrinterCommands,
+    closingTag,
+  ])
   return combinedMultiple
 }
 
@@ -60,10 +68,9 @@ async function printingOpenTag(sender: string): Promise<Uint8Array> {
             .underline(false)
             .italic(false)
             .invert(false)
-
             .align("left")
             .size(1)
-            .image(imageData, 384, 96, "atkinson")
+            .image(imageData, 384, 96, "atkinson", 128)
             .rule()
             .bold(true)
             .line(`Sender:  ${sender}`)

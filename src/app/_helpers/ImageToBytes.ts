@@ -2,7 +2,6 @@ interface ImageProcessingOptions {
   size?: number // Image size in pixels, will be adjusted to multiple of 8
 }
 
-// Unified function that accepts either input type
 export async function processImage(
   input: string | Uint8Array,
   options: ImageProcessingOptions = {}
@@ -15,20 +14,26 @@ export async function processImage(
     result = await processImageFromUrl(input, options)
   }
 
-  const centerCommand = new Uint8Array([0x1b, 0x61, 0x01]) // ESC a 1 (center)
-  const leftCommand = new Uint8Array([0x1b, 0x61, 0x00]) // ESC a 0 (left)
-  // Create command array for raster mode
+  const bytesPerLine = Math.ceil(result.width / 8)
+
+  // Center alignment command (ESC a 1)
+  const centerCommand = new Uint8Array([0x1b, 0x61, 0x01])
+
+  // Left alignment command to reset after image (ESC a 0)
+  const leftCommand = new Uint8Array([0x1b, 0x61, 0x00])
+
   const rasterCommand = new Uint8Array([
     0x1d, // GS
     0x76, // v
     0x30, // 0
-    0x00, // 0
-    result.width / 8,
-    0, // xL xH (bytes per line)
-    result.height & 0xff,
-    (result.height >> 8) & 0xff, // yL yH (total lines)
+    0x00, // m=0 (normal mode)
+    bytesPerLine & 0xff, // xL - bytes per line
+    (bytesPerLine >> 8) & 0xff, // xH
+    result.height & 0xff, // yL - actual height
+    (result.height >> 8) & 0xff, // yH
   ])
 
+  // Combine all commands: center + raster + data + left
   const combinedData = new Uint8Array(
     centerCommand.length + rasterCommand.length + result.data.length + leftCommand.length
   )
@@ -134,12 +139,6 @@ function processImageElement(
   // Get image data
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
   const pixels = imageData.data
-
-  // Convert to grayscale for more defined pixels
-  // for (let i = 0; i < pixels.length; i += 4) {
-  //   const grayscale = Math.floor(pixels[i] * 0.299 + pixels[i + 1] * 0.587 + pixels[i + 2] * 0.114)
-  //   pixels[i] = pixels[i + 1] = pixels[i + 2] = grayscale
-  // }
 
   // Apply dithering
   applyAtkinsonDithering(pixels, canvas.width, canvas.height)

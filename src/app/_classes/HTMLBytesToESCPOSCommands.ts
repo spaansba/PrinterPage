@@ -186,7 +186,7 @@ export class HTMLBytesToESCPOSCommands {
     // await this.convertImages()
     if (imageArray.length > 0) {
       await this.convertImages2(imageArray)
-      console.log(this._bytes)
+      // console.log(this._bytes)
     }
     return this._bytes
   }
@@ -195,7 +195,7 @@ export class HTMLBytesToESCPOSCommands {
     const imageMarker = new Uint8Array([...TAGS.IMAGE_MARKER])
     const replacements = new Map<number, Uint8Array>()
     let replacementCount = 0
-    let imageByteArray: Uint8Array[] = []
+
     for (let i = 0; i < this._bytes.length; i++) {
       let isImageMarker = true
       for (let j = 0; j < imageMarker.length; j++) {
@@ -212,12 +212,15 @@ export class HTMLBytesToESCPOSCommands {
     }
 
     if (replacementCount > 0) {
-      const arraySizeWithoutImagePrefix =
-        this._bytes.length - imageArray.length * imageMarker.length
-      const totalImageArraySize = imageByteArray.reduce((total, currentArray) => {
-        return total + currentArray.length
-      }, 0)
-      const newSize = arraySizeWithoutImagePrefix + totalImageArraySize
+      // Calculate total size of all replacement images
+      const totalImageSize = Array.from(replacements.values()).reduce(
+        (total, image) => total + image.length,
+        0
+      )
+
+      // Calculate final array size: original size - markers + images
+      const newSize = this._bytes.length - replacementCount * imageMarker.length + totalImageSize
+
       const bitArrayWithImages = this.replaceArrays(replacements, newSize, imageMarker.length)
       this._bytes = bitArrayWithImages
     }
@@ -229,7 +232,7 @@ export class HTMLBytesToESCPOSCommands {
     replaceSize: number
   ): Uint8Array {
     let newBitArray = new Uint8Array(newArraySize)
-    let totalIndex = 0
+    let targetIndex = 0
     let currentIndex = 0
 
     // Sort the match indices to process them in order
@@ -237,24 +240,20 @@ export class HTMLBytesToESCPOSCommands {
 
     sortedIndices.forEach((matchIndex) => {
       while (currentIndex < matchIndex) {
-        newBitArray[totalIndex++] = this._bytes[currentIndex++]
+        newBitArray[targetIndex++] = this._bytes[currentIndex++]
       }
 
       const currentReplacementSequence = replacements.get(matchIndex)!
       for (let j = 0; j < currentReplacementSequence.length; j++) {
-        newBitArray[totalIndex++] = currentReplacementSequence[j]
+        newBitArray[targetIndex++] = currentReplacementSequence[j]
       }
       currentIndex += replaceSize
     })
 
     // Copy any remaining bytes
     while (currentIndex < array.length) {
-      newBitArray[totalIndex++] = this._bytes[currentIndex++]
+      newBitArray[targetIndex++] = this._bytes[currentIndex++]
     }
-
-    console.log(this._bytes.length)
-    console.log(replaceSize)
-
     console.log(newBitArray)
     return newBitArray
   }
