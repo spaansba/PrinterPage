@@ -168,7 +168,6 @@ export async function HtmlEncoder(originalArray: Uint8Array, imageArray: string[
   debugArray(newArray, "After bool commands")
 
   newArray = await convertImages(newArray, imageArray)
-  debugArray(newArray, "afterImages")
 
   newArray = addLineBreaks(newArray)
   debugArray(newArray, "After line breaks")
@@ -387,9 +386,8 @@ async function convertImages(array: Uint8Array, imageArray: string[]): Promise<U
 
     const bitArrayWithImages = replaceArrays(array, replacements, newSize, imageMarker.length)
     return bitArrayWithImages
-  } else {
-    return array
   }
+  return array
 }
 
 function replaceArrays(

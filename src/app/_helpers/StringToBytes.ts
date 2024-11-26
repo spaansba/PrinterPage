@@ -11,12 +11,13 @@ export const PrepareTextToSend = async (text: string, sender: string): Promise<U
   const resetPrinterCommands = new Uint8Array([0x1b, 0x40])
   const closingTag = await printingClosingTag()
   const userMessage = await HtmlEncoder(encodedText, replaceImgTagsWithSrc.images)
+  console.log(userMessage, "userms")
   const combinedMultiple = combineMultipleUint8Arrays([
-    resetPrinterCommands,
+    // // resetPrinterCommands,
     openTag,
-    resetPrinterCommands,
+    // // resetPrinterCommands,
     userMessage,
-    resetPrinterCommands,
+    // resetPrinterCommands,
     closingTag,
   ])
   return combinedMultiple
