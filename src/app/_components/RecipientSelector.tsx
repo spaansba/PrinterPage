@@ -4,7 +4,7 @@ import { ChevronDown, User, Plus, Pencil, SendHorizonal, X } from "lucide-react"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useUser } from "@clerk/nextjs"
+import { SignedIn, SignedOut, SignInButton, useUser } from "@clerk/nextjs"
 import { addAssociatedPrinters, changeNameAssociatedPrinters } from "@/lib/queries"
 import Image from "next/image"
 
@@ -271,101 +271,115 @@ const RecipientSelector = ({
 
   return (
     <div className="relative w-full text-[13px] font-mono">
-      <button
-        type="button"
-        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        className="w-full px-4 py-2 bg-[#e8e8e8] border-[1px] border-gray-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] cursor-pointer flex items-center justify-between"
-      >
-        <div className="flex items-center">
-          {selectedRecipient ? (
-            <>
-              <div className=" flex items-center justify-center mr-2">
-                <Image src="/images/toasted.png" alt="Toaster" width={24} height={24} />
-              </div>
-              <span>{selectedRecipient.name}</span>
-            </>
-          ) : (
-            <span className="text-gray-500">Select toaster...</span>
-          )}
-        </div>
-        <ChevronDown size={14} />
-      </button>
-
-      {isDropdownOpen && (
-        <div
-          ref={dropdownRef}
-          className="absolute w-[120%] -translate-x-[10%] mt-1 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]  bg-[#e8e8e8] border border-gray-500 z-10"
+      <SignedIn>
+        <button
+          type="button"
+          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          className="w-full px-4 py-2 bg-[#e8e8e8] border-[1px] border-gray-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] cursor-pointer flex items-center justify-between"
         >
-          <div className="max-h-[30rem] overflow-y-auto">
-            {recipients.map((recipient) => (
-              <RecipientItem key={recipient.printerId} recipient={recipient} />
-            ))}
+          <div className="flex items-center">
+            {selectedRecipient ? (
+              <>
+                <div className=" flex items-center justify-center mr-2">
+                  <Image src="/images/toasted.png" alt="Toaster" width={24} height={24} />
+                </div>
+                <span>{selectedRecipient.name}</span>
+              </>
+            ) : (
+              <span className="text-gray-500">Select toaster...</span>
+            )}
+          </div>
+          <ChevronDown size={14} />
+        </button>
 
-            <div className="border-t border-gray-500">
-              {isAddingRecipient ? (
-                <form
-                  ref={addRecipientRef}
-                  className="flex flex-col px-4 py-2 gap-1"
-                  onSubmit={handleSubmitNew(handleFormSubmit)}
-                >
-                  <div className="grid grid-cols-2">
-                    <label htmlFor="printerId" className="content-center">
-                      Toaster ID:
-                    </label>
-                    <input
-                      {...registerNew("printerId")}
-                      placeholder="xxxxxxxxxx"
-                      className="border-solid border border-gray-300 px-2 text-[16px] py-1 rounded"
-                      id="printerId"
-                      autoComplete="off"
-                      spellCheck="false"
-                    />
-                    <div className="col-span-2 text-red-600 pt-1">
-                      {errorsNew.printerId?.message && (
-                        <p key="id_error">{errorsNew.printerId?.message}</p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2">
-                    <label htmlFor="name" className="content-center">
-                      Toaster Name:
-                    </label>
+        {isDropdownOpen && (
+          <div
+            ref={dropdownRef}
+            className="absolute w-[120%] -translate-x-[10%] mt-1 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]  bg-[#e8e8e8] border border-gray-500 z-10"
+          >
+            <div className="max-h-[30rem] overflow-y-auto">
+              {recipients.map((recipient) => (
+                <RecipientItem key={recipient.printerId} recipient={recipient} />
+              ))}
 
-                    <input
-                      {...registerNew("name")}
-                      id="name"
-                      placeholder="Yasmin en Bart"
-                      className="border-solid border border-gray-300 text-[16px] px-2 py-1 rounded"
-                    />
-                    <div className="col-span-2 text-red-600 pt-1">
-                      {errorsNew.name?.message && <p key="name_error">{errorsNew.name?.message}</p>}
-                    </div>
-                  </div>
-                  <div className="text-red-600 pt-1">
-                    {errorsNew.root?.message && <p key="root_error">{errorsNew.root?.message}</p>}
-                  </div>
-                  <button
-                    type="submit"
-                    className="flex justify-center bg-[#735721] hover:bg-[#e4d3b2] text-white  py-[6px]"
+              <div className="border-t border-gray-500">
+                {isAddingRecipient ? (
+                  <form
+                    ref={addRecipientRef}
+                    className="flex flex-col px-4 py-2 gap-1"
+                    onSubmit={handleSubmitNew(handleFormSubmit)}
                   >
-                    <Plus />
+                    <div className="grid grid-cols-2">
+                      <label htmlFor="printerId" className="content-center">
+                        Toaster ID:
+                      </label>
+                      <input
+                        {...registerNew("printerId")}
+                        placeholder="xxxxxxxxxx"
+                        className="border-solid border border-gray-300 px-2 text-[16px] py-1 rounded"
+                        id="printerId"
+                        autoComplete="off"
+                        spellCheck="false"
+                      />
+                      <div className="col-span-2 text-red-600 pt-1">
+                        {errorsNew.printerId?.message && (
+                          <p key="id_error">{errorsNew.printerId?.message}</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2">
+                      <label htmlFor="name" className="content-center">
+                        Toaster Name:
+                      </label>
+
+                      <input
+                        {...registerNew("name")}
+                        id="name"
+                        placeholder="Yasmin en Bart"
+                        className="border-solid border border-gray-300 text-[16px] px-2 py-1 rounded"
+                      />
+                      <div className="col-span-2 text-red-600 pt-1">
+                        {errorsNew.name?.message && (
+                          <p key="name_error">{errorsNew.name?.message}</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-red-600 pt-1">
+                      {errorsNew.root?.message && <p key="root_error">{errorsNew.root?.message}</p>}
+                    </div>
+                    <button
+                      type="submit"
+                      className="flex justify-center bg-[#735721] hover:bg-[#e4d3b2] text-white  py-[6px]"
+                    >
+                      <Plus />
+                    </button>
+                  </form>
+                ) : (
+                  <button
+                    className="flex items-center w-full px-4 py-2 hover:bg-[#e4d3b2] cursor-pointer bg-[#e8e8e8]"
+                    onClick={handleNewRecipientClick} // Dont change to mouse down!!
+                  >
+                    <div className="size-6 bg-[#d4d0c8] border border-gray-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] flex items-center justify-center mr-2">
+                      <Plus size={14} />
+                    </div>
+                    <span>Add new toaster...</span>
                   </button>
-                </form>
-              ) : (
-                <button
-                  className="flex items-center w-full px-4 py-2 hover:bg-[#e4d3b2] cursor-pointer bg-[#e8e8e8]"
-                  onClick={handleNewRecipientClick} // Dont change to mouse down!!
-                >
-                  <div className="size-6 bg-[#d4d0c8] border border-gray-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] flex items-center justify-center mr-2">
-                    <Plus size={14} />
-                  </div>
-                  <span>Add new toaster...</span>
-                </button>
-              )}
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </SignedIn>
+      <SignedOut>
+        <SignInButton>
+          <button
+            type="button"
+            className="w-full px-4 py-2 bg-[#e8e8e8] border-[1px] border-gray-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] cursor-pointer flex items-center justify-between"
+          >
+            Sign in to select a toaster
+          </button>
+        </SignInButton>
+      </SignedOut>
     </div>
   )
 }
