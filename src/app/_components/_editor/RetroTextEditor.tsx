@@ -49,7 +49,7 @@ const RetroTextEditor = ({ status, setStatus, hTMLContent }: RetroTextEditorProp
 
     const htmlContentWithLineBreaks = addLineBreaks(hTMLContent, lines)
     const username = await getUserName(user.id)
-    const content = await PrepareTextToSend(htmlContentWithLineBreaks, username)
+    const content = await PrepareTextToSend(htmlContentWithLineBreaks, username, user.imageUrl)
     console.log(content, "content")
     if (!selectedRecipient) {
       return

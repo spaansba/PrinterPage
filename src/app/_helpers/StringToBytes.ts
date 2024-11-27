@@ -2,24 +2,20 @@
 import ReceiptPrinterEncoder from "@point-of-sale/receipt-printer-encoder"
 import { HtmlEncoder } from "./HtmlEncoder"
 
-export const PrepareTextToSend = async (text: string, sender: string): Promise<Uint8Array> => {
+export const PrepareTextToSend = async (
+  text: string,
+  sender: string,
+  imageURL: string
+): Promise<Uint8Array> => {
   const replaceImgTagsWithSrc = processImgTags(text)
-  console.log(replaceImgTagsWithSrc)
   let utf8Encode = new TextEncoder()
-  const encodedText = utf8Encode.encode(replaceImgTagsWithSrc.text)
-  const openTag = await printingOpenTag(sender)
-  const resetPrinterCommands = new Uint8Array([0x1b, 0x40])
+  const userMessage = await HtmlEncoder(
+    utf8Encode.encode(replaceImgTagsWithSrc.text),
+    replaceImgTagsWithSrc.images
+  )
+  const openTag = await printingOpenTag(sender, imageURL)
   const closingTag = await printingClosingTag()
-  const userMessage = await HtmlEncoder(encodedText, replaceImgTagsWithSrc.images)
-  console.log(userMessage, "userms")
-  const combinedMultiple = combineMultipleUint8Arrays([
-    // // resetPrinterCommands,
-    openTag,
-    // // resetPrinterCommands,
-    userMessage,
-    // resetPrinterCommands,
-    closingTag,
-  ])
+  const combinedMultiple = combineMultipleUint8Arrays([openTag, userMessage, closingTag])
   return combinedMultiple
 }
 
@@ -33,63 +29,128 @@ function processImgTags(rawText: string): { text: string; images: string[] } {
   return { text, images }
 }
 
-async function printingOpenTag(sender: string): Promise<Uint8Array> {
+async function printingOpenTag(sender: string, imageURL: string): Promise<Uint8Array> {
   const encoder = new ReceiptPrinterEncoder({
     printerModel: "pos-8360",
     columns: 32,
     newLine: "\n",
-    imageMode: "raster",
+    imageMode: "column",
     font: "9x17",
   })
 
   return new Promise<Uint8Array>((resolve, reject) => {
-    const canvas = document.createElement("canvas")
-    const ctx = canvas.getContext("2d")
-    const img = new Image()
+    const bannerImg = new Image()
+    const profileImg = new Image()
+    let loadedImages = 0
 
-    img.onload = function () {
+    const onAllImagesLoaded = () => {
       try {
-        canvas.width = img.width
-        canvas.height = img.height
+        // Render the logo banner
+        const bannerCanvas = document.createElement("canvas")
+        const bannerContext = bannerCanvas.getContext("2d")
+        bannerCanvas.width = 384 // widht of the printer 48mm * 8 dots per mm
+        bannerCanvas.height = 88
 
-        if (ctx) {
-          ctx.drawImage(img, 0, 0)
-          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+        // Create a new canvas for profile picture + username + send date
+        const profileCanvas = document.createElement("canvas")
+        const profileContext = profileCanvas.getContext("2d", { willReadFrequently: true })
+        const profileSize = 56
+        profileCanvas.width = 384
+        profileCanvas.height = profileSize + 16 // Increased padding for text + 8 for name +8 for time
 
-          const result = encoder
-            .initialize()
-            .font("a")
-            .underline(false)
-            .italic(false)
-            .invert(false)
-            .align("left")
-            .size(1)
-            .image(imageData, 384, 96, "atkinson", 128)
-            .rule()
-            .bold(true)
-            .line(`Sender:  ${sender}`)
-            .line("Send at: " + getFormattedDateTime())
-            .bold(false)
-            .rule()
-            .encode()
-
-          resolve(result)
-        } else {
+        if (!bannerContext) {
           reject(new Error("Could not get canvas context"))
+          return
         }
+
+        if (!profileContext) {
+          reject(new Error("Could not get profile canvas context"))
+          return
+        }
+
+        bannerContext.drawImage(bannerImg, 0, 0, bannerCanvas.width, bannerCanvas.height)
+        const logoImageData = bannerContext.getImageData(
+          0,
+          0,
+          bannerCanvas.width,
+          bannerCanvas.height
+        )
+
+        // Draw profile picture as circle
+        profileContext.save()
+        profileContext.beginPath()
+        profileContext.arc(
+          profileSize / 2 + 10,
+          profileSize / 2 + 4,
+          profileSize / 2,
+          0,
+          Math.PI * 2
+        )
+        profileContext.closePath()
+        profileContext.clip()
+        profileContext.drawImage(profileImg, 10, 4, profileSize, profileSize)
+        profileContext.restore()
+
+        // Add username next to profile picture
+        profileContext.font = "bold 34px Arial"
+        profileContext.textBaseline = "middle"
+        const textY = profileSize / 3 + 4
+        profileContext.fillText(sender, profileSize + 20, textY)
+
+        // Add timestamp under username in smaller font
+        profileContext.font = "24px Arial"
+        profileContext.fillText(getFormattedDateTime(), profileSize + 20, textY + 30)
+
+        const profileImageData = profileContext.getImageData(
+          0,
+          0,
+          profileCanvas.width,
+          profileCanvas.height
+        )
+
+        // Create the printer output
+        const result = encoder
+          .initialize()
+          .raw([0x1b, 0x40])
+          .font("a")
+          .size(1)
+          .image(logoImageData, bannerCanvas.width, bannerCanvas.height, "atkinson", 128)
+          .rule()
+          .image(profileImageData, profileCanvas.width, profileCanvas.height, "atkinson", 128)
+          .align("left")
+          .encode()
+
+        resolve(result)
       } catch (error) {
         reject(error)
       }
     }
 
-    img.onerror = function (error) {
-      reject(new Error("Failed to load image: " + error))
+    // Load logo image
+    bannerImg.onload = function () {
+      loadedImages++
+      if (loadedImages === 2) onAllImagesLoaded()
     }
 
-    // Load the local image from public directory
-    img.src = "/images/Toast.png"
+    bannerImg.onerror = function (error) {
+      reject(new Error("Failed to load logo image: " + error))
+    }
 
-    // Optional: Add timeout to prevent hanging
+    // Load profile image
+    profileImg.crossOrigin = "anonymous"
+    profileImg.onload = function () {
+      loadedImages++
+      if (loadedImages === 2) onAllImagesLoaded()
+    }
+
+    profileImg.onerror = function (error) {
+      reject(new Error("Failed to load profile image: " + error))
+    }
+
+    // Start loading both images
+    bannerImg.src = "/images/Toast.png"
+    profileImg.src = imageURL
+
     setTimeout(() => {
       reject(new Error("Image loading timed out"))
     }, 10000)
@@ -101,7 +162,6 @@ async function printingClosingTag(): Promise<Uint8Array> {
     printerModel: "pos-8360",
     columns: 32,
     newLine: "\n",
-    imageMode: "raster",
     font: "9x17",
   })
 
