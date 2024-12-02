@@ -21,7 +21,7 @@ export async function POST(req: Request) {
   }
   const data = await req.json()
   const body = JSON.stringify(data)
-
+  console.log("body signup ", body)
   const wh = new Webhook(WEBHOOK_SECRET)
   let evt: WebhookEvent
 
