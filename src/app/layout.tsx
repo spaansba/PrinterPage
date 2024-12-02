@@ -162,17 +162,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <ClerkProvider>
       <html lang="en">
-        <head>
-          <meta name="apple-mobile-web-app-capable" content="yes" />
-          <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-          <link
-            rel="apple-touch-startup-image"
-            href="/images/splash/iPhone_14_iPhone_13_Pro_iPhone_13_iPhone_12_Pro_iPhone_12_portrait.png"
-            media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
-          />
-        </head>
         <body className={`${ibmPlexMono.variable}`}>
-          <header className="flex justify-end p-4"></header>
+          <header className="flex justify-end p-4" />
           {children}
         </body>
       </html>
