@@ -9,6 +9,7 @@ import {
 import { eq, and, desc } from "drizzle-orm"
 
 export const getUserName = async (userId: string) => {
+  console.log(userId)
   const user = await db.select().from(users).where(eq(users.id, userId))
   return user[0].userName ? user[0].userName : "username not found"
 }

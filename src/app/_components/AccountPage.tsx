@@ -1,5 +1,12 @@
 "use client"
-import { SignedIn, SignedOut, SignInButton, UserProfile, useUser } from "@clerk/nextjs"
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  SignOutButton,
+  UserProfile,
+  useUser,
+} from "@clerk/nextjs"
 import { Camera, Loader2, Pencil, SendHorizonal, X } from "lucide-react"
 import React, { useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
@@ -205,12 +212,18 @@ function AccountPage() {
               )}
             </div>
           </div>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="min-w-[120px] h-8 bg-[#d4d0c8] border-2 border-t-white border-l-white border-b-[#808080] border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white px-4 text-sm font-bold hover:bg-[#e6e3de]"
-          >
-            Edit Profile
-          </button>
+          <div className="grid grid-cols-2 grid-rows-1 gap-1">
+            <button className="h-8  bg-[#d4d0c8] border-2 border-t-white border-l-white border-b-[#808080] border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white px-4 text-sm font-bold hover:bg-[#e6e3de]">
+              <SignOutButton>Sign Out</SignOutButton>
+            </button>
+
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className=" h-8 bg-[#d4d0c8] border-2 border-t-white border-l-white border-b-[#808080] border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white px-4 text-sm font-bold hover:bg-[#e6e3de]"
+            >
+              Edit Profile
+            </button>
+          </div>
         </div>
 
         {isModalOpen && (
