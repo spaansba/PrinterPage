@@ -7,7 +7,7 @@ import AccountPage from "../AccountPage"
 import type { Recipient } from "../RecipientSelector"
 import RecipientSelector from "../RecipientSelector"
 import { PrepareTextToSend } from "../../_helpers/StringToBytes"
-import { getAssociatedPrintersById, getUserName, updateLastSendMessage } from "@/lib/queries"
+import { getAssociatedPrintersById, getUserName, incrementPrinterMessageStats } from "@/lib/queries"
 import { useEditorContext } from "@/app/context/editorContext"
 
 type RetroTextEditorProps = {
@@ -69,7 +69,7 @@ const RetroTextEditor = ({ status, setStatus, hTMLContent }: RetroTextEditorProp
 
       const responseText = await response.text()
       if (user) {
-        await updateLastSendMessage(user.id, selectedRecipient.printerId)
+        await incrementPrinterMessageStats(user.id, selectedRecipient.printerId)
       }
 
       if (!response.ok) {
@@ -191,7 +191,7 @@ const RetroTextEditor = ({ status, setStatus, hTMLContent }: RetroTextEditorProp
         const associatedPrinters = await getAssociatedPrintersById(user.id)
         // Transform the data to match the Recipient type
         const formattedRecipients = associatedPrinters.map((printer) => ({
-          printerId: printer.printerId,
+          printerId: printer.associatedPrinterId,
           name: printer.name,
         }))
         setSelectedRecipient(formattedRecipients[0])

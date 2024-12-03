@@ -6,7 +6,7 @@ import {
   usersAssociatedPrinters,
   type newUserAssociatedPrinter,
 } from "./schema"
-import { eq, and, desc } from "drizzle-orm"
+import { eq, and, desc, sql } from "drizzle-orm"
 
 export const getUserName = async (userId: string) => {
   console.log(userId)
@@ -30,21 +30,31 @@ export const getAssociatedPrintersById = async (userId: string) => {
     .orderBy(desc(usersAssociatedPrinters.lastSendMessage)) // Make sure the person you send the latest message to is on top of the recipients list
 }
 
-export const updateLastSendMessage = async (userId: string, printerId: string) => {
-  const exists = await checkIfPrinterIsAssociated(userId, printerId)
+export const incrementPrinterMessageStats = async (userId: string, associatedPrinterId: string) => {
+  const exists = await checkIfPrinterIsAssociated(userId, associatedPrinterId)
   if (!exists) {
     return
   }
+
+  // Global message counter
+  await db
+    .update(users)
+    .set({ messagesSend: sql`${users.messagesSend} + 1` })
+    .where(eq(users.id, userId))
+
+  // Message counter per associated printer ID
   await db
     .update(usersAssociatedPrinters)
-    .set({ lastSendMessage: new Date().toISOString() })
+    .set({
+      lastSendMessage: new Date().toISOString(),
+      messagesSendToAssociatedPrinter: sql`${usersAssociatedPrinters.messagesSendToAssociatedPrinter} + 1`,
+    })
     .where(
       and(
         eq(usersAssociatedPrinters.userId, userId),
-        eq(usersAssociatedPrinters.printerId, printerId)
+        eq(usersAssociatedPrinters.associatedPrinterId, associatedPrinterId)
       )
     )
-    .returning()
 }
 
 export const changeNameAssociatedPrinters = async (
@@ -70,7 +80,7 @@ export const changeNameAssociatedPrinters = async (
       .where(
         and(
           eq(usersAssociatedPrinters.userId, userId),
-          eq(usersAssociatedPrinters.printerId, printerId)
+          eq(usersAssociatedPrinters.associatedPrinterId, printerId)
         )
       )
       .returning()
@@ -79,7 +89,7 @@ export const changeNameAssociatedPrinters = async (
       success: true,
       data: {
         userId: result[0].userId,
-        printerId: result[0].printerId,
+        printerId: result[0].associatedPrinterId,
         name: result[0].name,
         lastSendMessage: result[0].lastSendMessage,
       },
@@ -110,7 +120,7 @@ export const addAssociatedPrinters = async (userId: string, printerId: string, n
   try {
     const newAssociation: newUserAssociatedPrinter = {
       userId: userId,
-      printerId: printerId,
+      associatedPrinterId: printerId,
       name: name,
       lastSendMessage: new Date().toISOString(),
     }
@@ -122,7 +132,7 @@ export const addAssociatedPrinters = async (userId: string, printerId: string, n
       success: true,
       data: {
         userId: result[0].userId,
-        printerId: result[0].printerId,
+        printerId: result[0].associatedPrinterId,
         name: result[0].name,
         lastSendMessage: result[0].lastSendMessage,
       },
@@ -158,7 +168,7 @@ const checkIfPrinterIsAssociated = async (userId: string, printerId: string): Pr
     .where(
       and(
         eq(usersAssociatedPrinters.userId, userId),
-        eq(usersAssociatedPrinters.printerId, printerId)
+        eq(usersAssociatedPrinters.associatedPrinterId, printerId)
       )
     )
   return results.length > 0

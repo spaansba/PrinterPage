@@ -35,7 +35,8 @@ export const usersAssociatedPrinters = createTable(
   {
     id: serial("id").primaryKey(),
     userId: varchar("user_id", { length: 256 }).notNull(),
-    printerId: varchar("printer_id", { length: 10 }).notNull(),
+    associatedPrinterId: varchar("associated_printer_id", { length: 10 }).notNull(),
+    messagesSendToAssociatedPrinter: integer("messages_send_to_associated_printer").default(0),
     name: varchar("name", { length: 50 }).notNull(),
     createdAt: timestamp("created_at", { mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)
@@ -47,10 +48,15 @@ export const usersAssociatedPrinters = createTable(
   },
   (table) => {
     return {
-      printerIdx: index("printer_idx").on(table.printerId),
+      printerIdx: index("printer_idx").on(table.associatedPrinterId),
+      userIdx: index("user_idx").on(table.userId),
       printerFk: foreignKey({
-        columns: [table.printerId],
+        columns: [table.associatedPrinterId],
         foreignColumns: [printers.id],
+      }),
+      userFk: foreignKey({
+        columns: [table.userId],
+        foreignColumns: [users.id],
       }),
     }
   }
