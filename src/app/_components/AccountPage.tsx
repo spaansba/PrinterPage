@@ -17,16 +17,12 @@ import { getUserName, updatedUserName } from "@/lib/queries"
 
 const usernameCache = new Map<string, string>()
 
-function AccountPage() {
+function useUsername() {
   const { user } = useUser()
-  const [isUploading, setIsUploading] = useState(false)
-  const [isHovered, setIsHovered] = useState(false)
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isLoadingUsername, setIsLoadingUsername] = useState(false)
+  const [dbUsername, setDbUsername] = useState("")
   const [isEditingUsername, setIsEditingUsername] = useState(false)
   const [isUpdatingUsername, setIsUpdatingUsername] = useState(false)
-  const [dbUsername, setDbUsername] = useState("")
-  const [isLoadingUsername, setIsLoadingUsername] = useState(false)
-
   useEffect(() => {
     const loadUsername = async () => {
       if (!user) return
@@ -34,7 +30,6 @@ function AccountPage() {
       try {
         setIsLoadingUsername(true)
 
-        // Check cache first
         const cachedUsername = usernameCache.get(user.id)
         if (cachedUsername) {
           setDbUsername(cachedUsername)
@@ -55,10 +50,35 @@ function AccountPage() {
 
     loadUsername()
   }, [user])
+  return {
+    isLoadingUsername,
+    dbUsername,
+    setDbUsername,
+    isEditingUsername,
+    setIsEditingUsername,
+    isUpdatingUsername,
+    setIsUpdatingUsername,
+  }
+}
+
+function AccountPage() {
+  const { user } = useUser()
+  const [isProfileImageUploading, setIsProfileImageUploading] = useState(false)
+  const [isProfileImageHovered, setIsProfileImageHovered] = useState(false)
+  const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false)
+  const {
+    isLoadingUsername,
+    dbUsername,
+    setDbUsername,
+    isEditingUsername,
+    setIsEditingUsername,
+    isUpdatingUsername,
+    setIsUpdatingUsername,
+  } = useUsername()
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setIsModalOpen(false)
+      if (e.key === "Escape") setIsEditProfileModalOpen(false)
     }
     window.addEventListener("keydown", handleEscape)
     return () => window.removeEventListener("keydown", handleEscape)
@@ -69,7 +89,7 @@ function AccountPage() {
     const file = e.target.files[0]
 
     try {
-      setIsUploading(true)
+      setIsProfileImageUploading(true)
       const formData = new FormData()
       formData.append("file", file)
 
@@ -77,7 +97,7 @@ function AccountPage() {
     } catch (error) {
       console.error("Error uploading image:", error)
     } finally {
-      setIsUploading(false)
+      setIsProfileImageUploading(false)
     }
   }
 
@@ -133,8 +153,8 @@ function AccountPage() {
           <div className="flex gap-2">
             <div
               className="relative size-[5rem] flex-shrink-0 border-[1px] border-[#808080] overflow-hidden bg-gray-100 group"
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}
+              onMouseEnter={() => setIsProfileImageHovered(true)}
+              onMouseLeave={() => setIsProfileImageHovered(false)}
             >
               {user?.imageUrl ? (
                 <img src={user.imageUrl} alt="Profile" className="w-full h-full object-cover" />
@@ -144,10 +164,10 @@ function AccountPage() {
 
               <label
                 className={`absolute inset-0 flex flex-col items-center justify-center bg-black/50 cursor-pointer transition-opacity
-                ${isHovered || isUploading ? "opacity-100" : "opacity-0"}`}
+                ${isProfileImageHovered || isProfileImageUploading ? "opacity-100" : "opacity-0"}`}
                 htmlFor="profile-image-upload"
               >
-                {isUploading ? (
+                {isProfileImageUploading ? (
                   <Loader2 className="size-6 text-white animate-spin" />
                 ) : (
                   <Camera className="size-6 text-white" />
@@ -219,7 +239,7 @@ function AccountPage() {
               </button>
             </SignOutButton>
             <button
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => setIsEditProfileModalOpen(true)}
               className=" h-8 bg-[#d4d0c8] border-2 border-t-white border-l-white border-b-[#808080] border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white px-4 text-sm font-bold hover:bg-[#e6e3de]"
             >
               Edit Profile
@@ -227,11 +247,11 @@ function AccountPage() {
           </div>
         </div>
 
-        {isModalOpen && (
+        {isEditProfileModalOpen && (
           <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
             <div className="relative">
               <button
-                onClick={() => setIsModalOpen(false)}
+                onClick={() => setIsEditProfileModalOpen(false)}
                 className="absolute right-2 top-2 z-[60] p-2 hover:bg-gray-100 rounded-full"
               >
                 <X size={24} />
