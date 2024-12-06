@@ -9,6 +9,7 @@ import RecipientSelector from "../RecipientSelector"
 import { PrepareTextToSend } from "../../_helpers/StringToBytes"
 import { getAssociatedPrintersById, getUserName, incrementPrinterMessageStats } from "@/lib/queries"
 import { useEditorContext } from "@/app/context/editorContext"
+import { getVisualLinesFromHTML } from "@/app/_helpers/getVisualLines"
 
 type RetroTextEditorProps = {
   setTextContent: Dispatch<SetStateAction<string>>
@@ -33,7 +34,7 @@ type Pages = "Toaster" | "Account"
 
 const RetroTextEditor = ({ status, setStatus, hTMLContent }: RetroTextEditorProps) => {
   const { user } = useUser()
-  const { editor, editorForm, getVisualLines } = useEditorContext()
+  const { editor, editorForm } = useEditorContext()
   const { selectedRecipient, setSelectedRecipient, recipients, setRecipients } = useRecipients()
   const [pageActivated, setPageActivated] = useState<Pages>("Toaster")
 
@@ -44,7 +45,7 @@ const RetroTextEditor = ({ status, setStatus, hTMLContent }: RetroTextEditorProp
     editor?.setEditable(false)
     setStatus("Sending...")
     const editorElement = editor!.view.dom as HTMLElement
-    const lines = getVisualLines(editorElement)
+    const lines = getVisualLinesFromHTML(editorElement)
     const htmlContentWithLineBreaks = addLineBreaksToHTML(hTMLContent, lines)
     const username = await getUserName(user.id)
     const content = await PrepareTextToSend(htmlContentWithLineBreaks, username, user.imageUrl)
@@ -164,7 +165,7 @@ const RetroTextEditor = ({ status, setStatus, hTMLContent }: RetroTextEditorProp
     if (!editor?.view?.dom) {
       return { lines: [], count: 0 }
     }
-    const lines = getVisualLines(editor.view.dom)
+    const lines = getVisualLinesFromHTML(editor.view.dom)
     return {
       lines,
       count: lines.length,
