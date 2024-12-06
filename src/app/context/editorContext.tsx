@@ -1,12 +1,12 @@
 "use client"
 
-import { useEditor, type Editor } from "@tiptap/react"
-import React, { createContext, useContext, useEffect, useMemo } from "react"
+import { Editor, useEditor } from "@tiptap/react"
+import React, { createContext, useContext, useMemo } from "react"
 import StarterKit from "@tiptap/starter-kit"
 import Underline from "@tiptap/extension-underline"
 import Highlight from "@tiptap/extension-highlight"
 import TextStyle from "@tiptap/extension-text-style"
-import { CustomMark } from "../_helpers/CustomSpan"
+import { CustomMark } from "../_components/_editor/CustomSpan"
 import Image from "@tiptap/extension-image"
 import { useForm, UseFormReturn } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -131,6 +131,9 @@ export function CustomEditorProvider({ children, handleTextChange }: CustomEdito
       const text = editor.getText()
       handleTextChange(text, editor.view.dom.innerHTML)
       editorForm.setValue("textEditorInput", text)
+    },
+    onCreate: ({ editor }) => {
+      editor.commands.focus("start")
     },
   })
 

@@ -32,11 +32,10 @@ export type Lines = { characters: string; characterCount: number }[]
 type Pages = "Toaster" | "Account"
 
 const RetroTextEditor = ({ status, setStatus, hTMLContent }: RetroTextEditorProps) => {
-  const [selectedRecipient, setSelectedRecipient] = useState<Recipient | null>(null)
-  const [pageActivated, setPageActivated] = useState<Pages>("Toaster")
   const { user } = useUser()
-  const [recipients, setRecipients] = useState<Recipient[]>([])
   const { editor, editorForm, getVisualLines } = useEditorContext()
+  const { selectedRecipient, setSelectedRecipient, recipients, setRecipients } = useRecipients()
+  const [pageActivated, setPageActivated] = useState<Pages>("Toaster")
 
   async function handlePrinterClick() {
     if (!user) {
@@ -46,8 +45,7 @@ const RetroTextEditor = ({ status, setStatus, hTMLContent }: RetroTextEditorProp
     setStatus("Sending...")
     const editorElement = editor!.view.dom as HTMLElement
     const lines = getVisualLines(editorElement)
-
-    const htmlContentWithLineBreaks = addLineBreaks(hTMLContent, lines)
+    const htmlContentWithLineBreaks = addLineBreaksToHTML(hTMLContent, lines)
     const username = await getUserName(user.id)
     const content = await PrepareTextToSend(htmlContentWithLineBreaks, username, user.imageUrl)
 
@@ -95,7 +93,7 @@ const RetroTextEditor = ({ status, setStatus, hTMLContent }: RetroTextEditorProp
     }
   }
 
-  function addLineBreaks(htmlContent: string, lines: Lines): string {
+  function addLineBreaksToHTML(htmlContent: string, lines: Lines): string {
     let result = ""
     let insideTag = false
     let insideEntity = false
@@ -185,35 +183,8 @@ const RetroTextEditor = ({ status, setStatus, hTMLContent }: RetroTextEditorProp
   }
 
   useEffect(() => {
-    const fetchRecipients = async () => {
-      if (!user) return
-      try {
-        const associatedPrinters = await getAssociatedPrintersById(user.id)
-        // Transform the data to match the Recipient type
-        const formattedRecipients = associatedPrinters.map((printer) => ({
-          printerId: printer.associatedPrinterId,
-          name: printer.name,
-        }))
-        setSelectedRecipient(formattedRecipients[0])
-        setRecipients(formattedRecipients)
-      } catch (err) {
-        console.error("Error fetching recipients:", err)
-      }
-    }
-
-    fetchRecipients()
-  }, [user])
-
-  useEffect(() => {
-    if (selectedRecipient) {
-      editorForm.setValue("recipient", selectedRecipient)
-      editorForm.clearErrors()
-    }
-  }, [selectedRecipient])
-
-  useEffect(() => {
     if (pageActivated === "Toaster") {
-      editorForm.setFocus("textEditorInput")
+      editor?.commands.focus()
     }
   }, [pageActivated])
 
@@ -338,6 +309,42 @@ const RetroTextEditor = ({ status, setStatus, hTMLContent }: RetroTextEditorProp
       </div>
     </>
   )
+}
+
+function useRecipients() {
+  const [selectedRecipient, setSelectedRecipient] = useState<Recipient | null>(null)
+  const [recipients, setRecipients] = useState<Recipient[]>([])
+  const { editorForm } = useEditorContext()
+  const { user } = useUser()
+
+  useEffect(() => {
+    const fetchRecipients = async () => {
+      if (!user) return
+      try {
+        const associatedPrinters = await getAssociatedPrintersById(user.id)
+        // Transform the data to match the Recipient type
+        const formattedRecipients = associatedPrinters.map((printer) => ({
+          printerId: printer.associatedPrinterId,
+          name: printer.name,
+        }))
+        setSelectedRecipient(formattedRecipients[0])
+        setRecipients(formattedRecipients)
+      } catch (err) {
+        console.error("Error fetching recipients:", err)
+      }
+    }
+
+    fetchRecipients()
+  }, [user])
+
+  useEffect(() => {
+    if (selectedRecipient) {
+      editorForm.setValue("recipient", selectedRecipient)
+      editorForm.clearErrors()
+    }
+  }, [selectedRecipient])
+
+  return { selectedRecipient, setSelectedRecipient, recipients, setRecipients }
 }
 
 export default RetroTextEditor
