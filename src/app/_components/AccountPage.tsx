@@ -17,50 +17,6 @@ import { getUserName, updatedUserName } from "@/lib/queries"
 
 const usernameCache = new Map<string, string>()
 
-function useUsername() {
-  const { user } = useUser()
-  const [isLoadingUsername, setIsLoadingUsername] = useState(false)
-  const [dbUsername, setDbUsername] = useState("")
-  const [isEditingUsername, setIsEditingUsername] = useState(false)
-  const [isUpdatingUsername, setIsUpdatingUsername] = useState(false)
-  useEffect(() => {
-    const loadUsername = async () => {
-      if (!user) return
-
-      try {
-        setIsLoadingUsername(true)
-
-        const cachedUsername = usernameCache.get(user.id)
-        if (cachedUsername) {
-          setDbUsername(cachedUsername)
-          setIsLoadingUsername(false)
-          return
-        }
-
-        const userName = await getUserName(user.id)
-        usernameCache.set(user.id, userName)
-        setDbUsername(userName)
-      } catch (error) {
-        console.error("Error fetching username:", error)
-        setDbUsername("Error loading username")
-      } finally {
-        setIsLoadingUsername(false)
-      }
-    }
-
-    loadUsername()
-  }, [user])
-  return {
-    isLoadingUsername,
-    dbUsername,
-    setDbUsername,
-    isEditingUsername,
-    setIsEditingUsername,
-    isUpdatingUsername,
-    setIsUpdatingUsername,
-  }
-}
-
 function AccountPage() {
   const { user } = useUser()
   const [isProfileImageUploading, setIsProfileImageUploading] = useState(false)
@@ -75,6 +31,18 @@ function AccountPage() {
     isUpdatingUsername,
     setIsUpdatingUsername,
   } = useUsername()
+
+  const {
+    register: registerEdit,
+    handleSubmit: handleSubmitEdit,
+    formState: { errors: errorsEdit },
+    reset: resetEdit,
+    setError: setErrorEdit,
+    setFocus: setEditFocus,
+  } = useForm<z.infer<typeof recipientNameSchema>>({
+    resolver: zodResolver(recipientNameSchema),
+    mode: "onSubmit",
+  })
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -101,21 +69,8 @@ function AccountPage() {
     }
   }
 
-  const {
-    register: registerEdit,
-    handleSubmit: handleSubmitEdit,
-    formState: { errors: errorsEdit },
-    reset: resetEdit,
-    setError: setErrorEdit,
-    setFocus: setEditFocus,
-  } = useForm<z.infer<typeof recipientNameSchema>>({
-    resolver: zodResolver(recipientNameSchema),
-    mode: "onSubmit",
-  })
-
   function handleEditClick(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     e.stopPropagation()
-
     setIsEditingUsername(true)
     resetEdit()
     setTimeout(() => {
@@ -272,6 +227,50 @@ function AccountPage() {
       </SignedOut>
     </>
   )
+}
+
+function useUsername() {
+  const { user } = useUser()
+  const [isLoadingUsername, setIsLoadingUsername] = useState(false)
+  const [dbUsername, setDbUsername] = useState("")
+  const [isEditingUsername, setIsEditingUsername] = useState(false)
+  const [isUpdatingUsername, setIsUpdatingUsername] = useState(false)
+  useEffect(() => {
+    const loadUsername = async () => {
+      if (!user) return
+
+      try {
+        setIsLoadingUsername(true)
+
+        const cachedUsername = usernameCache.get(user.id)
+        if (cachedUsername) {
+          setDbUsername(cachedUsername)
+          setIsLoadingUsername(false)
+          return
+        }
+
+        const userName = await getUserName(user.id)
+        usernameCache.set(user.id, userName)
+        setDbUsername(userName)
+      } catch (error) {
+        console.error("Error fetching username:", error)
+        setDbUsername("Error loading username")
+      } finally {
+        setIsLoadingUsername(false)
+      }
+    }
+
+    loadUsername()
+  }, [user])
+  return {
+    isLoadingUsername,
+    dbUsername,
+    setDbUsername,
+    isEditingUsername,
+    setIsEditingUsername,
+    isUpdatingUsername,
+    setIsUpdatingUsername,
+  }
 }
 
 export default AccountPage

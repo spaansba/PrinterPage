@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useRef, useState, type RefObject } from "react"
 import { ChevronDown, User, Plus, Pencil, SendHorizonal, X } from "lucide-react"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { SignedIn, SignedOut, SignInButton, useUser } from "@clerk/nextjs"
 import { addAssociatedPrinters, changeNameAssociatedPrinters } from "@/lib/queries"
 import Image from "next/image"
+import { useDropDownModal } from "../_customHooks/useDropdownModal"
 
 export type Recipient = {
   printerId: string
@@ -41,13 +42,18 @@ const RecipientSelector = ({
   selectedRecipient,
   onSelectRecipient,
 }: RecipientSelectorProps) => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const [isAddingRecipient, setIsAddingRecipient] = useState(false)
-  const dropdownRef = useRef<HTMLDivElement>(null)
-  const addRecipientRef = useRef<HTMLFormElement>(null)
   const editNameFormRef = useRef<HTMLFormElement>(null)
   const { user } = useUser()
   const [editingId, setEditingId] = useState<string | null>(null)
+  const { isAddingRecipient, setIsAddingRecipient, addRecipientRef } = useAddRecipient()
+
+  const { toggleButtonRef, dropdownRef, isDropdownOpen, setIsDropdownOpen } = useDropDownModal(
+    () => {
+      setIsDropdownOpen(false)
+      setIsAddingRecipient(false)
+      setEditingId(null)
+    }
+  )
 
   const {
     register: registerNew,
@@ -99,7 +105,6 @@ const RecipientSelector = ({
 
   function handleNewRecipientClick() {
     setIsAddingRecipient(true)
-
     // Give inputbox automatic focus for UX
     setTimeout(() => {
       setNewFocus("printerId")
@@ -145,36 +150,6 @@ const RecipientSelector = ({
       console.error(error)
     }
   }
-
-  useEffect(() => {
-    setIsAddingRecipient(false)
-    setEditingId(null)
-
-    //When the user clicks outside of the open dropdown, close it
-    const handleClickOutside = (event: MouseEvent) => {
-      // Add check to ignore clicks on the button itself
-      if (event.target instanceof Element && event.target.closest('button[type="button"]')) {
-        return
-      }
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false)
-      }
-    }
-    if (isDropdownOpen) {
-      document.addEventListener("mousedown", handleClickOutside)
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [isDropdownOpen])
-
-  useEffect(() => {
-    if (isAddingRecipient && addRecipientRef.current) {
-      requestAnimationFrame(() => {
-        addRecipientRef.current?.scrollIntoView({ behavior: "smooth", block: "end" })
-      })
-    }
-  }, [isAddingRecipient])
 
   function handleSelect(recipient: Recipient) {
     if (recipient.printerId != editingId) {
@@ -273,6 +248,7 @@ const RecipientSelector = ({
     <div className="relative w-full text-[13px] font-mono">
       <SignedIn>
         <button
+          ref={toggleButtonRef}
           type="button"
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           className="w-full px-4 py-2 bg-[#e8e8e8] border-[1px] border-gray-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] cursor-pointer flex items-center justify-between"
@@ -382,6 +358,19 @@ const RecipientSelector = ({
       </SignedOut>
     </div>
   )
+}
+
+function useAddRecipient() {
+  const [isAddingRecipient, setIsAddingRecipient] = useState(false)
+  const addRecipientRef = useRef<HTMLFormElement>(null)
+  useEffect(() => {
+    if (isAddingRecipient && addRecipientRef.current) {
+      requestAnimationFrame(() => {
+        addRecipientRef.current?.scrollIntoView({ behavior: "smooth", block: "end" })
+      })
+    }
+  }, [isAddingRecipient])
+  return { isAddingRecipient, setIsAddingRecipient, addRecipientRef }
 }
 
 export default RecipientSelector

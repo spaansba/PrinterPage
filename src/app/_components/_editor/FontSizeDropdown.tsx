@@ -1,6 +1,7 @@
 "use client"
 import { useEffect, useState, useCallback, memo } from "react"
 import type { Editor } from "@tiptap/react"
+import { useDropDownModal } from "@/app/_customHooks/useDropdownModal"
 
 interface FontSize {
   label: string
@@ -46,7 +47,6 @@ DropdownItem.displayName = "DropdownItem"
 
 const FontSizeDropdown: React.FC<FontSizeDropdownProps> = ({ editor }) => {
   const [currentSize, setCurrentSize] = useState<string>("text-[13px]")
-  const [isOpen, setIsOpen] = useState(false)
 
   if (!editor) return null
 
@@ -63,7 +63,7 @@ const FontSizeDropdown: React.FC<FontSizeDropdownProps> = ({ editor }) => {
     (selectedValue: string) => {
       // If current size is 13px and user clicks 13px, do nothing
       if (currentSize === "text-[13px]" && selectedValue === "text-[13px]") {
-        setIsOpen(false)
+        setIsDropdownOpen(false)
         return
       }
 
@@ -74,25 +74,16 @@ const FontSizeDropdown: React.FC<FontSizeDropdownProps> = ({ editor }) => {
         .unsetMark("customMark")
         .setMark("customMark", { class: selectedValue })
         .run()
-      setIsOpen(false)
+      setIsDropdownOpen(false)
       setCurrentSize(selectedValue)
     },
     [editor, currentSize]
   )
-
-  useEffect(() => {
-    if (!isOpen) return
-
-    const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as HTMLElement
-      if (!target.closest("[data-font-dropdown]")) {
-        setIsOpen(false)
-      }
+  const { toggleButtonRef, dropdownRef, isDropdownOpen, setIsDropdownOpen } = useDropDownModal(
+    () => {
+      setIsDropdownOpen(false)
     }
-
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [isOpen])
+  )
 
   useEffect(() => {
     if (!editor) return
@@ -110,15 +101,13 @@ const FontSizeDropdown: React.FC<FontSizeDropdownProps> = ({ editor }) => {
   const currentLabel = fontSizes.find((size) => size.value === currentSize)?.label || "13px"
 
   return (
-    <div
-      className="relative select-none z-[1] mr-1 px-1 border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080]"
-      data-font-dropdown
-    >
+    <div className="relative select-none z-[1] mr-1 px-1 border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080]">
       <button
+        ref={toggleButtonRef}
         type="button"
         onMouseDown={(e) => {
           e.preventDefault() // Prevent focus change
-          setIsOpen(!isOpen)
+          setIsDropdownOpen(!isDropdownOpen)
         }}
         className={`
           group
@@ -139,10 +128,11 @@ const FontSizeDropdown: React.FC<FontSizeDropdownProps> = ({ editor }) => {
         />
       </button>
 
-      {isOpen && (
+      {isDropdownOpen && (
         <>
           {/* Dropdown shadow/border */}
           <div
+            ref={dropdownRef}
             className="absolute top-full left-0 
             border-t-[1px] border-l-[1px] border-r-2 border-b-2
             border-t-white border-l-white border-r-[#808080] border-b-[#808080]
