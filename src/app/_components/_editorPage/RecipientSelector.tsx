@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { SignedIn, SignedOut, SignInButton, useUser } from "@clerk/nextjs"
 import { addAssociatedPrinters, changeNameAssociatedPrinters } from "@/lib/queries"
 import Image from "next/image"
-import { useDropDownModal } from "../_customHooks/useDropdownModal"
+import { useDropDownModal } from "../../_customHooks/useDropdownModal"
 
 export type Recipient = {
   printerId: string
