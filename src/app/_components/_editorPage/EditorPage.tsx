@@ -5,7 +5,7 @@ import { EditorContent } from "@tiptap/react"
 import { getAssociatedPrintersById, getUserName, incrementPrinterMessageStats } from "@/lib/queries"
 import { useEditorContext } from "@/app/context/editorContext"
 import RecipientSelector, { type Recipient } from "./RecipientSelector"
-import { Toolbar } from "./_editor/Toolbar"
+import { Toolbar } from "./_editor/_toolbar/Toolbar"
 import ToasterStatusBar from "./StatusBar"
 import ToasterSendButton from "./ToasterSendButton"
 
