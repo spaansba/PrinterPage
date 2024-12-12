@@ -16,7 +16,7 @@ import FontSizeDropdown from "./FontSizeDropdown"
 import SmileyDropdown from "./SmileyDropdown"
 import QRCode from "qrcode"
 import { useEditorContext } from "@/app/context/editorContext"
-import CameraModal from "./CameraModal"
+import CameraModal from "./_camera/CameraModal"
 
 const TextStyles = `
   .tall-text {

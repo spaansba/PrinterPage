@@ -1,11 +1,19 @@
 import React, { useEffect, useRef, useState } from "react"
-import { X, Camera as CameraIcon, RefreshCcw, Image } from "lucide-react"
 import Webcam from "react-webcam"
+import CameraTitle from "./CameraTitle"
+import CameraPreview from "./CameraPreview"
+import CameraButtons from "./CameraButtons"
 
 type CameraModalProps = {
   isOpen: boolean
   onClose: () => void
   onCapture: (photoData: string) => void
+}
+
+export type videoConstraints = {
+  width: number
+  height: number
+  facingMode: FacingMode
 }
 
 type FacingMode = "user" | "environment"
@@ -18,7 +26,7 @@ const CameraModal: React.FC<CameraModalProps> = ({ isOpen, onClose, onCapture })
   const hasCheckedCameraRef = useRef(false)
 
   // Define consistent dimensions that match the editor's needs
-  const videoConstraints = {
+  const videoConstraints: videoConstraints = {
     width: 480,
     height: 480,
     facingMode: facingMode,
@@ -103,13 +111,7 @@ const CameraModal: React.FC<CameraModalProps> = ({ isOpen, onClose, onCapture })
     inputElement.click()
   }
 
-  const handleSwitchCamera = (): void => {
-    if (webcamRef.current) {
-      setFacingMode((prevMode) => (prevMode === "user" ? "environment" : "user"))
-    }
-  }
-
-  function captureWebcam() {
+  function handleCaptureWebcam() {
     if (webcamRef.current) {
       const imageSrc = webcamRef.current.getScreenshot({
         width: videoConstraints.width,
@@ -121,72 +123,31 @@ const CameraModal: React.FC<CameraModalProps> = ({ isOpen, onClose, onCapture })
     }
   }
 
+  const handleSwitchCamera = (): void => {
+    if (webcamRef.current) {
+      setFacingMode((prevMode) => (prevMode === "user" ? "environment" : "user"))
+    }
+  }
+
   if (!isOpen || cameraCount < 1) return null
 
   return (
     <div className="fixed inset-0 flex items-start justify-center bg-black/50 z-50">
       <div className="bg-[#d4d0c8] border-2 border-[#dfdfdf] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] w-full max-w-xl">
-        <div className="bg-[#735721] px-2 py-1 flex items-center justify-between text-white">
-          <div className="flex items-center gap-2">
-            <CameraIcon size={14} />
-            <span className="text-sm">Take Photo</span>
-          </div>
-          <button
-            onClick={onClose}
-            type="button"
-            className="size-7 flex items-center justify-center border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
-          >
-            <X size={14} />
-          </button>
-        </div>
-
+        <CameraTitle onClose={onClose} />
         <div className="p-4">
-          <div className="relative w-full aspect-square mb-4 bg-black overflow-hidden">
-            {!isStreaming && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-white">Loading camera...</div>
-              </div>
-            )}
-
-            <div
-              className={`absolute inset-0 transition-opacity duration-300 ${
-                isStreaming ? "opacity-100" : "opacity-0"
-              }`}
-            >
-              <Webcam
-                ref={webcamRef}
-                audio={false}
-                mirrored={facingMode === "user"}
-                screenshotFormat="image/jpeg"
-                className="absolute inset-0 w-full h-full object-cover"
-                videoConstraints={videoConstraints}
-                onUserMedia={() => setIsStreaming(true)}
-              />
-            </div>
-          </div>
-
-          <div className="flex justify-between items-center gap-1 bg-[#d4d0c8]">
-            <div className="flex gap-1">
-              <button
-                onClick={captureWebcam}
-                type="button"
-                disabled={!isStreaming}
-                className="h-7 px-4 flex items-center justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <CameraIcon size={30} />
-              </button>
-            </div>
-            {cameraCount > 1 && (
-              <button
-                onClick={handleSwitchCamera}
-                type="button"
-                disabled={!isStreaming}
-                className="h-7 px-2 flex items-center gap-1 justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <RefreshCcw size={20} />
-              </button>
-            )}
-          </div>
+          <CameraPreview
+            isStreaming={isStreaming}
+            setIsStreaming={setIsStreaming}
+            videoConstraints={videoConstraints}
+            webcamRef={webcamRef}
+          />
+          <CameraButtons
+            cameraCount={cameraCount}
+            handleCaptureWebcam={handleCaptureWebcam}
+            handleSwitchCamera={handleSwitchCamera}
+            isStreaming={isStreaming}
+          />
         </div>
       </div>
     </div>
