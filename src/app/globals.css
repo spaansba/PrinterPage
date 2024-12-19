@@ -115,3 +115,9 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+@media all and (display-mode: standalone) {
+  .appDownloadWrapper {
+    background-color: yellow;
+  }
+}

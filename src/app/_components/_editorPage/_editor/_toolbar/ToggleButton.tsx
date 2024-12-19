@@ -1,27 +1,31 @@
 import { useEditorContext } from "@/app/context/editorContext"
 import { Toggle } from "@radix-ui/react-toggle"
-import { Underline } from "lucide-react"
+import type { Editor } from "@tiptap/core"
+import { type LucideIcon } from "lucide-react"
 import React from "react"
 
-function UnderlineOption() {
-  const { editor } = useEditorContext()
+type ToggleButtonProps = {
+  editor: Editor
+  Icon: LucideIcon
+  onPressedChange: () => void
+  name: string
+}
 
-  if (!editor) {
-    return null
-  }
+function ToggleButton({ editor, Icon, onPressedChange, name }: ToggleButtonProps) {
+  const isPressed = editor.isActive(name)
   return (
     <Toggle
       className={`${
-        editor.isActive("underline")
+        isPressed
           ? "border-t-[#808080] border-l-[#808080] border-b-white border-r-white bg-[#bdb9b3] shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]"
           : "border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080]"
       } size-7 flex items-center justify-center bg-[#d4d0c8] border`}
-      onPressedChange={() => editor.chain().focus().toggleUnderline().run()}
-      pressed={editor.isActive("underline")}
+      onPressedChange={onPressedChange}
+      pressed={isPressed}
     >
-      <Underline size={15} />
+      <Icon size={15} />
     </Toggle>
   )
 }
 
-export default UnderlineOption
+export default ToggleButton

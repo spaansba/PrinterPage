@@ -1,9 +1,10 @@
 "use client"
 import { useState } from "react"
-import { CustomEditorProvider, useEditorContext } from "./context/editorContext"
+import { CustomEditorProvider } from "./context/editorContext"
 import TitleBar, { type Pages } from "./_components/TitleBar"
 import AccountPage from "./_components/_accountPage/AccountPage"
 import ToasterPage from "./_components/_editorPage/EditorPage"
+import AppDownloadButton from "./_components/AppDownloadButton"
 
 export default function Home() {
   const [status, setStatus] = useState("")
@@ -29,6 +30,7 @@ export default function Home() {
           {pageActivated === "Account" && <AccountPage />}
         </div>
       </CustomEditorProvider>
+      <AppDownloadButton />
     </div>
   )
 }
