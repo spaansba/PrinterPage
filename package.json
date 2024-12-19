@@ -43,7 +43,6 @@
     "react-camera-pro": "^1.4.0",
     "react-dom": "^18",
     "react-hook-form": "^7.53.1",
-    "react-use-pwa-install": "^1.0.3",
     "react-webcam": "^7.2.0",
     "svix": "^1.39.0",
     "tailwind-merge": "^2.5.4",
