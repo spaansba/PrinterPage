@@ -1,3 +1,4 @@
+"use client"
 import React, { useEffect, useState } from "react"
 import { Download, Share, X, Plus } from "lucide-react"
 

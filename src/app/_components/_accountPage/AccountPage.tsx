@@ -20,7 +20,7 @@ function AccountPage() {
       <SignedIn>
         <div className="p-2 border-t border-[1px] border-gray-500 bg-white flex flex-col gap-2 relative">
           <UserInformation />
-          <div className="grid grid-cols-2 grid-rows-1 gap-1">
+          <div className="grid  grid-cols-2 grid-rows-1 gap-1">
             <SignOutButton>
               <button className="h-8  bg-[#d4d0c8] border-2 border-t-white border-l-white border-b-[#808080] border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white px-4 text-sm font-bold hover:bg-[#e6e3de]">
                 Sign Out
@@ -30,7 +30,7 @@ function AccountPage() {
               onClick={() => setIsEditProfileModalOpen(true)}
               className=" h-8 bg-[#d4d0c8] border-2 border-t-white border-l-white border-b-[#808080] border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white px-4 text-sm font-bold hover:bg-[#e6e3de]"
             >
-              Edit Profile
+              Edit
             </button>
           </div>
         </div>

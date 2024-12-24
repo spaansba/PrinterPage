@@ -290,7 +290,11 @@ const RecipientSelector = ({
                         Toaster ID:
                       </label>
                       <input
-                        {...registerNew("printerId")}
+                        {...registerNew("printerId", {
+                          onChange: (e) => {
+                            e.target.value = e.target.value.toLowerCase()
+                          },
+                        })}
                         placeholder="xxxxxxxxxx"
                         className="border-solid border border-gray-300 px-2 text-[16px] py-1 rounded"
                         id="printerId"
