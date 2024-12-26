@@ -4,8 +4,9 @@ import { CustomEditorProvider } from "../context/editorContext"
 import AccountPage from "./_accountPage/AccountPage"
 import EditorPage from "./_editorPage/EditorPage"
 import TitleBar, { type Pages } from "./TitleBar"
-import { SignedIn, SignedOut, SignInButton, useAuth } from "@clerk/nextjs"
+import { SignInButton, useAuth } from "@clerk/nextjs"
 import Image from "next/image"
+import FriendsPage from "./_friendsPage/FriendsPage"
 
 function MainWrapper() {
   const { isLoaded, isSignedIn } = useAuth()
@@ -33,6 +34,7 @@ function MainWrapper() {
             <EditorPage status={status} setStatus={setStatus} hTMLContent={hTMLContent} />
           )}
           {pageActivated === "Account" && <AccountPage />}
+          {pageActivated === "Friends" && <FriendsPage />}
         </div>
       </CustomEditorProvider>
     )

@@ -1,6 +1,7 @@
 import React, { useEffect, type Dispatch, type SetStateAction } from "react"
 import { useEditorContext } from "../context/editorContext"
-export type Pages = "Toaster" | "Account"
+const pages = ["Toaster", "Account", "Friends"] as const
+export type Pages = (typeof pages)[number]
 
 type TitleBarProps = {
   pageActivated: Pages
@@ -15,8 +16,9 @@ function TitleBar({ pageActivated, setPageActivated }: TitleBarProps) {
         return "Thermal Toaster"
       case "Account":
         return "User Profile"
+      case "Friends":
+        return "Friends Page"
       default:
-        break
     }
   }
 
@@ -32,18 +34,16 @@ function TitleBar({ pageActivated, setPageActivated }: TitleBarProps) {
       </div>
 
       <div className="h-6 bg-[#d4d0c8] border-t border-[#808080] border-b flex items-center px-2 text-xs gap-[0.7rem]">
-        <button
-          onClick={() => setPageActivated("Toaster")}
-          className={`${pageActivated === "Toaster" ? "underline" : "hover:opacity-80"} `}
-        >
-          <u>T</u>oaster
-        </button>
-        <button
-          onClick={() => setPageActivated("Account")}
-          className={`${pageActivated === "Account" ? "underline" : "hover:opacity-80"} `}
-        >
-          <u>A</u>ccount
-        </button>
+        {pages.map((page) => (
+          <button
+            key={page}
+            onClick={() => setPageActivated(page)}
+            className={`${pageActivated === page ? "underline" : "hover:opacity-80"} `}
+          >
+            <u>{page.charAt(0)}</u>
+            {page.slice(1)}
+          </button>
+        ))}
       </div>
     </>
   )
