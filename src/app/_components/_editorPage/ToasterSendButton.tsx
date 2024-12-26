@@ -1,5 +1,5 @@
-import { SignedIn, SignedOut, SignInButton, useUser } from "@clerk/nextjs"
-import React, { type Dispatch, type SetStateAction } from "react"
+import { useUser } from "@clerk/nextjs"
+import React, { useState, type Dispatch, type SetStateAction } from "react"
 import { useEditorContext } from "../../context/editorContext"
 import { getVisualLinesFromHTML } from "../../_helpers/getVisualLines"
 import { getUserName, incrementPrinterMessageStats } from "@/lib/queries"
@@ -15,6 +15,7 @@ type ToasterSendButtonProps = {
 
 function ToasterSendButton({ setStatus, hTMLContent, selectedRecipient }: ToasterSendButtonProps) {
   const { editor, editorForm } = useEditorContext()
+  const [buttonClickable, setButtonClickable] = useState(true)
   const { user } = useUser()
 
   async function handlePrinterClick() {
@@ -22,6 +23,7 @@ function ToasterSendButton({ setStatus, hTMLContent, selectedRecipient }: Toaste
       return
     }
     editor?.setEditable(false)
+    setButtonClickable(false)
     setStatus("Sending...")
     const editorElement = editor!.view.dom as HTMLElement
     const lines = getVisualLinesFromHTML(editorElement)
@@ -53,9 +55,13 @@ function ToasterSendButton({ setStatus, hTMLContent, selectedRecipient }: Toaste
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}, body: ${responseText}`)
       }
-      editor?.commands.clearContent()
-      editor?.setEditable(true)
-      setStatus("Sent successfully!")
+
+      // better then instantly removing it
+      setTimeout(() => {
+        editor?.commands.clearContent()
+        editor?.setEditable(true)
+        setStatus("Sent successfully!")
+      }, 1000)
     } catch (error) {
       editor?.setEditable(true)
       console.error("Error sending to printer:", error)
@@ -71,6 +77,7 @@ function ToasterSendButton({ setStatus, hTMLContent, selectedRecipient }: Toaste
     if (editor) {
       editor.commands.focus()
     }
+    setButtonClickable(true)
   }
 
   function addLineBreaksToHTML(htmlContent: string, lines: Lines): string {
@@ -142,6 +149,7 @@ function ToasterSendButton({ setStatus, hTMLContent, selectedRecipient }: Toaste
   return (
     <div className="">
       <button
+        disabled={!buttonClickable}
         onClick={editorForm.handleSubmit(handlePrinterClick)}
         className="w-full h-8 border-t bg-[#e4d3b2] border border-b-transparent border-l-transparent border-r-transparent border-[#808080] hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
       >

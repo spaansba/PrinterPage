@@ -1,5 +1,5 @@
 "use client"
-import { UserProfile } from "@clerk/nextjs"
+import { SignOutButton, UserProfile } from "@clerk/nextjs"
 import { X } from "lucide-react"
 import React, { useEffect, useState } from "react"
 import UserInformation from "./_userInformation/UserInformation"
@@ -26,6 +26,11 @@ function AccountPage() {
           >
             Edit
           </button>
+          <SignOutButton>
+            <button className=" h-8 bg-[#d4d0c8] border-2 border-t-white border-l-white border-b-[#808080] border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white px-4 text-sm font-bold hover:bg-[#e6e3de]">
+              Sign Out
+            </button>
+          </SignOutButton>
         </div>
       </div>
 
