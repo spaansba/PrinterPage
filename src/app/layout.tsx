@@ -160,7 +160,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider dynamic>
       <html lang="en">
         <body className={`${ibmPlexMono.variable}`}>
           <header className="flex justify-end p-4" />

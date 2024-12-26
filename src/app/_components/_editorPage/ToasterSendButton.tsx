@@ -141,21 +141,12 @@ function ToasterSendButton({ setStatus, hTMLContent, selectedRecipient }: Toaste
   }
   return (
     <div className="">
-      <SignedOut>
-        <SignInButton>
-          <button className="w-full h-8 border-t bg-[#c9af7c] border border-b-transparent border-l-transparent border-r-transparent border-[#808080] hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white">
-            Sign in to send toasts
-          </button>
-        </SignInButton>
-      </SignedOut>
-      <SignedIn>
-        <button
-          onClick={editorForm.handleSubmit(handlePrinterClick)}
-          className="w-full h-8 border-t bg-[#e4d3b2] border border-b-transparent border-l-transparent border-r-transparent border-[#808080] hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
-        >
-          {selectedRecipient?.name ? `Toast ${selectedRecipient?.name}` : "Choose Recipient"}
-        </button>
-      </SignedIn>
+      <button
+        onClick={editorForm.handleSubmit(handlePrinterClick)}
+        className="w-full h-8 border-t bg-[#e4d3b2] border border-b-transparent border-l-transparent border-r-transparent border-[#808080] hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
+      >
+        {selectedRecipient?.name ? `Toast ${selectedRecipient?.name}` : "Choose Recipient"}
+      </button>
     </div>
   )
 }
