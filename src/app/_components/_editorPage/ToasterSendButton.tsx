@@ -77,7 +77,9 @@ function ToasterSendButton({ setStatus, hTMLContent, selectedRecipient }: Toaste
     if (editor) {
       editor.commands.focus()
     }
-    setButtonClickable(true)
+    setTimeout(() => {
+      setButtonClickable(true)
+    }, 1000)
   }
 
   function addLineBreaksToHTML(htmlContent: string, lines: Lines): string {

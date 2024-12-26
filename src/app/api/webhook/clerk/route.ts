@@ -5,49 +5,71 @@ import { Webhook } from "svix"
 import { WebhookEvent } from "@clerk/nextjs/server"
 
 export async function POST(req: Request) {
+  // 1. Verify webhook secret
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET
   if (!WEBHOOK_SECRET) {
     throw new Error("Webhook secret not found in clerk or in .env.local")
   }
 
-  // Get Headers
+  // 2. Get Headers
   const headerPayload = headers()
   const svix_id = headerPayload.get("svix-id")
   const svix_timestamp = headerPayload.get("svix-timestamp")
   const svix_signature = headerPayload.get("svix-signature")
-  console.log("user signup headers ", headerPayload)
-  if (!svix_id || !svix_timestamp || !svix_timestamp) {
-    return new Response("error -- no svix headers", { status: 400 })
-  }
-  const data = await req.json()
-  const body = JSON.stringify(data)
-  console.log("body signup ", body)
-  const wh = new Webhook(WEBHOOK_SECRET)
-  let evt: WebhookEvent
 
+  if (!svix_id || !svix_timestamp || !svix_signature) {
+    return new Response("Error -- no svix headers", { status: 400 })
+  }
+
+  // 3. Get the body
+  let evt: WebhookEvent
   try {
+    const payload = await req.json()
+    const body = JSON.stringify(payload)
+    const wh = new Webhook(WEBHOOK_SECRET)
     evt = wh.verify(body, {
       "svix-id": svix_id,
       "svix-timestamp": svix_timestamp,
-      "svix-signature": svix_signature!,
+      "svix-signature": svix_signature,
     }) as WebhookEvent
   } catch (err) {
-    console.log("Error verifying webhook", err)
-    return new Response("Error occured", {
+    console.error("Error verifying webhook:", err)
+    return new Response("Error verifying webhook", {
       status: 400,
     })
   }
 
-  const eventType = evt.type
-  if (eventType === "user.created") {
-    const id = evt.data.id
-    if (!id) {
-      return new Response("Error occured -- missing ID", { status: 400 })
+  // 4. Handle the event
+  try {
+    const eventType = evt.type
+    if (eventType === "user.created") {
+      const { id, first_name } = evt.data
+      if (!id) {
+        return new Response("Error -- missing user ID", { status: 400 })
+      }
+
+      await db.insert(users).values({
+        id: id,
+        userName: first_name || id,
+        messagesSend: 0,
+      })
+
+      return new Response(JSON.stringify({ success: true }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      })
     }
-    await db.insert(users).values({
-      id: id,
-      userName: evt.data.first_name || data.data.id,
-      messagesSend: 0,
+
+    // Return 200 for other event types we're not handling
+    return new Response(JSON.stringify({ success: true, message: "Event received" }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    })
+  } catch (error) {
+    console.error("Error processing webhook:", error)
+    return new Response(JSON.stringify({ success: false, error: "Internal server error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
     })
   }
 }
