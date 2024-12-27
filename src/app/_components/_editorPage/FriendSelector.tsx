@@ -156,25 +156,31 @@ const FriendSelector = ({ friendsHook }: FriendSelectorProps) => {
         ref={toggleButtonRef}
         type="button"
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        className="w-full h-[40px] px-4 py-2 bg-[#e8e8e8] border-[1px] border-gray-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] cursor-pointer flex items-center justify-between"
+        className="w-full min-h-[40px] px-4 py-2 bg-[#e8e8e8] border-[1px] border-gray-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] cursor-pointer flex items-start justify-between"
       >
-        <div className="flex items-center overflow-hidden">
+        <div className="flex flex-wrap items-start overflow-hidden w-[90%]">
           {selectedFriends.length > 0 ? (
-            <>
-              <div className="flex items-center justify-center mr-2 flex-shrink-0">
-                <Image src="/images/Logo512BW.png" alt="Toaster" width={24} height={24} />
+            selectedFriends.map((friend, index) => (
+              <div
+                key={friend.printerId}
+                className={`${index !== 0 ? "w-full" : ""} flex items-center`}
+              >
+                <Image
+                  src="/images/Logo512BW.png"
+                  alt="Toaster"
+                  width={24}
+                  height={24}
+                  className="mr-2"
+                />
+                <span className="whitespace-nowrap">{friend.name}</span>
               </div>
-              <div className="truncate">
-                {selectedFriends.map((friend) => friend.name).join(", ")}
-              </div>
-            </>
+            ))
           ) : (
             <span className="text-gray-500">Select toaster...</span>
           )}
         </div>
         <ChevronDown className="flex-shrink-0" size={14} />
       </button>
-
       {isDropdownOpen && (
         <div
           ref={dropdownRef}
