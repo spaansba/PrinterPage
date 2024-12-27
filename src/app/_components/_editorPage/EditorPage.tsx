@@ -1,22 +1,21 @@
 "use client"
-import { type Dispatch, type SetStateAction, useEffect, useState } from "react"
-import { useUser } from "@clerk/nextjs"
+import { type Dispatch, type SetStateAction } from "react"
 import { EditorContent } from "@tiptap/react"
-import { getAssociatedPrintersById, getUserName, incrementPrinterMessageStats } from "@/lib/queries"
 import { useEditorContext } from "@/app/context/editorContext"
-import RecipientSelector, { type Recipient } from "./RecipientSelector"
+import RecipientSelector from "./FriendSelector"
 import { Toolbar } from "./_editor/_toolbar/Toolbar"
 import ToasterStatusBar from "./StatusBar"
 import ToasterSendButton from "./ToasterSendButton"
+import type { FriendListHook } from "../AppWindow"
 
 type EditorPageProps = {
   hTMLContent: string
   status: string
   setStatus: Dispatch<SetStateAction<string>>
+  friendsHook: FriendListHook
 }
 
-function EditorPage({ setStatus, status, hTMLContent }: EditorPageProps) {
-  const { selectedRecipient, setSelectedRecipient, recipients, setRecipients } = useRecipients()
+function EditorPage({ setStatus, status, hTMLContent, friendsHook }: EditorPageProps) {
   const { editor, editorForm } = useEditorContext()
 
   // Get the first form error message if any exist
@@ -34,12 +33,7 @@ function EditorPage({ setStatus, status, hTMLContent }: EditorPageProps) {
     <>
       <div>
         <div>
-          <RecipientSelector
-            recipients={recipients}
-            setRecipients={setRecipients}
-            selectedRecipient={selectedRecipient}
-            onSelectRecipient={setSelectedRecipient}
-          />
+          <RecipientSelector friendsHook={friendsHook} />
           <Toolbar />
           <form className="text-[16px]">
             <div>
@@ -62,46 +56,10 @@ function EditorPage({ setStatus, status, hTMLContent }: EditorPageProps) {
       <ToasterSendButton
         setStatus={setStatus}
         hTMLContent={hTMLContent}
-        selectedRecipient={selectedRecipient}
+        selectedFriend={friendsHook.selectedFriend}
       />
     </>
   )
-}
-
-function useRecipients() {
-  const [selectedRecipient, setSelectedRecipient] = useState<Recipient | null>(null)
-  const [recipients, setRecipients] = useState<Recipient[]>([])
-  const { editorForm } = useEditorContext()
-  const { user } = useUser()
-
-  useEffect(() => {
-    const fetchRecipients = async () => {
-      if (!user) return
-      try {
-        const associatedPrinters = await getAssociatedPrintersById(user.id)
-        // Transform the data to match the Recipient type
-        const formattedRecipients = associatedPrinters.map((printer) => ({
-          printerId: printer.associatedPrinterId,
-          name: printer.name,
-        }))
-        setSelectedRecipient(formattedRecipients[0])
-        setRecipients(formattedRecipients)
-      } catch (err) {
-        console.error("Error fetching recipients:", err)
-      }
-    }
-
-    fetchRecipients()
-  }, [user])
-
-  useEffect(() => {
-    if (selectedRecipient) {
-      editorForm.setValue("recipient", selectedRecipient)
-      editorForm.clearErrors()
-    }
-  }, [selectedRecipient])
-
-  return { selectedRecipient, setSelectedRecipient, recipients, setRecipients }
 }
 
 export default EditorPage

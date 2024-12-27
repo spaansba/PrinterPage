@@ -1,6 +1,6 @@
 import React, { useEffect, type Dispatch, type SetStateAction } from "react"
 import { useEditorContext } from "../context/editorContext"
-const pages = ["Toaster", "Account", "Friends"] as const
+const pages = ["Toast", "Account", "Toasters"] as const
 export type Pages = (typeof pages)[number]
 
 type TitleBarProps = {
@@ -12,18 +12,18 @@ function TitleBar({ pageActivated, setPageActivated }: TitleBarProps) {
   const { editor } = useEditorContext()
   const Title = () => {
     switch (pageActivated) {
-      case "Toaster":
-        return "Thermal Toaster"
+      case "Toast":
+        return "Toasting"
       case "Account":
         return "User Profile"
-      case "Friends":
-        return "Friends Page"
+      case "Toasters":
+        return "Toasters"
       default:
     }
   }
 
   useEffect(() => {
-    if (pageActivated === "Toaster") {
+    if (pageActivated === "Toasters") {
       editor?.commands.focus()
     }
   }, [pageActivated])

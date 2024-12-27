@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import type { z } from "zod"
-import { recipientNameSchema } from "../../_editorPage/RecipientSelector"
+import { friendNameSchema } from "../../_editorPage/FriendSelector"
 import { getUserName, updatedUserName } from "@/lib/queries"
 import { Loader2, Pencil, SendHorizonal, X } from "lucide-react"
 
@@ -28,8 +28,8 @@ function UserName() {
     reset: resetEdit,
     setError: setErrorEdit,
     setFocus: setEditFocus,
-  } = useForm<z.infer<typeof recipientNameSchema>>({
-    resolver: zodResolver(recipientNameSchema),
+  } = useForm<z.infer<typeof friendNameSchema>>({
+    resolver: zodResolver(friendNameSchema),
     mode: "onSubmit",
   })
   function handleEditClick(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
@@ -40,7 +40,7 @@ function UserName() {
       setEditFocus("name")
     }, 0)
   }
-  async function handleNewUserName(data: z.infer<typeof recipientNameSchema>) {
+  async function handleNewUserName(data: z.infer<typeof friendNameSchema>) {
     if (!user) {
       setErrorEdit("root", { message: "User Doesn't Exist" })
       return

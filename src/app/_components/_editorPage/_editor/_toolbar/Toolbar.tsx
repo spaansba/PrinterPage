@@ -4,9 +4,9 @@ import SmileyDropdown from "../SmileyDropdown"
 import { useEditorContext } from "@/app/context/editorContext"
 import QRCodeButton from "./QRCodeButton"
 import ImageButton from "./_camera/ImageButton"
-import DeleteButton from "./DeleteButton"
 import ToggleButton from "./ToggleButton"
 import { Bold, Highlighter, Underline } from "lucide-react"
+import DeleteMessageButton from "./DeleteMessageButton"
 
 const TextStyles = `
   .tall-text {
@@ -65,7 +65,7 @@ export function Toolbar() {
         <SmileyDropdown editor={editor} />
         <DividerLine />
 
-        <DeleteButton />
+        <DeleteMessageButton />
       </div>
     </>
   )

@@ -5,15 +5,15 @@ import { getVisualLinesFromHTML } from "../../_helpers/getVisualLines"
 import { getUserName, incrementPrinterMessageStats } from "@/lib/queries"
 import { PrepareTextToSend } from "../../_helpers/StringToBytes"
 import type { Lines } from "./RetroTextEditor"
-import type { Recipient } from "./RecipientSelector"
+import type { Friend } from "./FriendSelector"
 
 type ToasterSendButtonProps = {
   setStatus: Dispatch<SetStateAction<string>>
   hTMLContent: string
-  selectedRecipient: Recipient | null
+  selectedFriend: Friend | null
 }
 
-function ToasterSendButton({ setStatus, hTMLContent, selectedRecipient }: ToasterSendButtonProps) {
+function ToasterSendButton({ setStatus, hTMLContent, selectedFriend }: ToasterSendButtonProps) {
   const { editor, editorForm } = useEditorContext()
   const [buttonClickable, setButtonClickable] = useState(true)
   const { user } = useUser()
@@ -31,13 +31,13 @@ function ToasterSendButton({ setStatus, hTMLContent, selectedRecipient }: Toaste
     const username = await getUserName(user.id)
     const content = await PrepareTextToSend(htmlContentWithLineBreaks, username, user.imageUrl)
 
-    if (!selectedRecipient) {
+    if (!selectedFriend) {
       return
     }
     // editor?.setEditable(true)
     // return
     try {
-      const response = await fetch(`https://${selectedRecipient.printerId}.toasttexter.com/print`, {
+      const response = await fetch(`https://${selectedFriend.printerId}.toasttexter.com/print`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -49,7 +49,7 @@ function ToasterSendButton({ setStatus, hTMLContent, selectedRecipient }: Toaste
 
       const responseText = await response.text()
       if (user) {
-        await incrementPrinterMessageStats(user.id, selectedRecipient.printerId)
+        await incrementPrinterMessageStats(user.id, selectedFriend.printerId)
       }
 
       if (!response.ok) {
@@ -155,7 +155,7 @@ function ToasterSendButton({ setStatus, hTMLContent, selectedRecipient }: Toaste
         onClick={editorForm.handleSubmit(handlePrinterClick)}
         className="w-full h-8 border-t bg-[#e4d3b2] border border-b-transparent border-l-transparent border-r-transparent border-[#808080] hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
       >
-        {selectedRecipient?.name ? `Toast ${selectedRecipient?.name}` : "Choose Recipient"}
+        {selectedFriend?.name ? `Toast ${selectedFriend?.name}` : "Choose Recipient"}
       </button>
     </div>
   )
