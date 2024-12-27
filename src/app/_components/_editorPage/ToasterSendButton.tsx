@@ -179,9 +179,7 @@ function ToasterSendButton({
         onClick={editorForm.handleSubmit(handlePrinterClick)}
         className="w-full h-8 border-t truncate px-4 bg-[#e4d3b2] border border-b-transparent border-l-transparent border-r-transparent border-[#808080] hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
       >
-        {selectedFriends.length > 0
-          ? `Toast ${selectedFriends.map((friend) => friend.name).join(", ")}`
-          : "Choose Recipient"}
+        {selectedFriends.length > 0 ? `Send Toast!` : "Choose Recipient"}
       </button>
     </div>
   )

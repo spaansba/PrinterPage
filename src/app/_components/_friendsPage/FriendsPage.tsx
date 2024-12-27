@@ -64,7 +64,7 @@ function FriendsPage({ friendsHook }: FriendsPageProps) {
         {friendsHook.friendList.map((friend, index) => (
           <div
             key={friend.printerId}
-            className={`group/friend hover:bg-[#e4d3b2] bg-[#e8e8e8] ${
+            className={`group/friend lg:hover:bg-[#e4d3b2] bg-[#e8e8e8] ${
               index !== friendsHook.friendList.length - 1 ? "border-b border-gray-300" : ""
             }`}
           >

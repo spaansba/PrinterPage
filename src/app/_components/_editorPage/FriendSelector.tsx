@@ -114,16 +114,16 @@ const FriendSelector = ({ friendsHook }: FriendSelectorProps) => {
     const isSelected = selectedFriends?.includes(friend)
     return (
       <div
-        className={`group/friend hover:bg-[#e4d3b2] ${
+        className={`group/friend lg:hover:bg-[#e4d3b2] ${
           isSelected ? "bg-[#e4d3b2]" : "bg-[#e8e8e8]"
         } `}
       >
         <div
           onClick={() => handleSelect(friend)}
-          className="flex w-full items-center px-4 py-2 hover:bg-[#e4d3b2] cursor-pointer"
+          className="flex w-full items-center px-4 py-2 lg:hover:bg-[#e4d3b2] cursor-pointer"
           title={`Toaster ID: ${friend.printerId}`}
         >
-          <div className=" flex items-center justify-center mr-2">
+          <div className="flex items-center justify-center mr-2">
             <Image src="/images/Logo512BW.png" alt="Toaster" width={24} height={24} />
           </div>
           <div className="flex flex-col">
@@ -132,11 +132,18 @@ const FriendSelector = ({ friendsHook }: FriendSelectorProps) => {
           <div className="ml-auto">
             {isSelected ? (
               <>
-                <div className="ml-2 text-xs group-hover/friend:hidden">
-                  <CircleCheckBig size={20} />
+                {/* Desktop version with hover effect */}
+                <div className="hidden lg:block">
+                  <div className="ml-2 text-xs group-hover/friend:hidden">
+                    <CircleCheckBig size={20} />
+                  </div>
+                  <div className="ml-2 text-xs hidden group-hover/friend:block">
+                    <CircleMinus size={20} />
+                  </div>
                 </div>
-                <div className="ml-2 text-xs hidden group-hover/friend:block">
-                  <CircleMinus size={20} />
+                {/* Mobile version - always show check */}
+                <div className="lg:hidden ml-2 text-xs">
+                  <CircleCheckBig size={20} />
                 </div>
               </>
             ) : (
@@ -149,7 +156,7 @@ const FriendSelector = ({ friendsHook }: FriendSelectorProps) => {
       </div>
     )
   }
-
+  const maxVisibleRecipients = 5
   return (
     <div className="relative w-full text-[13px] font-mono">
       <button
@@ -158,23 +165,36 @@ const FriendSelector = ({ friendsHook }: FriendSelectorProps) => {
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
         className="w-full min-h-[40px] px-4 py-2 bg-[#e8e8e8] border-[1px] border-gray-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] cursor-pointer flex items-start justify-between"
       >
-        <div className="flex flex-wrap items-start overflow-hidden w-[90%]">
+        <div className="flex flex-wrap items-start overflow-hidden w-[90%] gap-y-[0.4rem] gap-x-3">
           {selectedFriends.length > 0 ? (
-            selectedFriends.map((friend, index) => (
-              <div
-                key={friend.printerId}
-                className={`${index !== 0 ? "w-full" : ""} flex items-center`}
-              >
-                <Image
-                  src="/images/Logo512BW.png"
-                  alt="Toaster"
-                  width={24}
-                  height={24}
-                  className="mr-2"
-                />
-                <span className="whitespace-nowrap">{friend.name}</span>
-              </div>
-            ))
+            <>
+              {selectedFriends.slice(0, maxVisibleRecipients).map((friend, index) => (
+                <div key={friend.printerId} className="inline-flex items-center">
+                  <Image
+                    src="/images/Logo512BW.png"
+                    alt="Toaster"
+                    width={24}
+                    height={24}
+                    className="mr-2"
+                  />
+                  <span className="whitespace-nowrap">{friend.name}</span>
+                </div>
+              ))}
+              {selectedFriends.length > maxVisibleRecipients && (
+                <div className="inline-flex items-center">
+                  <Image
+                    src="/images/Logo512BW.png"
+                    alt="Toaster"
+                    width={24}
+                    height={24}
+                    className="mr-2"
+                  />
+                  <span className="whitespace-nowrap text-gray-600">
+                    and {selectedFriends.length - maxVisibleRecipients} more
+                  </span>
+                </div>
+              )}
+            </>
           ) : (
             <span className="text-gray-500">Select toaster...</span>
           )}
