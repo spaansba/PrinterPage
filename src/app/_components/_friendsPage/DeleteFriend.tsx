@@ -1,9 +1,8 @@
-import { AlertTriangle, Trash2, X } from "lucide-react"
+import { Trash2 } from "lucide-react"
 import React, { useState } from "react"
 import DeleteModal from "../_helperComponents/DeleteModal"
-import { removeAssociatedPrinters } from "@/lib/queries"
 import { useUser } from "@clerk/nextjs"
-import type { Friend } from "../_editorPage/FriendSelector"
+import type { Friend } from "../_editorPage/_friendSelector/FriendSelector"
 
 type DeleteFriendProps = {
   friendToDelete: Friend

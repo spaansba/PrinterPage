@@ -1,5 +1,5 @@
 "use client"
-import { type Dispatch, type SetStateAction, useEffect, useState } from "react"
+import { type Dispatch, type SetStateAction } from "react"
 
 type RetroTextEditorProps = {
   setTextContent: Dispatch<SetStateAction<string>>

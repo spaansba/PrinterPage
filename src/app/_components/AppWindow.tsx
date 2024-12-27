@@ -3,11 +3,13 @@ import TitleBar, { type Pages } from "./TitleBar"
 import EditorPage from "./_editorPage/EditorPage"
 import AccountPage from "./_accountPage/AccountPage"
 import FriendsPage from "./_friendsPage/FriendsPage"
-import type { Friend, friendNameSchema } from "./_editorPage/FriendSelector"
+
 import { useEditorContext } from "../context/editorContext"
 import { changeNameAssociatedPrinters, removeAssociatedPrinters } from "@/lib/queries"
 import type { z } from "zod"
 import type { messageStatus } from "./MainWrapper"
+import type { Friend } from "./_editorPage/_friendSelector/FriendSelector"
+import type { friendNameSchema } from "./_editorPage/AddNewFriendForm"
 
 type AppWindowProps = {
   initialFriendList: Friend[]

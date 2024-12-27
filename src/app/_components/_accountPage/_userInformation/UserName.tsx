@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import type { z } from "zod"
-import { friendNameSchema } from "../../_editorPage/FriendSelector"
+import { friendNameSchema } from "../../_editorPage/_friendSelector/FriendSelector"
 import { getUserName, updatedUserName } from "@/lib/queries"
 import { Loader2, Pencil, SendHorizonal, X } from "lucide-react"
 

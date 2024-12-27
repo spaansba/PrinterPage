@@ -3,7 +3,7 @@ import { useState } from "react"
 import { CustomEditorProvider } from "../context/editorContext"
 import { SignInButton, useAuth } from "@clerk/nextjs"
 import Image from "next/image"
-import type { Friend } from "./_editorPage/FriendSelector"
+import type { Friend } from "./_editorPage/_friendSelector/FriendSelector"
 import AppWindow from "./AppWindow"
 import { HtmlContext } from "next/dist/shared/lib/html-context.shared-runtime"
 

@@ -1,14 +1,13 @@
 import React, { useRef, useState } from "react"
 import type { FriendListHook } from "../AppWindow"
 import Image from "next/image"
-import { Check, Cross, Delete, Pencil, SendHorizonal, Ticket, Trash, Trash2, X } from "lucide-react"
+import { Check, Pencil, X } from "lucide-react"
 import { useForm } from "react-hook-form"
-import { friendNameSchema, type Friend } from "../_editorPage/FriendSelector"
 import { zodResolver } from "@hookform/resolvers/zod"
 import type { z } from "zod"
-import { changeNameAssociatedPrinters } from "@/lib/queries"
 import { useUser } from "@clerk/nextjs"
 import DeleteFriend from "./DeleteFriend"
+import { friendNameSchema } from "../_editorPage/AddNewFriendForm"
 
 type FriendsPageProps = {
   friendsHook: FriendListHook

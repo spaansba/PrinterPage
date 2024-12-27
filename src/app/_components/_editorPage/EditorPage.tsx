@@ -7,7 +7,7 @@ import ToasterStatusBar from "./StatusBar"
 import ToasterSendButton from "./ToasterSendButton"
 import type { FriendListHook } from "../AppWindow"
 import type { messageStatus } from "../MainWrapper"
-import FriendSelector from "./FriendSelector"
+import FriendSelector from "./_friendSelector/FriendSelector"
 
 type EditorPageProps = {
   hTMLContent: string

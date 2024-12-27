@@ -3,7 +3,7 @@ import { currentUser } from "@clerk/nextjs/server"
 import AppDownloadButton from "./_components/AppDownloadButton"
 import MainWrapper from "./_components/MainWrapper"
 import { getAssociatedPrintersById } from "@/lib/queries"
-import type { Friend } from "./_components/_editorPage/FriendSelector"
+import type { Friend } from "./_components/_editorPage/_friendSelector/FriendSelector"
 
 export default async function Home() {
   const user = await currentUser()
