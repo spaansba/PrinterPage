@@ -86,7 +86,10 @@ function ToasterSendButton({
 
     console.log(printResults)
     setMessageStatus(() => ({ editorStatus: "", sendStatus: printResults }))
-
+    const hasPartialFailed = printResults.some((result) => !result.success)
+    if (!hasPartialFailed) {
+      editor?.commands.clearContent()
+    }
     if (editor) {
       editor.commands.focus()
       editor.setEditable(true)

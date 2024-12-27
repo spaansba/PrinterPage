@@ -5,6 +5,7 @@ import { SignInButton, useAuth } from "@clerk/nextjs"
 import Image from "next/image"
 import type { Friend } from "./_editorPage/FriendSelector"
 import AppWindow from "./AppWindow"
+import { HtmlContext } from "next/dist/shared/lib/html-context.shared-runtime"
 
 type MainWrapperProps = {
   initialFriendList: Friend[]
@@ -29,8 +30,11 @@ function MainWrapper({ initialFriendList }: MainWrapperProps) {
   })
   const [hTMLContent, setHTMLContent] = useState("")
   const handleTextChange = (inputText: string, inputHTML: string) => {
-    if (inputText.length > 0) {
+    if (inputText.length > 0 && inputHTML != hTMLContent) {
       setMessageStatus({ sendStatus: [], editorStatus: "Editing" })
+    }
+    if (inputText.length == 0) {
+      setMessageStatus((prev) => ({ ...prev, editorStatus: "" }))
     }
     setHTMLContent(inputHTML)
   }
