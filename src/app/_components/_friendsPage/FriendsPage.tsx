@@ -71,7 +71,7 @@ function FriendsPage({ friendsHook }: FriendsPageProps) {
 
   return (
     <>
-      <div className=" border-t border-[1px] border-gray-500 bg-[#e8e8e8] flex flex-col gap-2 relative">
+      <div className=" border-t border-[1px] border-gray-500 bg-[#e8e8e8] flex flex-col relative">
         {friendsHook.friendList.map((friend, index) => (
           <div
             key={friend.printerId}
@@ -81,7 +81,7 @@ function FriendsPage({ friendsHook }: FriendsPageProps) {
           >
             <div
               className="flex w-full items-center px-4 py-2 cursor-pointer"
-              title={`Last send message: ${friend.lastSendMessage.slice(
+              title={`Last send Toast: ${friend.lastSendMessage.slice(
                 0,
                 friend.lastSendMessage.length - 4
               )}`}
@@ -143,7 +143,7 @@ function FriendsPage({ friendsHook }: FriendsPageProps) {
                   >
                     <Pencil className="text-black relative z-20" size={18} />
                   </button>
-                  <DeleteFriend friendToDelete={friend.name} />
+                  <DeleteFriend friendToDelete={friend} deleteFriend={friendsHook.deleteFriend} />
                 </div>
               )}
             </div>

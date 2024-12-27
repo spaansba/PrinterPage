@@ -161,6 +161,43 @@ export const addAssociatedPrinters = async (userId: string, printerId: string, n
   }
 }
 
+export const removeAssociatedPrinters = async (userId: string, printerId: string) => {
+  console.log(userId, printerId)
+  const isAdded = await checkIfPrinterIsAssociated(userId, printerId)
+  if (!isAdded) {
+    return {
+      success: false,
+      data: null,
+      error: {
+        message: "Printer ID doesnt exist as associated printer ID",
+      },
+    }
+  }
+  try {
+    const result = await db
+      .delete(usersAssociatedPrinters)
+      .where(
+        and(
+          eq(usersAssociatedPrinters.userId, userId),
+          eq(usersAssociatedPrinters.associatedPrinterId, printerId)
+        )
+      )
+  } catch (error) {
+    return {
+      success: false,
+      data: null,
+      error: {
+        message: error instanceof Error ? error.message : "Unknown error occurred",
+      },
+    }
+  } finally {
+    return {
+      succes: true,
+      data: null,
+    }
+  }
+}
+
 const checkIfPrinterIsAssociated = async (userId: string, printerId: string): Promise<boolean> => {
   const results = await db
     .select()

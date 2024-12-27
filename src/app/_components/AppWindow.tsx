@@ -5,6 +5,7 @@ import AccountPage from "./_accountPage/AccountPage"
 import FriendsPage from "./_friendsPage/FriendsPage"
 import type { Friend } from "./_editorPage/FriendSelector"
 import { useEditorContext } from "../context/editorContext"
+import { removeAssociatedPrinters } from "@/lib/queries"
 
 type AppWindowProps = {
   initialFriendList: Friend[]
@@ -38,19 +39,9 @@ function AppWindow({ initialFriendList, status, setStatus, hTMLContent }: AppWin
 
 function useFriendList(initialFriendList: Friend[]) {
   // initialize selected friend with the most recent friend that the user send a message to
-  const [selectedFriend, setSelectedFriend] = useState<Friend | null>(() => {
-    if (initialFriendList.length === 0) return null
-
-    return initialFriendList.reduce((mostRecent, current) => {
-      if (!mostRecent.lastSendMessage) return current
-      if (!current.lastSendMessage) return mostRecent
-
-      return new Date(current.lastSendMessage) > new Date(mostRecent.lastSendMessage)
-        ? current
-        : mostRecent
-    })
-  })
-
+  const [selectedFriend, setSelectedFriend] = useState<Friend | null>(() =>
+    getLastMessagedFriend(initialFriendList)
+  )
   const [friendList, setFriendList] = useState<Friend[]>(initialFriendList)
   const { editorForm } = useEditorContext()
 
@@ -61,7 +52,31 @@ function useFriendList(initialFriendList: Friend[]) {
     }
   }, [selectedFriend])
 
-  return { selectedFriend, setSelectedFriend, friendList, setFriendList }
+  const deleteFriend = async (userId: string, friendToDelete: Friend) => {
+    const result = await removeAssociatedPrinters(userId, friendToDelete.printerId)
+    if (!result.succes) {
+      console.error(result)
+      return
+    }
+    setFriendList((prev) => prev.filter((friend) => friend.printerId !== friendToDelete.printerId))
+    if (friendToDelete === selectedFriend) {
+      setSelectedFriend(getLastMessagedFriend(initialFriendList))
+    }
+  }
+
+  return { selectedFriend, setSelectedFriend, friendList, setFriendList, deleteFriend }
 }
 
+function getLastMessagedFriend(friendList: Friend[]) {
+  if (friendList.length === 0) return null
+
+  return friendList.reduce((mostRecent, current) => {
+    if (!mostRecent.lastSendMessage) return current
+    if (!current.lastSendMessage) return mostRecent
+
+    return new Date(current.lastSendMessage) > new Date(mostRecent.lastSendMessage)
+      ? current
+      : mostRecent
+  })
+}
 export default AppWindow
