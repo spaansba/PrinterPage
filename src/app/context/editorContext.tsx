@@ -11,18 +11,12 @@ import Image from "@tiptap/extension-image"
 import { useForm, UseFormReturn } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import type { Lines } from "../_components/_editorPage/RetroTextEditor"
 import { getVisualLinesFromHTML } from "../_helpers/getVisualLines"
-
-// Define base types that don't depend on the editor
-type RecipientType = {
-  printerId: string
-  name: string
-}
+import type { Friend } from "../_components/_editorPage/FriendSelector"
 
 type EditorFormData = {
   textEditorInput: string
-  recipient: RecipientType | null
+  recipients: Friend[] | null
 }
 
 type EditorContextProps = {
@@ -152,11 +146,13 @@ export function CustomEditorProvider({ children, handleTextChange }: CustomEdito
           },
           { message: "Message cannot exceed 40 lines" }
         ),
-      recipient: z
-        .object({
-          printerId: z.string(),
-          name: z.string(),
-        })
+      recipients: z
+        .array(
+          z.object({
+            printerId: z.string(),
+            name: z.string(),
+          })
+        )
         .nullable()
         .refine((val) => val !== null, {
           message: "Please select a recipient",
@@ -170,7 +166,7 @@ export function CustomEditorProvider({ children, handleTextChange }: CustomEdito
     mode: "onChange",
     defaultValues: {
       textEditorInput: "",
-      recipient: null,
+      recipients: null,
     },
   })
 

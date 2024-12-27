@@ -6,38 +6,32 @@ import { getUserName, incrementPrinterMessageStats } from "@/lib/queries"
 import { PrepareTextToSend } from "../../_helpers/StringToBytes"
 import type { Lines } from "./RetroTextEditor"
 import type { Friend } from "./FriendSelector"
+import type { messageStatus } from "../MainWrapper"
 
 type ToasterSendButtonProps = {
-  setStatus: Dispatch<SetStateAction<string>>
+  setMessageStatus: Dispatch<SetStateAction<messageStatus>>
   hTMLContent: string
-  selectedFriend: Friend | null
+  selectedFriends: Friend[]
 }
 
-function ToasterSendButton({ setStatus, hTMLContent, selectedFriend }: ToasterSendButtonProps) {
+function ToasterSendButton({
+  setMessageStatus,
+  hTMLContent,
+  selectedFriends,
+}: ToasterSendButtonProps) {
   const { editor, editorForm } = useEditorContext()
   const [buttonClickable, setButtonClickable] = useState(true)
   const { user } = useUser()
 
-  async function handlePrinterClick() {
-    if (!user) {
-      return
+  async function sendToast(userId: string, friend: Friend, content: Uint8Array<ArrayBufferLike>) {
+    let result = {
+      friend: friend.name,
+      success: true,
+      errorMessage: "",
     }
-    editor?.setEditable(false)
-    setButtonClickable(false)
-    setStatus("Sending...")
-    const editorElement = editor!.view.dom as HTMLElement
-    const lines = getVisualLinesFromHTML(editorElement)
-    const htmlContentWithLineBreaks = addLineBreaksToHTML(hTMLContent, lines)
-    const username = await getUserName(user.id)
-    const content = await PrepareTextToSend(htmlContentWithLineBreaks, username, user.imageUrl)
 
-    if (!selectedFriend) {
-      return
-    }
-    // editor?.setEditable(true)
-    // return
     try {
-      const response = await fetch(`https://${selectedFriend.printerId}.toasttexter.com/print`, {
+      const response = await fetch(`https://${friend.printerId}.toasttexter.com/print`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -46,36 +40,56 @@ function ToasterSendButton({ setStatus, hTMLContent, selectedFriend }: ToasterSe
           data: Array.from(content),
         }),
       })
-
       const responseText = await response.text()
-      if (user) {
-        await incrementPrinterMessageStats(user.id, selectedFriend.printerId)
-      }
+      await incrementPrinterMessageStats(userId, friend.printerId)
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}, body: ${responseText}`)
+        result = {
+          friend: friend.name,
+          success: false,
+          errorMessage: `HTTP error! status: ${response.status}, body: ${responseText}`,
+        }
       }
-
-      // better then instantly removing it
-      setTimeout(() => {
-        editor?.commands.clearContent()
-        editor?.setEditable(true)
-        setStatus("Sent successfully!")
-      }, 1000)
     } catch (error) {
-      editor?.setEditable(true)
-      console.error("Error sending to printer:", error)
-      if (typeof error === "string") {
-        setStatus(error)
-      } else if (error instanceof Error) {
-        setStatus(error.message)
-      } else {
-        setStatus("Error sending the message")
+      result = {
+        friend: friend.name,
+        success: false,
+        errorMessage:
+          "Error sending to printer: " + (error instanceof Error ? error.message : String(error)),
       }
+    } finally {
+      return result
     }
+  }
+
+  async function handlePrinterClick() {
+    if (!user) {
+      return
+    }
+    editor?.setEditable(false)
+    setButtonClickable(false)
+    setMessageStatus((prev) => ({ ...prev, editorStatus: "Sending..." }))
+    const editorElement = editor!.view.dom as HTMLElement
+    const lines = getVisualLinesFromHTML(editorElement)
+    const htmlContentWithLineBreaks = addLineBreaksToHTML(hTMLContent, lines)
+    const username = await getUserName(user.id)
+    const content = await PrepareTextToSend(htmlContentWithLineBreaks, username, user.imageUrl)
+
+    if (!selectedFriends) {
+      return
+    }
+    // editor?.setEditable(true)
+    // return
+    const printResults = await Promise.all(
+      selectedFriends.map((friend) => sendToast(user.id, friend, content))
+    )
+
+    console.log(printResults)
+    setMessageStatus(() => ({ editorStatus: "", sendStatus: printResults }))
 
     if (editor) {
       editor.commands.focus()
+      editor.setEditable(true)
     }
     setTimeout(() => {
       setButtonClickable(true)
@@ -149,16 +163,64 @@ function ToasterSendButton({ setStatus, hTMLContent, selectedFriend }: ToasterSe
     return result
   }
   return (
-    <div className="">
+    <div
+      className=""
+      title={
+        selectedFriends.length > 0
+          ? `Toast ${selectedFriends.map((friend) => friend.name).join(", ")}`
+          : "Choose Recipient"
+      }
+    >
       <button
         disabled={!buttonClickable}
         onClick={editorForm.handleSubmit(handlePrinterClick)}
-        className="w-full h-8 border-t bg-[#e4d3b2] border border-b-transparent border-l-transparent border-r-transparent border-[#808080] hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
+        className="w-full h-8 border-t truncate px-4 bg-[#e4d3b2] border border-b-transparent border-l-transparent border-r-transparent border-[#808080] hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
       >
-        {selectedFriend?.name ? `Toast ${selectedFriend?.name}` : "Choose Recipient"}
+        {selectedFriends.length > 0
+          ? `Toast ${selectedFriends.map((friend) => friend.name).join(", ")}`
+          : "Choose Recipient"}
       </button>
     </div>
   )
 }
 
 export default ToasterSendButton
+// try {
+// const response = await fetch(`https://${selectedFriend.printerId}.toasttexter.com/print`, {
+//   method: "POST",
+//   headers: {
+//     "Content-Type": "application/json",
+//   },
+//   body: JSON.stringify({
+//     data: Array.from(content),
+//   }),
+// })
+
+// const responseText = await response.text()
+// if (user) {
+//   selectedFriends.map(async (friend) => {
+//     await incrementPrinterMessageStats(user.id, friend.printerId)
+//   })
+// }
+
+// if (!response.ok) {
+//   throw new Error(`HTTP error! status: ${response.status}, body: ${responseText}`)
+// }
+
+// better then instantly removing it
+// setTimeout(() => {
+//   editor?.commands.clearContent()
+//   editor?.setEditable(true)
+//   setStatus("Sent successsfully!")
+// }, 1000)
+// } catch (error) {
+// editor?.setEditable(true)
+// console.error("Error sending to printer:", error)
+// if (typeof error === "string") {
+//   setStatus(error)
+// } else if (error instanceof Error) {
+//   setStatus(error.message)
+// } else {
+//   setStatus("Error sending the message")
+// }
+// }

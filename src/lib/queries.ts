@@ -9,7 +9,6 @@ import {
 import { eq, and, desc, sql } from "drizzle-orm"
 
 export const getUserName = async (userId: string) => {
-  console.log(userId)
   const user = await db.select().from(users).where(eq(users.id, userId))
   return user[0].userName ? user[0].userName : "username not found"
 }
@@ -66,7 +65,7 @@ export const changeNameAssociatedPrinters = async (
     const exists = await checkIfPrinterIsAssociated(userId, printerId)
     if (!exists) {
       return {
-        success: false,
+        successs: false,
         data: null,
         error: {
           message: "Printer not found",
@@ -86,7 +85,7 @@ export const changeNameAssociatedPrinters = async (
       .returning()
 
     return {
-      success: true,
+      successs: true,
       data: {
         userId: result[0].userId,
         printerId: result[0].associatedPrinterId,
@@ -97,7 +96,7 @@ export const changeNameAssociatedPrinters = async (
     }
   } catch (error) {
     return {
-      success: false,
+      successs: false,
       data: null,
       error: {
         message: error instanceof Error ? error.message : "Unknown error occurred",
@@ -110,7 +109,7 @@ export const addAssociatedPrinters = async (userId: string, printerId: string, n
   const isAdded = await checkIfPrinterIsAssociated(userId, printerId)
   if (isAdded) {
     return {
-      success: false,
+      successs: false,
       data: null,
       error: {
         message: "Printer ID already added",
@@ -129,7 +128,7 @@ export const addAssociatedPrinters = async (userId: string, printerId: string, n
     const result = await db.insert(usersAssociatedPrinters).values(validateInsert).returning()
 
     return {
-      success: true,
+      successs: true,
       data: {
         userId: result[0].userId,
         printerId: result[0].associatedPrinterId,
@@ -142,7 +141,7 @@ export const addAssociatedPrinters = async (userId: string, printerId: string, n
     // Check for foreign key violation error
     if (error instanceof Error && error.message.includes("violates foreign key constraint")) {
       return {
-        success: false,
+        successs: false,
         data: null,
         error: {
           message: "Printer ID doesnt Exist.",
@@ -152,7 +151,7 @@ export const addAssociatedPrinters = async (userId: string, printerId: string, n
 
     // Handle other errors
     return {
-      success: false,
+      successs: false,
       data: null,
       error: {
         message: error instanceof Error ? error.message : "Unknown error occurred",
@@ -162,11 +161,10 @@ export const addAssociatedPrinters = async (userId: string, printerId: string, n
 }
 
 export const removeAssociatedPrinters = async (userId: string, printerId: string) => {
-  console.log(userId, printerId)
   const isAdded = await checkIfPrinterIsAssociated(userId, printerId)
   if (!isAdded) {
     return {
-      success: false,
+      successs: false,
       data: null,
       error: {
         message: "Printer ID doesnt exist as associated printer ID",
@@ -184,7 +182,7 @@ export const removeAssociatedPrinters = async (userId: string, printerId: string
       )
   } catch (error) {
     return {
-      success: false,
+      successs: false,
       data: null,
       error: {
         message: error instanceof Error ? error.message : "Unknown error occurred",
@@ -192,7 +190,7 @@ export const removeAssociatedPrinters = async (userId: string, printerId: string
     }
   } finally {
     return {
-      succes: true,
+      success: true,
       data: null,
     }
   }

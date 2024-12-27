@@ -82,7 +82,8 @@ const FontSizeDropdown: React.FC<FontSizeDropdownProps> = ({ editor }) => {
   const { toggleButtonRef, dropdownRef, isDropdownOpen, setIsDropdownOpen } = useDropDownModal(
     () => {
       setIsDropdownOpen(false)
-    }
+    },
+    true
   )
 
   useEffect(() => {

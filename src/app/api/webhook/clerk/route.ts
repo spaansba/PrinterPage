@@ -54,20 +54,20 @@ export async function POST(req: Request) {
         messagesSend: 0,
       })
 
-      return new Response(JSON.stringify({ success: true }), {
+      return new Response(JSON.stringify({ successs: true }), {
         status: 200,
         headers: { "Content-Type": "application/json" },
       })
     }
 
     // Return 200 for other event types we're not handling
-    return new Response(JSON.stringify({ success: true, message: "Event received" }), {
+    return new Response(JSON.stringify({ successs: true, message: "Event received" }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     })
   } catch (error) {
     console.error("Error processing webhook:", error)
-    return new Response(JSON.stringify({ success: false, error: "Internal server error" }), {
+    return new Response(JSON.stringify({ successs: false, error: "Internal server error" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     })

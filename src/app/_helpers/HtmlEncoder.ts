@@ -261,13 +261,6 @@ function removeBasicTags(array: Uint8Array): Uint8Array {
 // Add this debug helper function
 function debugArray(array: Uint8Array, label: string = ""): void {
   const text = new TextDecoder().decode(array)
-  console.log(`${label} (${array.length} bytes):`, text)
-  console.log(
-    "Hex:",
-    Array.from(array)
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join(" ")
-  )
 }
 
 function hexArrayFromString(str: string): number[] {
@@ -419,6 +412,5 @@ function replaceArrays(
   while (currentIndex < mainArray.length) {
     newBitArray[targetIndex++] = mainArray[currentIndex++]
   }
-  console.log(newBitArray)
   return newBitArray
 }

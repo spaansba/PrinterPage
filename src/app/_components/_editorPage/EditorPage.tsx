@@ -7,21 +7,27 @@ import { Toolbar } from "./_editor/_toolbar/Toolbar"
 import ToasterStatusBar from "./StatusBar"
 import ToasterSendButton from "./ToasterSendButton"
 import type { FriendListHook } from "../AppWindow"
+import type { messageStatus } from "../MainWrapper"
 
 type EditorPageProps = {
   hTMLContent: string
-  status: string
-  setStatus: Dispatch<SetStateAction<string>>
+  messageStatus: messageStatus
+  setMessageStatus: Dispatch<SetStateAction<messageStatus>>
   friendsHook: FriendListHook
 }
 
-function EditorPage({ setStatus, status, hTMLContent, friendsHook }: EditorPageProps) {
+function EditorPage({
+  setMessageStatus,
+  messageStatus,
+  hTMLContent,
+  friendsHook,
+}: EditorPageProps) {
   const { editor, editorForm } = useEditorContext()
 
   // Get the first form error message if any exist
   const getFirstFormError = () => {
-    if (editorForm.formState.errors.recipient) {
-      return editorForm.formState.errors.recipient.message
+    if (editorForm.formState.errors.recipients) {
+      return editorForm.formState.errors.recipients.message
     }
     if (editorForm.formState.errors.textEditorInput) {
       return editorForm.formState.errors.textEditorInput.message
@@ -52,11 +58,11 @@ function EditorPage({ setStatus, status, hTMLContent, friendsHook }: EditorPageP
           </form>
         </div>
       </div>
-      <ToasterStatusBar status={status} />
+      <ToasterStatusBar messageStatus={messageStatus} />
       <ToasterSendButton
-        setStatus={setStatus}
+        setMessageStatus={setMessageStatus}
         hTMLContent={hTMLContent}
-        selectedFriend={friendsHook.selectedFriend}
+        selectedFriends={friendsHook.selectedFriends}
       />
     </>
   )

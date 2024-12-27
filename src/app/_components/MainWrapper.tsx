@@ -10,13 +10,27 @@ type MainWrapperProps = {
   initialFriendList: Friend[]
 }
 
+export type SendStatus = {
+  friend: string
+  success: boolean
+  errorMessage: string
+}
+
+export type messageStatus = {
+  editorStatus: string
+  sendStatus: SendStatus[] | []
+}
+
 function MainWrapper({ initialFriendList }: MainWrapperProps) {
   const { isLoaded, isSignedIn } = useAuth()
-  const [status, setStatus] = useState("")
+  const [messageStatus, setMessageStatus] = useState<messageStatus>({
+    editorStatus: "",
+    sendStatus: [],
+  })
   const [hTMLContent, setHTMLContent] = useState("")
   const handleTextChange = (inputText: string, inputHTML: string) => {
     if (inputText.length > 0) {
-      setStatus("Editing")
+      setMessageStatus({ sendStatus: [], editorStatus: "Editing" })
     }
     setHTMLContent(inputHTML)
   }
@@ -30,8 +44,8 @@ function MainWrapper({ initialFriendList }: MainWrapperProps) {
       <CustomEditorProvider handleTextChange={handleTextChange}>
         <AppWindow
           initialFriendList={initialFriendList}
-          status={status}
-          setStatus={setStatus}
+          messageStatus={messageStatus}
+          setMessageStatus={setMessageStatus}
           hTMLContent={hTMLContent}
         />
       </CustomEditorProvider>

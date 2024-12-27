@@ -50,7 +50,7 @@ function FriendsPage({ friendsHook }: FriendsPageProps) {
       return
     }
     const result = await friendsHook.changeFriendName(user.id, data, printerId)
-    if (result.succes) {
+    if (result.success) {
       setEditingId(null)
       resetEdit()
     } else {

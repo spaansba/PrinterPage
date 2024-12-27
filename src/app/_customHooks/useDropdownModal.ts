@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react"
 
-export function useDropDownModal(onOutsideClickHandler: (event: MouseEvent) => void) {
+export function useDropDownModal(
+  onOutsideClickHandler: (event: MouseEvent) => void,
+  closeWhenDropdownOptionClicked: boolean
+) {
   const dropdownRef = useRef<HTMLDivElement>(null)
   const toggleButtonRef = useRef<HTMLButtonElement>(null)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
@@ -9,13 +12,17 @@ export function useDropDownModal(onOutsideClickHandler: (event: MouseEvent) => v
   useEffect(() => {
     const handleMouseDownie = (event: MouseEvent) => {
       const target = event.target as Node
-
       // Do nothing if the target is not connected element with document
       if (!target || !target.isConnected) {
         return
       }
 
       if (toggleButtonRef.current?.contains(target)) {
+        return
+      }
+
+      const isClickInsideDropdown = dropdownRef.current?.contains(target) || false
+      if (isClickInsideDropdown && !closeWhenDropdownOptionClicked) {
         return
       }
 

@@ -38,7 +38,7 @@ type FriendSelectorProps = {
 const FriendSelector = ({ friendsHook }: FriendSelectorProps) => {
   const { user } = useUser()
   const [editingId, setEditingId] = useState<string | null>(null)
-  const { friendList, selectedFriend, setFriendList, setSelectedFriend } = friendsHook
+  const { friendList, selectedFriends, setFriendList, setSelectedFriends } = friendsHook
   const { isAddingFriend, setIsAddingFriend, addFriendRef } = useAddFriend()
 
   const { toggleButtonRef, dropdownRef, isDropdownOpen, setIsDropdownOpen } = useDropDownModal(
@@ -46,7 +46,8 @@ const FriendSelector = ({ friendsHook }: FriendSelectorProps) => {
       setIsDropdownOpen(false)
       setIsAddingFriend(false)
       setEditingId(null)
-    }
+    },
+    false
   )
 
   const {
@@ -79,7 +80,7 @@ const FriendSelector = ({ friendsHook }: FriendSelectorProps) => {
         }
         setFriendList((prev) => [...prev, newFriend])
         setIsAddingFriend(false)
-        setSelectedFriend(newFriend)
+        setSelectedFriends([newFriend])
       }
     } catch (error) {
       setErrorNew("root", {
@@ -97,11 +98,16 @@ const FriendSelector = ({ friendsHook }: FriendSelectorProps) => {
     }, 0)
   }
 
-  function handleSelect(friend: Friend) {
-    if (friend.printerId != editingId) {
-      setSelectedFriend(friend)
-      setIsDropdownOpen(false)
+  function handleSelect(selectedFriend: Friend) {
+    if (selectedFriend.printerId == editingId) {
+      return
     }
+    // add if not present, remove if present
+    setSelectedFriends(
+      selectedFriends.some((friend) => friend.printerId === selectedFriend.printerId)
+        ? selectedFriends.filter((friend) => friend.printerId !== selectedFriend.printerId)
+        : [...selectedFriends, selectedFriend]
+    )
   }
 
   const FriendItem = ({ friend }: { friend: Friend }) => {
@@ -119,7 +125,7 @@ const FriendSelector = ({ friendsHook }: FriendSelectorProps) => {
             <span>{friend.name}</span>
           </div>
 
-          {selectedFriend?.printerId === friend.printerId && <div className="ml-2 text-xs">✓</div>}
+          {selectedFriends?.includes(friend) && <div className="ml-2 text-xs">✓</div>}
         </div>
       </div>
     )
@@ -131,21 +137,23 @@ const FriendSelector = ({ friendsHook }: FriendSelectorProps) => {
         ref={toggleButtonRef}
         type="button"
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        className="w-full px-4 py-2 bg-[#e8e8e8] border-[1px] border-gray-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] cursor-pointer flex items-center justify-between"
+        className="w-full h-[40px] px-4 py-2 bg-[#e8e8e8] border-[1px] border-gray-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] cursor-pointer flex items-center justify-between"
       >
-        <div className="flex items-center">
-          {selectedFriend ? (
+        <div className="flex items-center overflow-hidden">
+          {selectedFriends.length > 0 ? (
             <>
-              <div className=" flex items-center justify-center mr-2">
+              <div className="flex items-center justify-center mr-2 flex-shrink-0">
                 <Image src="/images/Logo512BW.png" alt="Toaster" width={24} height={24} />
               </div>
-              <span>{selectedFriend.name}</span>
+              <div className="truncate">
+                {selectedFriends.map((friend) => friend.name).join(", ")}
+              </div>
             </>
           ) : (
             <span className="text-gray-500">Select toaster...</span>
           )}
         </div>
-        <ChevronDown size={14} />
+        <ChevronDown className="flex-shrink-0" size={14} />
       </button>
 
       {isDropdownOpen && (

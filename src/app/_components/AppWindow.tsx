@@ -7,17 +7,22 @@ import type { Friend, friendNameSchema } from "./_editorPage/FriendSelector"
 import { useEditorContext } from "../context/editorContext"
 import { changeNameAssociatedPrinters, removeAssociatedPrinters } from "@/lib/queries"
 import type { z } from "zod"
-import type { UseFormSetError } from "react-hook-form"
+import type { messageStatus } from "./MainWrapper"
 
 type AppWindowProps = {
   initialFriendList: Friend[]
-  status: string
-  setStatus: Dispatch<SetStateAction<string>>
+  messageStatus: messageStatus
+  setMessageStatus: Dispatch<SetStateAction<messageStatus>>
   hTMLContent: string
 }
 export type FriendListHook = ReturnType<typeof useFriendList>
 
-function AppWindow({ initialFriendList, status, setStatus, hTMLContent }: AppWindowProps) {
+function AppWindow({
+  initialFriendList,
+  messageStatus,
+  setMessageStatus,
+  hTMLContent,
+}: AppWindowProps) {
   const [pageActivated, setPageActivated] = useState<Pages>("Toast")
   const friendsHook: FriendListHook = useFriendList(initialFriendList)
   return (
@@ -27,8 +32,8 @@ function AppWindow({ initialFriendList, status, setStatus, hTMLContent }: AppWin
         {pageActivated === "Toast" && (
           <EditorPage
             friendsHook={friendsHook}
-            status={status}
-            setStatus={setStatus}
+            messageStatus={messageStatus}
+            setMessageStatus={setMessageStatus}
             hTMLContent={hTMLContent}
           />
         )}
@@ -40,28 +45,28 @@ function AppWindow({ initialFriendList, status, setStatus, hTMLContent }: AppWin
 }
 
 function useFriendList(initialFriendList: Friend[]) {
-  const [selectedFriend, setSelectedFriend] = useState<Friend | null>(() =>
+  const [selectedFriends, setSelectedFriends] = useState<Friend[]>(() =>
     getLastMessagedFriend(initialFriendList)
   )
   const [friendList, setFriendList] = useState<Friend[]>(initialFriendList)
   const { editorForm } = useEditorContext()
 
   useEffect(() => {
-    if (selectedFriend) {
-      editorForm.setValue("recipient", selectedFriend)
+    if (selectedFriends) {
+      editorForm.setValue("recipients", selectedFriends)
       editorForm.clearErrors()
     }
-  }, [selectedFriend])
+  }, [selectedFriends])
 
   const deleteFriend = async (userId: string, friendToDelete: Friend) => {
     const result = await removeAssociatedPrinters(userId, friendToDelete.printerId)
-    if (!result.succes) {
+    if (!result.success) {
       console.error(result)
       return
     }
     setFriendList((prev) => prev.filter((friend) => friend.printerId !== friendToDelete.printerId))
-    if (friendToDelete === selectedFriend) {
-      setSelectedFriend(getLastMessagedFriend(friendList))
+    if (selectedFriends.includes(friendToDelete)) {
+      setSelectedFriends(getLastMessagedFriend(friendList))
     }
   }
 
@@ -74,7 +79,7 @@ function useFriendList(initialFriendList: Friend[]) {
       const changed = await changeNameAssociatedPrinters(userId, printerId, data.name)
       if (changed.error) {
         return {
-          succes: false,
+          success: false,
           errorMessage: changed.error.message,
         }
       } else {
@@ -85,26 +90,26 @@ function useFriendList(initialFriendList: Friend[]) {
         )
 
         // Update selectedFriend if the changed friend is currently selected
-        setSelectedFriend((prev) =>
-          prev?.printerId === printerId ? { ...prev, name: data.name } : prev
-        )
+        // setSelectedFriends((prev) =>
+        //   prev?.printerId === printerId ? { ...prev, name: data.name } : prev
+        // )
       }
     } catch (error) {
       return {
-        succes: false,
+        success: false,
         errorMessage: "Server Error",
       }
     } finally {
       return {
-        succes: true,
+        success: true,
         errorMessage: "",
       }
     }
   }
 
   return {
-    selectedFriend,
-    setSelectedFriend,
+    selectedFriends,
+    setSelectedFriends,
     friendList,
     setFriendList,
     deleteFriend,
@@ -112,10 +117,11 @@ function useFriendList(initialFriendList: Friend[]) {
   }
 }
 
-function getLastMessagedFriend(friendList: Friend[]) {
-  if (friendList.length === 0) return null
+function getLastMessagedFriend(friendList: Friend[]): Friend[] | [] {
+  if (friendList.length === 0) return []
 
-  return friendList.reduce((mostRecent, current) => {
+  // Find the most recent message time
+  const mostRecentFriend = friendList.reduce((mostRecent, current) => {
     if (!mostRecent.lastSendMessage) return current
     if (!current.lastSendMessage) return mostRecent
 
@@ -123,5 +129,17 @@ function getLastMessagedFriend(friendList: Friend[]) {
       ? current
       : mostRecent
   })
+
+  // If no messages exist at all, return null
+  if (!mostRecentFriend.lastSendMessage) return []
+
+  // Find all friends who messaged at the same most recent time
+  const mostRecentTime = new Date(mostRecentFriend.lastSendMessage).getTime()
+  const tiedFriends = friendList.filter(
+    (friend) =>
+      friend.lastSendMessage && new Date(friend.lastSendMessage).getTime() === mostRecentTime
+  )
+
+  return tiedFriends
 }
 export default AppWindow
