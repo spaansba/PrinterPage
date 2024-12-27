@@ -46,26 +46,15 @@ function FriendsPage({ friendsHook }: FriendsPageProps) {
 
   async function handleNewName(data: z.infer<typeof friendNameSchema>, printerId: string) {
     if (!user) {
-      setErrorEdit("root", { message: "User Doesnt Exist" })
+      setErrorEdit("root", { message: "Failed to update name. Please try again." })
       return
     }
-    try {
-      const changed = await changeNameAssociatedPrinters(user.id, printerId, data.name)
-      if (changed.error) {
-        console.error(changed.error.message)
-        setErrorEdit("root", { message: changed.error.message })
-      } else {
-        setEditingId(null)
-        resetEdit()
-        friendsHook.setFriendList((prev) =>
-          prev.map((friend: Friend) =>
-            friend.printerId === printerId ? { ...friend, name: data.name } : friend
-          )
-        )
-      }
-    } catch (error) {
-      setErrorEdit("root", { message: "Failed to update name. Please try again." })
-      console.error(error)
+    const result = await friendsHook.changeFriendName(user.id, data, printerId)
+    if (result.succes) {
+      setEditingId(null)
+      resetEdit()
+    } else {
+      setErrorEdit("root", { message: result.errorMessage })
     }
   }
 

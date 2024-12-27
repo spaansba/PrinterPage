@@ -3,9 +3,11 @@ import TitleBar, { type Pages } from "./TitleBar"
 import EditorPage from "./_editorPage/EditorPage"
 import AccountPage from "./_accountPage/AccountPage"
 import FriendsPage from "./_friendsPage/FriendsPage"
-import type { Friend } from "./_editorPage/FriendSelector"
+import type { Friend, friendNameSchema } from "./_editorPage/FriendSelector"
 import { useEditorContext } from "../context/editorContext"
-import { removeAssociatedPrinters } from "@/lib/queries"
+import { changeNameAssociatedPrinters, removeAssociatedPrinters } from "@/lib/queries"
+import type { z } from "zod"
+import type { UseFormSetError } from "react-hook-form"
 
 type AppWindowProps = {
   initialFriendList: Friend[]
@@ -38,7 +40,6 @@ function AppWindow({ initialFriendList, status, setStatus, hTMLContent }: AppWin
 }
 
 function useFriendList(initialFriendList: Friend[]) {
-  // initialize selected friend with the most recent friend that the user send a message to
   const [selectedFriend, setSelectedFriend] = useState<Friend | null>(() =>
     getLastMessagedFriend(initialFriendList)
   )
@@ -60,11 +61,55 @@ function useFriendList(initialFriendList: Friend[]) {
     }
     setFriendList((prev) => prev.filter((friend) => friend.printerId !== friendToDelete.printerId))
     if (friendToDelete === selectedFriend) {
-      setSelectedFriend(getLastMessagedFriend(initialFriendList))
+      setSelectedFriend(getLastMessagedFriend(friendList))
     }
   }
 
-  return { selectedFriend, setSelectedFriend, friendList, setFriendList, deleteFriend }
+  const changeFriendName = async (
+    userId: string,
+    data: z.infer<typeof friendNameSchema>,
+    printerId: string
+  ) => {
+    try {
+      const changed = await changeNameAssociatedPrinters(userId, printerId, data.name)
+      if (changed.error) {
+        return {
+          succes: false,
+          errorMessage: changed.error.message,
+        }
+      } else {
+        setFriendList((prev) =>
+          prev.map((friend: Friend) =>
+            friend.printerId === printerId ? { ...friend, name: data.name } : friend
+          )
+        )
+
+        // Update selectedFriend if the changed friend is currently selected
+        setSelectedFriend((prev) =>
+          prev?.printerId === printerId ? { ...prev, name: data.name } : prev
+        )
+      }
+    } catch (error) {
+      return {
+        succes: false,
+        errorMessage: "Server Error",
+      }
+    } finally {
+      return {
+        succes: true,
+        errorMessage: "",
+      }
+    }
+  }
+
+  return {
+    selectedFriend,
+    setSelectedFriend,
+    friendList,
+    setFriendList,
+    deleteFriend,
+    changeFriendName,
+  }
 }
 
 function getLastMessagedFriend(friendList: Friend[]) {
