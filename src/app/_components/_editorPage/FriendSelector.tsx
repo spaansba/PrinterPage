@@ -1,11 +1,11 @@
 "use client"
 import React, { useEffect, useRef, useState } from "react"
-import { ChevronDown, Plus, Pencil, SendHorizonal, X } from "lucide-react"
+import { ChevronDown, Plus, Circle, CircleCheckBig, CircleMinus } from "lucide-react"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useUser } from "@clerk/nextjs"
-import { addAssociatedPrinters, changeNameAssociatedPrinters } from "@/lib/queries"
+import { addAssociatedPrinters } from "@/lib/queries"
 import Image from "next/image"
 import { useDropDownModal } from "../../_customHooks/useDropdownModal"
 import type { FriendListHook } from "../AppWindow"
@@ -111,8 +111,13 @@ const FriendSelector = ({ friendsHook }: FriendSelectorProps) => {
   }
 
   const FriendItem = ({ friend }: { friend: Friend }) => {
+    const isSelected = selectedFriends?.includes(friend)
     return (
-      <div className="group/friend hover:bg-[#e4d3b2] bg-[#e8e8e8]">
+      <div
+        className={`group/friend hover:bg-[#e4d3b2] ${
+          isSelected ? "bg-[#e4d3b2]" : "bg-[#e8e8e8]"
+        } `}
+      >
         <div
           onClick={() => handleSelect(friend)}
           className="flex w-full items-center px-4 py-2 hover:bg-[#e4d3b2] cursor-pointer"
@@ -124,8 +129,22 @@ const FriendSelector = ({ friendsHook }: FriendSelectorProps) => {
           <div className="flex flex-col">
             <span>{friend.name}</span>
           </div>
-
-          {selectedFriends?.includes(friend) && <div className="ml-2 text-xs">✓</div>}
+          <div className="ml-auto">
+            {isSelected ? (
+              <>
+                <div className="ml-2 text-xs group-hover/friend:hidden">
+                  <CircleCheckBig size={20} />
+                </div>
+                <div className="ml-2 text-xs hidden group-hover/friend:block">
+                  <CircleMinus size={20} />
+                </div>
+              </>
+            ) : (
+              <div className="ml-2 text-xs">
+                <Circle size={20} />
+              </div>
+            )}
+          </div>
         </div>
       </div>
     )
@@ -159,7 +178,7 @@ const FriendSelector = ({ friendsHook }: FriendSelectorProps) => {
       {isDropdownOpen && (
         <div
           ref={dropdownRef}
-          className="absolute w-[120%] -translate-x-[10%] mt-1 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]  bg-[#e8e8e8] border border-gray-500 z-10"
+          className="absolute w-[110%] -translate-x-[5%] mt-1 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]  bg-[#e8e8e8] border border-gray-500 z-10"
         >
           <div className="max-h-[30rem] overflow-y-auto">
             {friendList.map((friend) => (

@@ -2,12 +2,12 @@
 import { type Dispatch, type SetStateAction } from "react"
 import { EditorContent } from "@tiptap/react"
 import { useEditorContext } from "@/app/context/editorContext"
-import RecipientSelector from "./FriendSelector"
 import { Toolbar } from "./_editor/_toolbar/Toolbar"
 import ToasterStatusBar from "./StatusBar"
 import ToasterSendButton from "./ToasterSendButton"
 import type { FriendListHook } from "../AppWindow"
 import type { messageStatus } from "../MainWrapper"
+import FriendSelector from "./FriendSelector"
 
 type EditorPageProps = {
   hTMLContent: string
@@ -39,7 +39,7 @@ function EditorPage({
     <>
       <div>
         <div>
-          <RecipientSelector friendsHook={friendsHook} />
+          <FriendSelector friendsHook={friendsHook} />
           <Toolbar />
           <form className="text-[16px]">
             <div>
