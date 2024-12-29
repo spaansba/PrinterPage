@@ -8,6 +8,7 @@ import type { z } from "zod"
 import { useUser } from "@clerk/nextjs"
 import DeleteFriend from "./DeleteFriend"
 import { friendNameSchema } from "../_editorPage/AddNewFriendForm"
+import AddNewFriend from "../_editorPage/_friendSelector/AddNewFriend"
 
 type FriendsPageProps = {
   friendsHook: FriendListHook
@@ -63,19 +64,19 @@ function FriendsPage({ friendsHook }: FriendsPageProps) {
         {friendsHook.friendList.map((friend, index) => (
           <div
             key={friend.printerId}
-            className={`group/friend lg:hover:bg-[#e4d3b2] bg-[#e8e8e8] ${
+            className={`group/friend md:hover:bg-[#e4d3b2] bg-[#e8e8e8] ${
               index !== friendsHook.friendList.length - 1 ? "border-b border-gray-300" : ""
             }`}
           >
             <div
-              className="flex w-full items-center px-4 py-2 cursor-pointer"
+              className="flex w-full items-center px-2 py-2 cursor-pointer"
               title={`Last send Toast: ${friend.lastSendMessage.slice(
                 0,
                 friend.lastSendMessage.length - 4
               )}`}
             >
               <div className="flex items-center justify-center mr-2  rounded-lg p-1">
-                <Image src="/images/Logo512BW.png" alt="Toaster" width={34} height={34} />
+                <Image src="/images/Logo512BW.png" alt="Toaster" width={30} height={30} />
               </div>
               <div className="flex flex-col">
                 {editingId === friend.printerId ? (
@@ -143,6 +144,7 @@ function FriendsPage({ friendsHook }: FriendsPageProps) {
             )}
           </div>
         ))}
+        <AddNewFriend friendsHook={friendsHook} />
       </div>
     </>
   )

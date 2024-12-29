@@ -21,7 +21,7 @@ function DeleteFriend({ friendToDelete, deleteFriend }: DeleteFriendProps) {
       <button
         type="button"
         className="ml-auto relative before:absolute before:content-[''] before:-inset-3 before:z-10"
-        title="Edit Name"
+        title="Delete Friend"
         onClick={() => setShowDeleteModal(true)}
       >
         <Trash2 className="text-black relative z-20" size={18}></Trash2>

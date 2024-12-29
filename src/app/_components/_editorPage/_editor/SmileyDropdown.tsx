@@ -46,7 +46,7 @@ export default function SmileyDropdown({ editor }: SmileyDropdownProps) {
           e.preventDefault()
           onMouseDown(smiley.smiley)
         }}
-        className="w-full px-2 py-1 text-left text-black text-sm lg:hover:bg-[#e4d3b2]"
+        className="w-full px-2 py-1 text-left text-black text-sm md:hover:bg-[#e4d3b2]"
       >
         {smiley.smiley}
       </button>

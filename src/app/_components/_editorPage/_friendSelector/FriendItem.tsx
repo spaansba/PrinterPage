@@ -12,13 +12,13 @@ type FriendItemProps = {
 function FriendItem({ friend, isSelected, handleFriendSelect }: FriendItemProps) {
   return (
     <div
-      className={`group/friend lg:hover:bg-[#e4d3b2] ${
+      className={`group/friend md:hover:bg-[#e4d3b2] ${
         isSelected ? "bg-[#e4d3b2]" : "bg-[#e8e8e8]"
       } `}
     >
       <div
         onClick={() => handleFriendSelect(friend)}
-        className="flex w-full items-center px-4 py-2 lg:hover:bg-[#e4d3b2] cursor-pointer"
+        className="flex w-full items-center px-4 py-2 md:hover:bg-[#e4d3b2] cursor-pointer"
         title={`Toaster ID: ${friend.printerId}`}
       >
         <div className="flex items-center justify-center mr-2">

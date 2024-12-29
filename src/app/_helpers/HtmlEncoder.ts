@@ -144,7 +144,7 @@ const BoolCommands: BoolCommands = {
 }
 
 export async function HtmlEncoder(originalArray: Uint8Array, imageArray: string[]) {
-  let newArray = new Uint8Array(originalArray)
+  let newArray: Uint8Array = new Uint8Array(originalArray)
   debugArray(newArray, "Original")
 
   // Process boolean commands
@@ -192,7 +192,7 @@ function addLineBreaks(array: Uint8Array): Uint8Array {
 }
 
 function convertEntitiesToHex(array: Uint8Array): Uint8Array {
-  let result = new Uint8Array(array)
+  let result: Uint8Array = new Uint8Array(array)
 
   Object.values(HTML_ENTITIES).forEach((entity) => {
     const findSequence = new Uint8Array(entity.entity)
@@ -260,7 +260,18 @@ function removeBasicTags(array: Uint8Array): Uint8Array {
 
 // Add this debug helper function
 function debugArray(array: Uint8Array, label: string = ""): void {
-  const text = new TextDecoder().decode(array)
+  // Only run in development mode
+  if (typeof process !== "undefined" && process.env.NODE_ENV === "development") {
+    const text = new TextDecoder().decode(array)
+    const hex = Array.from(array)
+      .map((byte) => byte.toString(16).padStart(2, "0"))
+      .join(" ")
+
+    console.log(`${label ? label + " | " : ""}Length: ${array.length}`)
+    console.log(`Hex: ${hex}`)
+    console.log(`Text: ${text}`)
+    console.log("%c" + "─".repeat(80), "color: green")
+  }
 }
 
 function hexArrayFromString(str: string): number[] {

@@ -35,7 +35,7 @@ const DropdownItem = memo(
         e.preventDefault() // Prevent focus change
         onClick(size.value)
       }}
-      className={`w-full px-2 py-1 text-left text-black text-sm lg:hover:bg-[#e4d3b2] 
+      className={`w-full px-2 py-1 text-left text-black text-sm md:hover:bg-[#e4d3b2] 
     ${isSelected ? "bg-[#e4d3b2]" : ""}`}
     >
       {size.label}
