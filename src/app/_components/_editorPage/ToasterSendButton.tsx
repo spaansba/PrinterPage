@@ -23,7 +23,7 @@ function ToasterSendButton({
   const [buttonClickable, setButtonClickable] = useState(true)
   const { user } = useUser()
 
-  async function sendToast(userId: string, friend: Friend, content: Uint8Array<ArrayBufferLike>) {
+  async function sendToast(userId: string, friend: Friend, content: Uint8Array) {
     let result = {
       friend: friend.name,
       success: true,
