@@ -47,7 +47,15 @@ export function CustomEditorProvider({ children, handleTextChange }: CustomEdito
             class: "text-[13px]",
           },
         },
+        bulletList: false, // Disable bullet lists
+        orderedList: false, // Disable ordered lists
+        listItem: false, // Disable list items
+        blockquote: false, // Disable blockquotes
+        codeBlock: false, // Disable code blocks
+        heading: false, // Disable headings
+        horizontalRule: false, // Disable horizontal rule
       }),
+
       Underline,
       Highlight.configure({ multicolor: true, HTMLAttributes: { class: "color-white" } }),
       TextStyle,
