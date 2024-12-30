@@ -2,6 +2,7 @@
 import { db } from "./index"
 import {
   InsertUsersAssociatedPrinters,
+  printers,
   users,
   usersAssociatedPrinters,
   type newUserAssociatedPrinter,
@@ -197,10 +198,7 @@ export const removeAssociatedPrinters = async (userId: string, printerId: string
 }
 
 export const checkIfPrinterExists = async (printerId: string) => {
-  const result = await db.query.printers.findFirst({
-    where: (printers, { eq }) => eq(printers.id, printerId),
-  })
-  console.log(result)
+  const result = await db.query.printers.findFirst({ where: eq(printers.id, printerId) })
   return result !== undefined
 }
 

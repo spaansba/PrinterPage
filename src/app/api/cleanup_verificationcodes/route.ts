@@ -1,6 +1,7 @@
 import { cleanupExpiredCodes } from "@/lib/queries/printerVerificationCode"
 import { NextResponse, type NextRequest } from "next/server"
 
+// Get called ones a day by Vercel cron jobs (check vercel.json)
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get("authorization")
 
