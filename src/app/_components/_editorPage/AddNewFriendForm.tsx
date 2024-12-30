@@ -15,7 +15,7 @@ export const friendNameSchema = z.object({
     .max(20, { message: "Name is too long (max 20)" }),
 })
 
-const newFriendSchema = z.object({
+export const printerIdSchema = z.object({
   printerId: z
     .string()
     .min(10, { message: "Should be 10 characters long" })
@@ -36,13 +36,12 @@ function AddNewFriendForm({ friendsHook, setIsAddingFriend, addFriendRef }: AddN
     formState: { errors: errorsNew },
     reset: resetNew,
     setError: setErrorNew,
-    setFocus: setNewFocus,
-  } = useForm<z.infer<typeof newFriendSchema>>({
-    resolver: zodResolver(newFriendSchema),
+  } = useForm<z.infer<typeof printerIdSchema>>({
+    resolver: zodResolver(printerIdSchema),
     mode: "onSubmit",
   })
   const { user } = useUser()
-  async function handleFormSubmit(data: z.infer<typeof newFriendSchema>) {
+  async function handleFormSubmit(data: z.infer<typeof printerIdSchema>) {
     if (!user) {
       setErrorNew("root", { message: "User Doesnt Exist" })
       return

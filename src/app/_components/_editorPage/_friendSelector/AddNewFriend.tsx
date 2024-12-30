@@ -19,7 +19,7 @@ function AddNewFriend({ friendsHook }: AddNewFriendProps) {
   }
 
   return (
-    <div className="border-t border-gray-500">
+    <div className="border-t border-gray-500 bg-toastWhite">
       {isAddingFriend ? (
         <AddNewFriendForm
           setIsAddingFriend={setIsAddingFriend}
@@ -28,7 +28,7 @@ function AddNewFriend({ friendsHook }: AddNewFriendProps) {
         />
       ) : (
         <button
-          className="flex items-center w-full px-4 py-2 hover:bg-toastPrimaryHover cursor-pointer bg-toastWhite"
+          className="flex items-center w-full px-4 py-2 hover:bg-toastPrimaryHover cursor-pointer"
           onClick={handleNewFriendClick} // Dont change to mouse down!!
         >
           <div className="size-6 bg-toastPrimary border border-gray-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] flex items-center justify-center mr-2">

@@ -54,5 +54,19 @@ export const usersAssociatedPrinters = pgTable("printer_users_printer_associatio
     .notNull(),
 })
 
+export const verificationCodes = pgTable("verification_codes", {
+  id: serial("id").primaryKey(),
+  printerId: varchar("printer_id", { length: 10 })
+    .notNull()
+    .references(() => printers.id),
+  code: varchar("code", { length: 6 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  expiresAt: timestamp("expires_at")
+    .default(sql`NOW() + INTERVAL '5 minutes'`)
+    .notNull(),
+})
+
 export type newUserAssociatedPrinter = typeof usersAssociatedPrinters.$inferInsert
+export type newVerificationCode = typeof verificationCodes.$inferInsert
+export const InsertVerificationCode = createInsertSchema(verificationCodes)
 export const InsertUsersAssociatedPrinters = createInsertSchema(usersAssociatedPrinters)

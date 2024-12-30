@@ -196,6 +196,14 @@ export const removeAssociatedPrinters = async (userId: string, printerId: string
   }
 }
 
+export const checkIfPrinterExists = async (printerId: string) => {
+  const result = await db.query.printers.findFirst({
+    where: (printers, { eq }) => eq(printers.id, printerId),
+  })
+  console.log(result)
+  return result !== undefined
+}
+
 const checkIfPrinterIsAssociated = async (userId: string, printerId: string): Promise<boolean> => {
   const results = await db
     .select()
