@@ -115,7 +115,7 @@ function AddNewFriendForm({ friendsHook, setIsAddingFriend, addFriendRef }: AddN
       </div>
       <button
         type="submit"
-        className="flex justify-center bg-[#735721] hover:bg-[#e4d3b2] text-white  py-[6px]"
+        className="flex justify-center bg-toastTertiary hover:bg-toastPrimaryHover text-white  py-[6px]"
       >
         <Plus />
       </button>

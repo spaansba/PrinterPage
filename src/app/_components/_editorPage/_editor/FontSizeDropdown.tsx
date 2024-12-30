@@ -35,8 +35,8 @@ const DropdownItem = memo(
         e.preventDefault() // Prevent focus change
         onClick(size.value)
       }}
-      className={`w-full px-2 py-1 text-left text-black text-sm md:hover:bg-[#e4d3b2] 
-    ${isSelected ? "bg-[#e4d3b2]" : ""}`}
+      className={`w-full px-2 py-1 text-left text-black text-sm md:hover:bg-toastPrimaryHover 
+    ${isSelected ? "bg-toastPrimaryHover" : ""}`}
     >
       {size.label}
     </button>
@@ -140,7 +140,7 @@ const FontSizeDropdown: React.FC<FontSizeDropdownProps> = ({ editor }) => {
           "
           >
             {/* Dropdown content */}
-            <div className="bg-[#d4d0c8] w-full shadow-[inset_-1px_-1px_white]">
+            <div className="bg-toastPrimary w-full shadow-[inset_-1px_-1px_white]">
               {fontSizes.map((size) => (
                 <DropdownItem
                   key={size.value}

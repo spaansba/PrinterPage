@@ -24,7 +24,7 @@ function ImageButton() {
     <>
       <button
         onMouseDown={() => triggerImageUpload()}
-        className="size-7 flex items-center justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080]"
+        className="size-7 flex items-center justify-center bg-toastPrimary border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080]"
       >
         <ImageIcon size={15} />
       </button>

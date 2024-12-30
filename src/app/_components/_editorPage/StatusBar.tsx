@@ -63,7 +63,7 @@ export default function ToasterStatusBar({ messageStatus }: ToasterPageProps) {
   }
 
   return (
-    <div className="bg-[#d4d0c8] px-2 text-xs py-1 text-[11px]">
+    <div className="bg-toastPrimary px-2 text-xs py-1 text-[11px]">
       {messageStatus.sendStatus.length > 0 ? (
         <div className="flex flex-wrap items-center">
           {messageStatus.sendStatus.map(renderSendStatus)}

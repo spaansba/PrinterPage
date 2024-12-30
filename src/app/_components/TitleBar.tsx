@@ -31,11 +31,11 @@ function TitleBar({ pageActivated, setPageActivated }: TitleBarProps) {
   }, [pageActivated])
   return (
     <>
-      <div className="h-6 bg-[#735721] flex items-center justify-between px-2">
+      <div className="h-6 bg-toastTertiary flex items-center justify-between px-2">
         <span className="text-white text-sm font-bold">{Title()}</span>
       </div>
 
-      <div className="h-6 bg-[#d4d0c8] border-t border-[#808080] border-b flex items-center px-2 text-xs gap-[0.7rem]">
+      <div className="h-6 bg-toastPrimary border-t border-[#808080] border-b flex items-center px-2 text-xs gap-[0.7rem]">
         {pages.map((page) => (
           <button
             key={page}

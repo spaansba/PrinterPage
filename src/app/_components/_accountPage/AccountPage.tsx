@@ -22,12 +22,12 @@ function AccountPage() {
         <div className="grid  grid-cols-2 grid-rows-1 gap-1">
           <button
             onClick={() => setIsEditProfileModalOpen(true)}
-            className=" h-8 bg-[#d4d0c8] border-2 border-t-white border-l-white border-b-[#808080] border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white px-4 text-sm font-bold hover:bg-[#e6e3de]"
+            className=" h-8 bg-toastPrimary border-2 border-t-white border-l-white border-b-[#808080] border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white px-4 text-sm font-bold hover:bg-[#e6e3de]"
           >
             Edit
           </button>
           <SignOutButton>
-            <button className=" h-8 bg-[#d4d0c8] border-2 border-t-white border-l-white border-b-[#808080] border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white px-4 text-sm font-bold hover:bg-[#e6e3de]">
+            <button className=" h-8 bg-toastPrimary border-2 border-t-white border-l-white border-b-[#808080] border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white px-4 text-sm font-bold hover:bg-[#e6e3de]">
               Sign Out
             </button>
           </SignOutButton>

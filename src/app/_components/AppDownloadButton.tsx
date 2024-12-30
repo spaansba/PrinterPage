@@ -146,7 +146,7 @@ const AppDownloadButton = () => {
     <>
       <button
         onClick={handleInstallClick}
-        className="flex items-center gap-2 px-4 py-2 text-white bg-[#735721] rounded-lg"
+        className="flex items-center gap-2 px-4 py-2 text-white bg-toastTertiary rounded-lg"
       >
         {platform === "ios" ? <Share className="w-5 h-5" /> : <Download className="w-5 h-5" />}
         <span>Install App</span>

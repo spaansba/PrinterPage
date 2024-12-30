@@ -133,7 +133,7 @@ const CameraModal: React.FC<CameraModalProps> = ({ isOpen, onClose, onCapture })
 
   return (
     <div className="fixed inset-0 flex items-start justify-center bg-black/50 z-50">
-      <div className="bg-[#d4d0c8] border-2 border-[#dfdfdf] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] w-full max-w-xl">
+      <div className="bg-toastPrimary border-2 border-[#dfdfdf] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] w-full max-w-xl">
         <CameraTitle onClose={onClose} />
         <div className="p-4">
           <CameraPreview

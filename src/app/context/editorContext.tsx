@@ -47,13 +47,13 @@ export function CustomEditorProvider({ children, handleTextChange }: CustomEdito
             class: "text-[13px]",
           },
         },
-        bulletList: false, // Disable bullet lists
-        orderedList: false, // Disable ordered lists
-        listItem: false, // Disable list items
-        blockquote: false, // Disable blockquotes
-        codeBlock: false, // Disable code blocks
-        heading: false, // Disable headings
-        horizontalRule: false, // Disable horizontal rule
+        bulletList: false,
+        orderedList: false,
+        listItem: false,
+        blockquote: false,
+        codeBlock: false,
+        heading: false,
+        horizontalRule: false,
       }),
 
       Underline,

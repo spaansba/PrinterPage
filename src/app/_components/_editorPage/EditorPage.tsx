@@ -50,7 +50,7 @@ function EditorPage({
                 spellCheck="false"
               />
               {getFirstFormError() && (
-                <div className="bg-[#d4d0c8] border-t border-[#808080] px-2 py-1">
+                <div className="bg-toastPrimary border-t border-[#808080] px-2 py-1">
                   <span className="text-red-500 text-xs">{getFirstFormError()}</span>
                 </div>
               )}

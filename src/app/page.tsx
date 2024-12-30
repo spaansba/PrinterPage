@@ -15,7 +15,7 @@ export default async function Home() {
   }))
 
   return (
-    <div className="flex flex-col items-center justify-center p-2 gap-6 font-mono text-black bg-[#d4d0c8]">
+    <div className="flex flex-col items-center justify-center p-2 gap-6 font-mono text-black bg-toastPrimary">
       <MainWrapper initialFriendList={serverFriendList}></MainWrapper>
 
       <AppDownloadButton />

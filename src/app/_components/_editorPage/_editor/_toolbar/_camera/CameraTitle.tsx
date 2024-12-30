@@ -7,7 +7,7 @@ type CameraTitleProps = {
 
 function CameraTitle({ onClose }: CameraTitleProps) {
   return (
-    <div className="bg-[#735721] px-2 py-1 flex items-center justify-between text-white">
+    <div className="bg-toastTertiary px-2 py-1 flex items-center justify-between text-white">
       <div className="flex items-center gap-2">
         <CameraIcon size={14} />
         <span className="text-sm">Take Photo</span>

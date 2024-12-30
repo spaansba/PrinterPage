@@ -46,7 +46,7 @@ export default function SmileyDropdown({ editor }: SmileyDropdownProps) {
           e.preventDefault()
           onMouseDown(smiley.smiley)
         }}
-        className="w-full px-2 py-1 text-left text-black text-sm md:hover:bg-[#e4d3b2]"
+        className="w-full px-2 py-1 text-left text-black text-sm md:hover:bg-toastPrimaryHover"
       >
         {smiley.smiley}
       </button>
@@ -80,7 +80,7 @@ export default function SmileyDropdown({ editor }: SmileyDropdownProps) {
           e.preventDefault()
           setIsOpen(!isOpen)
         }}
-        className="size-7 flex items-center justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
+        className="size-7 flex items-center justify-center bg-toastPrimary border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
       >
         <Smile size={15} />
       </button>
@@ -94,7 +94,7 @@ export default function SmileyDropdown({ editor }: SmileyDropdownProps) {
             w-[160px]
           "
         >
-          <div className="bg-[#d4d0c8] shadow-[inset_-1px_-1px_white] grid grid-cols-2">
+          <div className="bg-toastPrimary shadow-[inset_-1px_-1px_white] grid grid-cols-2">
             {smileys.map((smiley) => (
               <DropdownItem
                 key={smiley.alt}

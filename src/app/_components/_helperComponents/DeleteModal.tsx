@@ -20,8 +20,8 @@ function DeleteModal({
     <>
       {showDeleteModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-          <div className="bg-[#d4d0c8] border-2 border-[#dfdfdf] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] w-80">
-            <div className="bg-[#735721] px-2 py-1 flex items-center justify-between text-white">
+          <div className="bg-toastPrimary border-2 border-[#dfdfdf] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] w-80">
+            <div className="bg-toastTertiary px-2 py-1 flex items-center justify-between text-white">
               <div className="flex items-center gap-2">
                 <AlertTriangle size={14} />
                 <span className="text-sm">{titleText}</span>
@@ -38,19 +38,19 @@ function DeleteModal({
                 <p className="text-sm">{messageText}</p>
               </div>
 
-              <div className="flex justify-end gap-1 bg-[#d4d0c8]">
+              <div className="flex justify-end gap-1 bg-toastPrimary">
                 <button
                   onClick={() => {
                     setShowDeleteModal(false)
                     handleOnDeleteClick()
                   }}
-                  className="h-7 px-4 flex items-center justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
+                  className="h-7 px-4 flex items-center justify-center bg-toastPrimary border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
                 >
                   Delete
                 </button>
                 <button
                   onClick={() => setShowDeleteModal(false)}
-                  className="h-7 px-4 flex items-center justify-center bg-[#d4d0c8] border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
+                  className="h-7 px-4 flex items-center justify-center bg-toastPrimary border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
                 >
                   Cancel
                 </button>

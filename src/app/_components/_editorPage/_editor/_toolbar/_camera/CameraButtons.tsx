@@ -18,7 +18,7 @@ function CameraButtons({
 }: CameraButtonsProps) {
   return (
     <>
-      <div className="flex justify-between items-center gap-1 bg-[#d4d0c8]">
+      <div className="flex justify-between items-center gap-1 bg-toastPrimary">
         <CaptureButton handleCaptureWebcam={handleCaptureWebcam} isStreaming={isStreaming} />
         <ChangeFacingModeButton
           handleSwitchCamera={handleSwitchCamera}

@@ -46,14 +46,14 @@ const FriendSelector = ({ friendsHook }: FriendSelectorProps) => {
         ref={toggleButtonRef}
         type="button"
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        className="w-full min-h-[40px] px-4 py-2 bg-[#e8e8e8] border-[1px] border-gray-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] cursor-pointer flex items-start justify-between"
+        className="w-full min-h-[40px] px-4 py-2 bg-toastWhite border-[1px] border-gray-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] cursor-pointer flex items-start justify-between"
       >
         <SelectedToastersView selectedFriends={selectedFriends} />
       </button>
       {isDropdownOpen && (
         <div
           ref={dropdownRef}
-          className="absolute w-[110%] -translate-x-[5%] mt-1 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]  bg-[#e8e8e8] border border-gray-500 z-10"
+          className="absolute w-[110%] -translate-x-[5%] mt-1 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]  bg-toastWhite border border-gray-500 z-10"
         >
           <FriendSelectorModal handleFriendSelect={handleFriendSelect} friendsHook={friendsHook} />
         </div>
