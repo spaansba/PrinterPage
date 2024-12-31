@@ -6,21 +6,15 @@ import type { z } from "zod"
 import { getUserName, updatedUserName } from "@/lib/queries"
 import { Loader2, Pencil, SendHorizonal, X } from "lucide-react"
 import { friendNameSchema } from "../../_editorPage/AddNewFriendForm"
+import { useToasterUser } from "@/app/context/userDataContext"
 
 const usernameCache = new Map<string, string>()
 
 function UserName() {
   const { user } = useUser()
-  const {
-    isLoadingUsername,
-    dbUsername,
-    setDbUsername,
-    isEditingUsername,
-    setIsEditingUsername,
-    isUpdatingUsername,
-    setIsUpdatingUsername,
-  } = useUsername()
-
+  const [isEditingUsername, setIsEditingUsername] = useState(false)
+  const [isUpdatingUsername, setIsUpdatingUsername] = useState(false)
+  const { username, setUsername } = useToasterUser()
   const {
     register: registerEdit,
     handleSubmit: handleSubmitEdit,
@@ -40,6 +34,7 @@ function UserName() {
       setEditFocus("name")
     }, 0)
   }
+
   async function handleNewUserName(data: z.infer<typeof friendNameSchema>) {
     if (!user) {
       setErrorEdit("root", { message: "User Doesn't Exist" })
@@ -49,9 +44,7 @@ function UserName() {
     try {
       setIsUpdatingUsername(true)
       await updatedUserName(user.id, data.name)
-      // Update cache when username changes
-      usernameCache.set(user.id, data.name)
-      setDbUsername(data.name)
+      setUsername(data.name)
       setIsEditingUsername(false)
     } catch (error) {
       console.error("Error updating username:", error)
@@ -71,7 +64,7 @@ function UserName() {
             <input
               {...registerEdit("name")}
               className="w-[120px] border-[1px] text-[16px] px-1 py-0.5 rounded"
-              defaultValue={dbUsername}
+              defaultValue={username}
               placeholder="Enter username"
             />
             <button
@@ -97,9 +90,7 @@ function UserName() {
           </form>
         ) : (
           <div className="flex">
-            <span className="truncate">
-              {isLoadingUsername ? <Loader2 className="size-4 animate-spin" /> : dbUsername}
-            </span>
+            <span className="truncate">{username}</span>
             <button title="Edit Username" className="ml-auto" onClick={handleEditClick}>
               <Pencil size={14} />
             </button>
@@ -109,50 +100,6 @@ function UserName() {
       {errorsEdit.name && <span className="text-red-500 text-sm">{errorsEdit.name.message}</span>}
     </>
   )
-}
-
-function useUsername() {
-  const { user } = useUser()
-  const [isLoadingUsername, setIsLoadingUsername] = useState(false)
-  const [dbUsername, setDbUsername] = useState("")
-  const [isEditingUsername, setIsEditingUsername] = useState(false)
-  const [isUpdatingUsername, setIsUpdatingUsername] = useState(false)
-  useEffect(() => {
-    const loadUsername = async () => {
-      if (!user) return
-
-      try {
-        setIsLoadingUsername(true)
-
-        const cachedUsername = usernameCache.get(user.id)
-        if (cachedUsername) {
-          setDbUsername(cachedUsername)
-          setIsLoadingUsername(false)
-          return
-        }
-
-        const userName = await getUserName(user.id)
-        usernameCache.set(user.id, userName)
-        setDbUsername(userName)
-      } catch (error) {
-        console.error("Error fetching username:", error)
-        setDbUsername("Error loading username")
-      } finally {
-        setIsLoadingUsername(false)
-      }
-    }
-
-    loadUsername()
-  }, [user])
-  return {
-    isLoadingUsername,
-    dbUsername,
-    setDbUsername,
-    isEditingUsername,
-    setIsEditingUsername,
-    isUpdatingUsername,
-    setIsUpdatingUsername,
-  }
 }
 
 export default UserName

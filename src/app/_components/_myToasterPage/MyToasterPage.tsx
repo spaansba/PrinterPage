@@ -1,20 +1,17 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import ToasterIdForm from "./ToasterIdForm"
 import VerificationForm from "./VerificationForm"
 import {
   checkVerificationCode,
   createValidatedUserEntry,
-  getPairedToasters,
   incrementVerificationAttempt,
 } from "@/lib/queries/printerVerificationCode"
 import type { UseFormSetError } from "react-hook-form"
-import { useUser } from "@clerk/nextjs"
 import PairedToasterContainer from "./PairedToasterContainer"
+import { useToasterUser } from "@/app/context/userDataContext"
 
 function MyToasterPage() {
-  const { user } = useUser()
-  const { pairedToasters, setPairedToasters } = useToasterPairing(user!.id)
-  console.log(pairedToasters)
+  const { pairedToasters, setPairedToasters } = useToasterUser()
   const [showVerificationForm, setShowVerificationForm] = useState(false)
   const [printerId, setPrinterId] = useState("")
 
@@ -52,7 +49,9 @@ function MyToasterPage() {
       return
     }
     setShowVerificationForm(false)
+    setPairedToasters((prev) => [...prev, printerId])
   }
+
   return (
     <>
       {pairedToasters.length > 0 && (
@@ -87,20 +86,20 @@ function MyToasterPage() {
   )
 }
 
-const useToasterPairing = (userId: string) => {
-  const [pairedToasters, setPairedToasters] = useState<string[]>([])
+// const useToasterPairing = (userId: string) => {
+//   const [pairedToasters, setPairedToasters] = useState<string[]>([])
 
-  useEffect(() => {
-    const fetchPairedToasters = async () => {
-      const paired = await getPairedToasters(userId)
-      const printerIds = paired.map((printer) => printer.printerId)
-      setPairedToasters(printerIds)
-    }
+//   useEffect(() => {
+//     const fetchPairedToasters = async () => {
+//       const paired = await getPairedToasters(userId)
+//       const printerIds = paired.map((printer) => printer.printerId)
+//       setPairedToasters(printerIds)
+//     }
 
-    fetchPairedToasters()
-  }, [userId])
+//     fetchPairedToasters()
+//   }, [userId])
 
-  return { pairedToasters, setPairedToasters }
-}
+//   return { pairedToasters, setPairedToasters }
+// }
 
 export default MyToasterPage

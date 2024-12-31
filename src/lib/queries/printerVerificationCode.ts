@@ -19,7 +19,7 @@ export const getPairedToasters = async (userId: string) => {
     .select()
     .from(printerUserPairing)
     .where(eq(printerUserPairing.userId, userId))
-  return pairedToasters
+  return pairedToasters.map((toaster) => toaster.printerId)
 }
 
 export const checkIfAlreadyPaired = async (printerId: string, userId: string) => {
@@ -156,33 +156,6 @@ export const cleanupVerificationAttempts = async () => {
     console.error("Error cleaning up expired codes:", error)
   }
 }
-
-// export const incrementPrinterMessageStats = async (userId: string, associatedPrinterId: string) => {
-//   const exists = await checkIfPrinterIsAssociated(userId, associatedPrinterId)
-//   if (!exists) {
-//     return
-//   }
-
-//   // Global message counter
-//   await db
-//     .update(users)
-//     .set({ messagesSend: sql`${users.messagesSend} + 1` })
-//     .where(eq(users.id, userId))
-
-//   // Message counter per associated printer ID
-//   await db
-//     .update(usersAssociatedPrinters)
-//     .set({
-//       lastSendMessage: new Date().toISOString(),
-//       messagesSendToAssociatedPrinter: sql`${usersAssociatedPrinters.messagesSendToAssociatedPrinter} + 1`,
-//     })
-//     .where(
-//       and(
-//         eq(usersAssociatedPrinters.userId, userId),
-//         eq(usersAssociatedPrinters.associatedPrinterId, associatedPrinterId)
-//       )
-//     )
-// }
 
 export const incrementVerificationAttempt = async (userId: string) => {
   const now = new Date()

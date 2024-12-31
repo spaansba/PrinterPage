@@ -3,13 +3,8 @@ import { useState } from "react"
 import { CustomEditorProvider } from "../context/editorContext"
 import { SignInButton, useAuth } from "@clerk/nextjs"
 import Image from "next/image"
-import type { Friend } from "./_editorPage/_friendSelector/FriendSelector"
 import AppWindow from "./AppWindow"
-import { HtmlContext } from "next/dist/shared/lib/html-context.shared-runtime"
-
-type MainWrapperProps = {
-  initialFriendList: Friend[]
-}
+import { useToasterUser } from "../context/userDataContext"
 
 export type SendStatus = {
   friend: string
@@ -22,7 +17,7 @@ export type messageStatus = {
   sendStatus: SendStatus[] | []
 }
 
-function MainWrapper({ initialFriendList }: MainWrapperProps) {
+function MainWrapper() {
   const { isLoaded, isSignedIn } = useAuth()
   const [messageStatus, setMessageStatus] = useState<messageStatus>({
     editorStatus: "",
@@ -47,7 +42,6 @@ function MainWrapper({ initialFriendList }: MainWrapperProps) {
     return (
       <CustomEditorProvider handleTextChange={handleTextChange}>
         <AppWindow
-          initialFriendList={initialFriendList}
           messageStatus={messageStatus}
           setMessageStatus={setMessageStatus}
           hTMLContent={hTMLContent}

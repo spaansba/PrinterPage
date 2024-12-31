@@ -11,23 +11,18 @@ import type { messageStatus } from "./MainWrapper"
 import type { Friend } from "./_editorPage/_friendSelector/FriendSelector"
 import type { friendNameSchema } from "./_editorPage/AddNewFriendForm"
 import MyToasterPage from "./_myToasterPage/MyToasterPage"
+import { useToasterUser } from "../context/userDataContext"
 
 type AppWindowProps = {
-  initialFriendList: Friend[]
   messageStatus: messageStatus
   setMessageStatus: Dispatch<SetStateAction<messageStatus>>
   hTMLContent: string
 }
 export type FriendListHook = ReturnType<typeof useFriendList>
 
-function AppWindow({
-  initialFriendList,
-  messageStatus,
-  setMessageStatus,
-  hTMLContent,
-}: AppWindowProps) {
+function AppWindow({ messageStatus, setMessageStatus, hTMLContent }: AppWindowProps) {
   const [pageActivated, setPageActivated] = useState<Pages>("Toast")
-  const friendsHook: FriendListHook = useFriendList(initialFriendList)
+  const friendsHook = useFriendList()
   return (
     <>
       <div className="w-[288px] border-t-2 border-l-2 border-white border-b-2 border-r-2 border-b-[#808080] border-r-[#808080] shadow-[2px_2px_8px_rgba(0,0,0,0.2)]">
@@ -48,11 +43,11 @@ function AppWindow({
   )
 }
 
-function useFriendList(initialFriendList: Friend[]) {
+function useFriendList() {
+  const { friendList, setFriendList } = useToasterUser()
   const [selectedFriends, setSelectedFriends] = useState<Friend[]>(() =>
-    getLastMessagedFriend(initialFriendList)
+    getLastMessagedFriend(friendList)
   )
-  const [friendList, setFriendList] = useState<Friend[]>(initialFriendList)
   const { editorForm } = useEditorContext()
 
   useEffect(() => {
