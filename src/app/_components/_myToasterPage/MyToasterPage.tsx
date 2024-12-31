@@ -1,14 +1,20 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import ToasterIdForm from "./ToasterIdForm"
 import VerificationForm from "./VerificationForm"
 import {
   checkVerificationCode,
   createValidatedUserEntry,
+  getPairedToasters,
   incrementVerificationAttempt,
 } from "@/lib/queries/printerVerificationCode"
 import type { UseFormSetError } from "react-hook-form"
+import { useUser } from "@clerk/nextjs"
+import PairedToasterContainer from "./PairedToasterContainer"
 
 function MyToasterPage() {
+  const { user } = useUser()
+  const { pairedToasters, setPairedToasters } = useToasterPairing(user!.id)
+  console.log(pairedToasters)
   const [showVerificationForm, setShowVerificationForm] = useState(false)
   const [printerId, setPrinterId] = useState("")
 
@@ -48,29 +54,53 @@ function MyToasterPage() {
     setShowVerificationForm(false)
   }
   return (
-    <div className="flex flex-col h-full bg-toastWhite border-t border-[1px] border-gray-500">
-      <div className="p-4">
-        <div className="mb-6">
-          <h1 className="text-lg font-normal mb-4">Work in Progress</h1>
-          <p className="text-sm mb-4">
-            Enter your toaster's unique ID to connect it to your account.
-          </p>
-        </div>
-        <ToasterIdForm
-          setShowVerificationForm={setShowVerificationForm}
-          printerId={printerId}
-          setPrinterId={setPrinterId}
+    <>
+      {pairedToasters.length > 0 && (
+        <PairedToasterContainer
+          pairedToasters={pairedToasters}
+          setPairedToasters={setPairedToasters}
         />
-        {showVerificationForm && (
-          <VerificationForm
-            showVerificationModal={showVerificationForm}
-            setShowVerificationModal={setShowVerificationForm}
-            handleVerificationSubmit={handleVerificationSubmit}
+      )}
+      <div className="flex flex-col h-full bg-toastWhite border-t border-[1px] border-gray-500">
+        <div className="p-4">
+          <div className="mb-6">
+            <h1 className="text-lg font-normal mb-4">Work in Progress</h1>
+            <p className="text-sm mb-4">
+              Enter your toaster's unique ID to connect it to your account.
+            </p>
+          </div>
+          <ToasterIdForm
+            setShowVerificationForm={setShowVerificationForm}
+            printerId={printerId}
+            setPrinterId={setPrinterId}
           />
-        )}
+          {showVerificationForm && (
+            <VerificationForm
+              showVerificationModal={showVerificationForm}
+              setShowVerificationModal={setShowVerificationForm}
+              handleVerificationSubmit={handleVerificationSubmit}
+            />
+          )}
+        </div>
       </div>
-    </div>
+    </>
   )
+}
+
+const useToasterPairing = (userId: string) => {
+  const [pairedToasters, setPairedToasters] = useState<string[]>([])
+
+  useEffect(() => {
+    const fetchPairedToasters = async () => {
+      const paired = await getPairedToasters(userId)
+      const printerIds = paired.map((printer) => printer.printerId)
+      setPairedToasters(printerIds)
+    }
+
+    fetchPairedToasters()
+  }, [userId])
+
+  return { pairedToasters, setPairedToasters }
 }
 
 export default MyToasterPage

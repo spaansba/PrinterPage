@@ -14,6 +14,14 @@ import {
 import { db } from ".."
 import { createCode, sendCodeToUser } from "../helpers"
 
+export const getPairedToasters = async (userId: string) => {
+  const pairedToasters = await db
+    .select()
+    .from(printerUserPairing)
+    .where(eq(printerUserPairing.userId, userId))
+  return pairedToasters
+}
+
 export const checkIfAlreadyPaired = async (printerId: string, userId: string) => {
   return await db
     .select()
