@@ -3,7 +3,7 @@ import { z } from "zod"
 import { printerIdSchema } from "../_editorPage/AddNewFriendForm"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { checkIfPrinterExists } from "@/lib/queries"
-import { createVerificationCode } from "@/lib/queries/printerVerificationCode"
+import { checkIfAlreadyPaired, createVerificationCode } from "@/lib/queries/printerVerificationCode"
 import { randomBytes } from "crypto"
 import { useUser } from "@clerk/nextjs"
 import type { Dispatch, SetStateAction } from "react"
@@ -41,10 +41,17 @@ function ToasterIdForm({ setShowVerificationForm, printerId, setPrinterId }: Toa
     }
     try {
       const printerIdExists = await checkIfPrinterExists(data.printerId)
+
       if (!printerIdExists) {
         setErrorNew("root", { message: "Toaster ID doesn't exist" })
         return
       }
+      // const isAlreadyPaired = await checkIfAlreadyPaired(data.printerId, user.id)
+
+      // if (isAlreadyPaired) {
+      //   setErrorNew("root", { message: "Toaster is already paired to your account" })
+      //   return
+      // }
       const x = await createVerificationCode(data.printerId, createCode())
       if (!x) {
         setErrorNew("root", {

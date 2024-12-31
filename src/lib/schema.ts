@@ -16,6 +16,21 @@ export const printerUserPairing = pgTable("user_pairing", {
   updatedAt: timestamp("updatedAt", { mode: "string" }),
 })
 
+export const verificationAttempts = pgTable("verification_attempts", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 256 })
+    .notNull()
+    .references(() => users.id),
+  countLastHour: integer("count_last_hour").default(0),
+  expiresAt: timestamp("expires_at")
+    .default(sql`NOW() + INTERVAL '60 minutes'`)
+    .notNull(),
+  createdAt: timestamp("created_at", { mode: "string" })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updatedAt", { mode: "string" }),
+})
+
 export const printerSubscriptions = pgTable("subscriptions", {
   id: serial("id").primaryKey(),
   printerId: varchar("printer_id", { length: 10 })
@@ -72,6 +87,9 @@ export const verificationCodes = pgTable("verification_codes", {
     .default(sql`NOW() + INTERVAL '5 minutes'`)
     .notNull(),
 })
+
+export type newVerificationAttempts = typeof verificationAttempts.$inferInsert
+export const InsertVerificationAttempts = createInsertSchema(verificationAttempts)
 
 export type newPrinterUserPairing = typeof printerUserPairing.$inferInsert
 export const InsertPrinterUserPairing = createInsertSchema(printerUserPairing)

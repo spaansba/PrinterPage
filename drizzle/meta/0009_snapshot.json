@@ -1,11 +1,50 @@
 {
-  "id": "8519390a-b75d-4119-9567-b7466b3ee175",
-  "prevId": "c9e21052-abc5-405f-918d-199cd9a6abbf",
+  "id": "96ab76e0-e6d6-44dc-aa52-8cd29253f983",
+  "prevId": "d895292d-dab2-4a8a-bfb7-f45a0ec2a699",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.printer_pairing": {
-      "name": "printer_pairing",
+    "public.subscriptions": {
+      "name": "subscriptions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "printer_id": {
+          "name": "printer_id",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "subscriptions_printer_id_printer_printers_id_fk": {
+          "name": "subscriptions_printer_id_printer_printers_id_fk",
+          "tableFrom": "subscriptions",
+          "tableTo": "printer_printers",
+          "columnsFrom": [
+            "printer_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.user_pairing": {
+      "name": "user_pairing",
       "schema": "",
       "columns": {
         "id": {
@@ -42,9 +81,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "printer_pairing_printer_id_printer_printers_id_fk": {
-          "name": "printer_pairing_printer_id_printer_printers_id_fk",
-          "tableFrom": "printer_pairing",
+        "user_pairing_printer_id_printer_printers_id_fk": {
+          "name": "user_pairing_printer_id_printer_printers_id_fk",
+          "tableFrom": "user_pairing",
           "tableTo": "printer_printers",
           "columnsFrom": [
             "printer_id"
@@ -55,51 +94,12 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "printer_pairing_user_id_printer_users_id_fk": {
-          "name": "printer_pairing_user_id_printer_users_id_fk",
-          "tableFrom": "printer_pairing",
+        "user_pairing_user_id_printer_users_id_fk": {
+          "name": "user_pairing_user_id_printer_users_id_fk",
+          "tableFrom": "user_pairing",
           "tableTo": "printer_users",
           "columnsFrom": [
             "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.printer_subscriptions": {
-      "name": "printer_subscriptions",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "printer_id": {
-          "name": "printer_id",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "printer_subscriptions_printer_id_printer_printers_id_fk": {
-          "name": "printer_subscriptions_printer_id_printer_printers_id_fk",
-          "tableFrom": "printer_subscriptions",
-          "tableTo": "printer_printers",
-          "columnsFrom": [
-            "printer_id"
           ],
           "columnsTo": [
             "id"
@@ -274,6 +274,72 @@
           "tableTo": "printer_printers",
           "columnsFrom": [
             "associated_printer_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.verification_attempts": {
+      "name": "verification_attempts",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "count_last_hour": {
+          "name": "count_last_hour",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "NOW() + INTERVAL '60 minutes'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "verification_attempts_user_id_printer_users_id_fk": {
+          "name": "verification_attempts_user_id_printer_users_id_fk",
+          "tableFrom": "verification_attempts",
+          "tableTo": "printer_users",
+          "columnsFrom": [
+            "user_id"
           ],
           "columnsTo": [
             "id"
