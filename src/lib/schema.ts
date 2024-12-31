@@ -2,8 +2,8 @@ import { sql } from "drizzle-orm"
 import { pgTable, varchar, timestamp, serial, integer } from "drizzle-orm/pg-core"
 import { createInsertSchema } from "drizzle-zod"
 
-export const pairing = pgTable("printer_pairing", {
-  id: varchar("id", { length: 256 }).primaryKey(),
+export const printerUserPairing = pgTable("user_pairing", {
+  id: serial("id").primaryKey(),
   printerId: varchar("printer_id", { length: 10 })
     .notNull()
     .references(() => printers.id),
@@ -14,6 +14,13 @@ export const pairing = pgTable("printer_pairing", {
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
   updatedAt: timestamp("updatedAt", { mode: "string" }),
+})
+
+export const printerSubscriptions = pgTable("subscriptions", {
+  id: serial("id").primaryKey(),
+  printerId: varchar("printer_id", { length: 10 })
+    .notNull()
+    .references(() => printers.id),
 })
 
 export const users = pgTable("printer_users", {
@@ -66,7 +73,11 @@ export const verificationCodes = pgTable("verification_codes", {
     .notNull(),
 })
 
+export type newPrinterUserPairing = typeof printerUserPairing.$inferInsert
+export const InsertPrinterUserPairing = createInsertSchema(printerUserPairing)
+
 export type newUserAssociatedPrinter = typeof usersAssociatedPrinters.$inferInsert
+export const InsertUsersAssociatedPrinters = createInsertSchema(usersAssociatedPrinters)
+
 export type newVerificationCode = typeof verificationCodes.$inferInsert
 export const InsertVerificationCode = createInsertSchema(verificationCodes)
-export const InsertUsersAssociatedPrinters = createInsertSchema(usersAssociatedPrinters)

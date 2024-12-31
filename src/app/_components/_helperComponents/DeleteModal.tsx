@@ -19,7 +19,7 @@ function DeleteModal({
   return (
     <>
       {showDeleteModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+        <div className="fixed inset-0 flex items-start pt-24  justify-center bg-black/50 z-50">
           <div className="bg-toastPrimary border-2 border-[#dfdfdf] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] w-80">
             <div className="bg-toastTertiary px-2 py-1 flex items-center justify-between text-white">
               <div className="flex items-center gap-2">

@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "generate": "drizzle-kit generate",
+    "push": "drizzle-kit push",
     "migrate": "drizzle-kit migrate",
     "studio": "drizzle-kit studio"
   },

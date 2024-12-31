@@ -1,7 +1,27 @@
 "use server"
 import { and, eq, gt, lt } from "drizzle-orm"
-import { InsertVerificationCode, verificationCodes, type newVerificationCode } from "../schema"
+import {
+  InsertPrinterUserPairing,
+  InsertVerificationCode,
+  printerUserPairing,
+  verificationCodes,
+  type newPrinterUserPairing,
+  type newVerificationCode,
+} from "../schema"
 import { db } from ".."
+
+export const checkIfAlreadyPaired = async (printerId: string, userId: string) => {}
+
+export const createValidatedUserEntry = async (printerId: string, userId: string) => {
+  const newPairing: newPrinterUserPairing = {
+    printerId: printerId,
+    userId: userId,
+  }
+  const validatedPairing = InsertPrinterUserPairing.parse(newPairing)
+  console.log(validatedPairing)
+  const result = await db.insert(printerUserPairing).values(validatedPairing)
+  console.log(result)
+}
 
 export const createVerificationCode = async (printerId: string, code: string) => {
   const newCode: newVerificationCode = {
