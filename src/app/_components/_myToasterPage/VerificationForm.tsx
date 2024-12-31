@@ -1,19 +1,31 @@
 import { KeyRound, X } from "lucide-react"
-import React, { useState, type Dispatch, type SetStateAction } from "react"
-import { useForm } from "react-hook-form"
+import React, { type Dispatch, type SetStateAction } from "react"
+import { useForm, type UseFormSetError } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useUser } from "@clerk/nextjs"
-import { incrementVerificationAttempt } from "@/lib/queries/printerVerificationCode"
+
+export const verificationCodeLength = 6
 
 const verificationSchema = z.object({
-  code: z.string().length(6, "Verification code must be 6 characters"),
+  code: z
+    .string()
+    .length(
+      verificationCodeLength,
+      `Verification code is ${verificationCodeLength} characters long`
+    ),
 })
 
 type VerificationModalProps = {
   showVerificationModal: boolean
   setShowVerificationModal: Dispatch<SetStateAction<boolean>>
-  handleVerificationSubmit: (code: string, userId: string) => Promise<void>
+  handleVerificationSubmit: (
+    code: string,
+    userId: string,
+    setError: UseFormSetError<{
+      code: string
+    }>
+  ) => Promise<void>
 }
 
 function VerificationModal({
@@ -36,23 +48,8 @@ function VerificationModal({
     if (!user) {
       return
     }
-
     try {
-      const attemptStatus = await incrementVerificationAttempt(user.id)
-      if (attemptStatus.blocked) {
-        setError("root", {
-          message: `Too many attempts. Please try again after ${attemptStatus.expiresAt.toLocaleString(
-            "en-US",
-            {
-              hour: "numeric",
-              minute: "numeric",
-              hour12: false,
-            }
-          )}`,
-        })
-        return
-      }
-      await handleVerificationSubmit(data.code, user.id)
+      await handleVerificationSubmit(data.code, user.id, setError)
     } catch (error) {
       setError("root", {
         message: "Failed to verify code. Please try again.",

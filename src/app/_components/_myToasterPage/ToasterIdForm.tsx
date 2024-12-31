@@ -3,8 +3,7 @@ import { z } from "zod"
 import { printerIdSchema } from "../_editorPage/AddNewFriendForm"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { checkIfPrinterExists } from "@/lib/queries"
-import { checkIfAlreadyPaired, createVerificationCode } from "@/lib/queries/printerVerificationCode"
-import { randomBytes } from "crypto"
+import { checkIfAlreadyPaired, sendVerificationCode } from "@/lib/queries/printerVerificationCode"
 import { useUser } from "@clerk/nextjs"
 import type { Dispatch, SetStateAction } from "react"
 
@@ -29,11 +28,6 @@ function ToasterIdForm({ setShowVerificationForm, printerId, setPrinterId }: Toa
     mode: "onSubmit",
   })
 
-  function createCode(): string {
-    const bytes = randomBytes(Math.ceil(6 / 2))
-    return bytes.toString("hex").slice(0, 6).toUpperCase()
-  }
-
   async function handleFormSubmit(data: z.infer<typeof printerIdSchema>) {
     if (!user) {
       setErrorNew("root", { message: "User Doesnt Exist" })
@@ -46,16 +40,28 @@ function ToasterIdForm({ setShowVerificationForm, printerId, setPrinterId }: Toa
         setErrorNew("root", { message: "Toaster ID doesn't exist" })
         return
       }
-      // const isAlreadyPaired = await checkIfAlreadyPaired(data.printerId, user.id)
+      const pairedStatus = await checkIfAlreadyPaired(data.printerId, user.id)
+      if (pairedStatus.length > 0) {
+        const date = new Date(pairedStatus[0].createdAt)
+        const formattedDate = date.toLocaleString("en-US", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        })
 
-      // if (isAlreadyPaired) {
-      //   setErrorNew("root", { message: "Toaster is already paired to your account" })
-      //   return
-      // }
-      const x = await createVerificationCode(data.printerId, createCode())
-      if (!x) {
         setErrorNew("root", {
-          message: "Couldn't create verification code, try again another time",
+          message: `Toaster was already paired to your account on ${formattedDate}`,
+        })
+        return
+      }
+      const verficiationCode = await sendVerificationCode(data.printerId)
+      console.log(verficiationCode)
+      if (!verficiationCode.success) {
+        setErrorNew("root", {
+          message: verficiationCode.message,
         })
         return
       }

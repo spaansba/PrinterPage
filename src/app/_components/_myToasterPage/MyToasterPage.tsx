@@ -4,21 +4,48 @@ import VerificationForm from "./VerificationForm"
 import {
   checkVerificationCode,
   createValidatedUserEntry,
+  incrementVerificationAttempt,
 } from "@/lib/queries/printerVerificationCode"
+import type { UseFormSetError } from "react-hook-form"
 
 function MyToasterPage() {
   const [showVerificationForm, setShowVerificationForm] = useState(false)
   const [printerId, setPrinterId] = useState("")
 
-  const handleVerificationSubmit = async (code: string, userId: string) => {
-    const result = await checkVerificationCode(printerId, code)
-    if (!result.verified) {
-      console.log("incorrect")
+  const handleVerificationSubmit = async (
+    code: string,
+    userId: string,
+    setError: UseFormSetError<{
+      code: string
+    }>
+  ) => {
+    const attemptStatus = await incrementVerificationAttempt(userId)
+    if (attemptStatus.blocked) {
+      setError("root", {
+        message: `Too many attempts. Please try again after ${attemptStatus.expiresAt.toLocaleString(
+          "en-US",
+          {
+            hour: "numeric",
+            minute: "numeric",
+            hour12: false,
+          }
+        )}`,
+      })
       return
     }
-    console.log(result)
-    const x = await createValidatedUserEntry(printerId, userId)
-    console.log(x)
+    const result = await checkVerificationCode(printerId, code)
+    if (!result.verified) {
+      setError("root", {
+        message: `${result.message} ${attemptStatus.attemptsRemaining} attempts remaining`,
+      })
+      return
+    }
+    const pairingResult = await createValidatedUserEntry(printerId, userId)
+    if (!pairingResult.success) {
+      setError("root", { message: pairingResult.message })
+      return
+    }
+    setShowVerificationForm(false)
   }
   return (
     <div className="flex flex-col h-full bg-toastWhite border-t border-[1px] border-gray-500">

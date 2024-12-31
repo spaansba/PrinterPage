@@ -12,38 +12,87 @@ import {
   type newVerificationCode,
 } from "../schema"
 import { db } from ".."
+import { createCode, sendCodeToUser } from "../helpers"
 
 export const checkIfAlreadyPaired = async (printerId: string, userId: string) => {
   return await db
     .select()
     .from(printerUserPairing)
     .where(and(eq(printerUserPairing.printerId, printerId), eq(printerUserPairing.userId, userId)))
+    .limit(1)
 }
 
 export const createValidatedUserEntry = async (printerId: string, userId: string) => {
-  const newPairing: newPrinterUserPairing = {
-    printerId: printerId,
-    userId: userId,
-  }
-  const validatedPairing = InsertPrinterUserPairing.parse(newPairing)
-  const result = await db.insert(printerUserPairing).values(validatedPairing)
-  if (result) {
-    await deletePreviouslyCreatedVerificationCode(printerId)
+  try {
+    const newPairing: newPrinterUserPairing = {
+      printerId: printerId,
+      userId: userId,
+    }
+
+    const validatedPairing = InsertPrinterUserPairing.parse(newPairing)
+    const result = await db.insert(printerUserPairing).values(validatedPairing).returning() // Get the inserted row back
+
+    if (result.length > 0) {
+      await deletePreviouslyCreatedVerificationCode(printerId)
+      return {
+        success: true,
+        message: "Printer successfully paired with user",
+      }
+    }
+
+    return {
+      success: false,
+      message: "Failed to create printer-user pairing",
+    }
+  } catch (error) {
+    console.error("Error creating user-printer pairing:", error)
+    return {
+      success: false,
+      message: "Error creating printer-user pairing",
+    }
   }
 }
 
-export const createVerificationCode = async (printerId: string, code: string) => {
-  const newCode: newVerificationCode = {
-    code: code,
-    printerId: printerId,
-  }
-  const validateInsert = InsertVerificationCode.parse(newCode)
-  await deletePreviouslyCreatedVerificationCode(printerId)
+export const sendVerificationCode = async (printerId: string) => {
+  try {
+    return await db.transaction(async (tx) => {
+      const verificationCode = await createCode()
 
-  return await db
-    .insert(verificationCodes)
-    .values(validateInsert)
-    .returning({ code: verificationCodes.code, expiresAt: verificationCodes.expiresAt })
+      // Delete any existing codes
+      await tx.delete(verificationCodes).where(eq(verificationCodes.printerId, printerId))
+
+      // Insert new code
+      const newCode: newVerificationCode = {
+        code: verificationCode.code,
+        printerId: printerId,
+      }
+      const validateInsert = InsertVerificationCode.parse(newCode)
+
+      const insertCode = await tx.insert(verificationCodes).values(validateInsert).returning({
+        code: verificationCodes.code,
+        expiresAt: verificationCodes.expiresAt,
+      })
+
+      if (insertCode.length > 0) {
+        await sendCodeToUser(verificationCode.bytes, printerId)
+        return {
+          success: true,
+          message: "Verification code sent successfully",
+        }
+      }
+
+      return {
+        success: false,
+        message: "Failed to create verification code",
+      }
+    })
+  } catch (error) {
+    console.error("Error sending verification code:", error)
+    return {
+      success: false,
+      message: "Error sending verification code",
+    }
+  }
 }
 
 export const checkVerificationCode = async (printerId: string, userInputtedCode: string) => {
