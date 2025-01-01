@@ -1,7 +1,4 @@
-import type { Toaster, ToasterUser } from "@/app/page"
-import { useEffect, useState } from "react"
-
-import { getUsersPairedToTaster } from "@/lib/queries/pairedToasters"
+import type { Toaster } from "@/app/page"
 import PairedUserList from "./PairedUserList"
 import ToasterInformation from "./ToasterInformation"
 

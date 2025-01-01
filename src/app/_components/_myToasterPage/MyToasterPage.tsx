@@ -10,7 +10,7 @@ import type { UseFormSetError } from "react-hook-form"
 import PairedToasterContainer from "./_connectedToasters/PairedToasterContainer"
 import { useToasterUser } from "@/app/context/userDataContext"
 import { Plus } from "lucide-react"
-import { getToaster } from "@/lib/queries/pairedToasters"
+import { getToaster } from "@/lib/queries/toasterInfo"
 
 function MyToasterPage() {
   const { pairedToasters, setPairedToasters } = useToasterUser()

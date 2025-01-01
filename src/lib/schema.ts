@@ -52,7 +52,7 @@ export const printers = pgTable("printer_printers", {
   id: varchar("id", { length: 10 }).primaryKey(),
   internalName: varchar("internal_name", { length: 256 }),
   name: varchar("name", { length: 256 }).notNull(),
-  profilePicture: varchar("profile_picture", { length: 512 }).notNull(),
+  profilePicture: varchar("profile_picture", { length: 2048 }).notNull(),
   createdAt: timestamp("created_at", { mode: "string" })
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),

@@ -6,7 +6,7 @@ import { checkIfPrinterExists } from "@/lib/queries"
 import { sendVerificationCode } from "@/lib/queries/printerVerificationCode"
 import { useUser } from "@clerk/nextjs"
 import type { Dispatch, SetStateAction } from "react"
-import { checkIfAlreadyPaired } from "@/lib/queries/pairedToasters"
+import { checkIfAlreadyPaired } from "@/lib/queries/toasterInfo"
 
 type ToasterIdFormProps = {
   setShowVerificationForm: Dispatch<SetStateAction<boolean>>

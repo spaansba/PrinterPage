@@ -9,6 +9,18 @@ const nextConfig = {
   },
   images: {
     domains: ["utfs.io", "img.clerk.com"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "my-blob-store.public.blob.vercel-storage.com",
+        port: "",
+      },
+      {
+        protocol: "https",
+        hostname: "*.public.blob.vercel-storage.com",
+        port: "",
+      },
+    ],
   },
 }
 

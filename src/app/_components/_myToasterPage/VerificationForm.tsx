@@ -1,10 +1,10 @@
 import { KeyRound, X } from "lucide-react"
 import React, { type Dispatch, type SetStateAction } from "react"
-import { useForm, type UseFormSetError } from "react-hook-form"
+import { type UseFormSetError } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useUser } from "@clerk/nextjs"
-
+import { useForm } from "react-hook-form"
 export const verificationCodeLength = 6
 
 const verificationSchema = z.object({

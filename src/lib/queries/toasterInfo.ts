@@ -4,6 +4,48 @@ import { printers, printerUserPairing } from "../schema"
 import { and, eq, inArray } from "drizzle-orm"
 import { getUserInformation } from "./userInfo"
 
+type UpdateToasterData = {
+  name?: string
+  profilePicture?: string
+}
+
+export const updateToasterInformation = async (toasterId: string, data: UpdateToasterData) => {
+  try {
+    // Only include fields that are provided in the update
+    const updateData = {
+      ...data,
+      updatedAt: new Date().toISOString(),
+    }
+
+    const updatedToaster = await db
+      .update(printers)
+      .set(updateData)
+      .where(eq(printers.id, toasterId))
+      .returning()
+
+    if (!updatedToaster.length) {
+      return {
+        success: false,
+        message: "Toaster not found",
+        data: null,
+      }
+    }
+
+    return {
+      success: true,
+      message: "Toaster updated successfully",
+      data: updatedToaster[0],
+    }
+  } catch (error) {
+    console.error("Error updating toaster:", error)
+    return {
+      success: false,
+      message: "Failed to update toaster",
+      data: null,
+    }
+  }
+}
+
 export const getUsersPairedToTaster = async (printerId: string) => {
   const userIds = await db
     .select({ id: printerUserPairing.userId })

@@ -5,9 +5,8 @@ import MainWrapper from "./_components/MainWrapper"
 import { getAssociatedPrintersById, getUserName } from "@/lib/queries"
 import type { Friend } from "./_components/_editorPage/_friendSelector/FriendSelector"
 import { ToasterUserProvider } from "./context/userDataContext"
-import { getPairedToasters, getToasterInformation } from "@/lib/queries/pairedToasters"
+import { getPairedToasters, getToasterInformation } from "@/lib/queries/toasterInfo"
 import { createClerkClient } from "@clerk/backend"
-
 const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY })
 
 export type Toaster = {

@@ -1,0 +1,1 @@
+ALTER TABLE "printer_printers" ALTER COLUMN "profile_picture" SET DATA TYPE varchar(2048);

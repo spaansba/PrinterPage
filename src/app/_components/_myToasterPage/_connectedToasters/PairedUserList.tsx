@@ -2,7 +2,7 @@ import type { Toaster, ToasterUser } from "@/app/page"
 import React, { useEffect, useState } from "react"
 import Image from "next/image"
 import { User } from "lucide-react"
-import { getUsersPairedToTaster } from "@/lib/queries/pairedToasters"
+import { getUsersPairedToTaster } from "@/lib/queries/toasterInfo"
 
 type PairedUserList = {
   toaster: Toaster
@@ -48,7 +48,6 @@ const usePairedUsersToToaster = (printerId: string) => {
   useEffect(() => {
     const getPairedUsers = async () => {
       const getUsers = await getUsersPairedToTaster(printerId)
-      console.log(getUsers)
       setPairedUsers(getUsers.data)
     }
     getPairedUsers()
