@@ -18,7 +18,7 @@ export type Toaster = {
 export type ToasterUser = {
   id: string
   userName: string
-  profilePicture?: string
+  profileImageUrl: string | null
 }
 
 export default async function Home() {
