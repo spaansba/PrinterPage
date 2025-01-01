@@ -10,7 +10,7 @@ function PairedToasterContainer({
   setPairedToasters,
 }: PairedToasterContainerProps) {
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="flex flex-col gap-4 p-4 bg-toastWhite">
       <div className="text-lg font-medium mb-2">Your Connected Toasters</div>
       {pairedToasters.map((toaster) => (
         <div key={toaster} className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm">

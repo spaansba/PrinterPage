@@ -74,36 +74,38 @@ function ToasterIdForm({ setShowVerificationForm, printerId, setPrinterId }: Toa
     }
   }
   return (
-    <form onSubmit={handleSubmitNew(handleFormSubmit)} className="space-y-4">
-      <div>
-        <label className="block text-sm mb-2">Your Toaster ID:</label>
-        <input
-          {...registerNew("printerId", {
-            onChange: (e) => {
-              const value = e.target.value.toLowerCase()
-              e.target.value = value
-              setPrinterId(value) // Update printerId state on change
-            },
-          })}
-          id="printerId"
-          className="w-full px-2 py-1 bg-white border-2 border-t-[#808080] border-l-[#808080] border-b-white border-r-white font-mono text-sm"
-          placeholder="xxxxxxxxxx"
-        />
-        <div className="text-red-600 pt-1">
-          {errorsNew.printerId?.message && <p>{errorsNew.printerId.message}</p>}
-          {errorsNew.root?.message && <p>{errorsNew.root?.message}</p>}
+    <>
+      <form onSubmit={handleSubmitNew(handleFormSubmit)} className="space-y-4">
+        <div>
+          <label className="block text-sm mb-2">Your Toaster ID:</label>
+          <input
+            {...registerNew("printerId", {
+              onChange: (e) => {
+                const value = e.target.value.toLowerCase()
+                e.target.value = value
+                setPrinterId(value) // Update printerId state on change
+              },
+            })}
+            id="printerId"
+            className="w-full px-2 py-1 bg-white border-2 border-t-[#808080] border-l-[#808080] border-b-white border-r-white font-mono text-sm"
+            placeholder="xxxxxxxxxx"
+          />
+          <div className="text-red-600 pt-1">
+            {errorsNew.printerId?.message && <p>{errorsNew.printerId.message}</p>}
+            {errorsNew.root?.message && <p>{errorsNew.root?.message}</p>}
+          </div>
         </div>
-      </div>
 
-      <div className="flex justify-end mt-6">
-        <button
-          type="submit"
-          className="px-6 py-1 bg-toastPrimary border-2 border-t-white border-l-white border-b-[#808080] border-r-[#808080] text-sm hover:bg-[#e6e3de] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
-        >
-          Pair Toaster
-        </button>
-      </div>
-    </form>
+        <div className="flex justify-end mt-6">
+          <button
+            type="submit"
+            className="px-6 py-1 bg-toastPrimary border-2 border-t-white border-l-white border-b-[#808080] border-r-[#808080] text-sm hover:bg-[#e6e3de] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
+          >
+            Pair Toaster
+          </button>
+        </div>
+      </form>
+    </>
   )
 }
 
