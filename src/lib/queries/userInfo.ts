@@ -19,7 +19,7 @@ export const getUserInformation = async (userIds: string | string[]) => {
     .select({ id: users.id, userName: users.userName })
     .from(users)
     .where(inArray(users.id, userIdArray))
-  console.log(userInfo, "userInfo")
+
   // Fetch Clerk user data for profile pictures
   const clerk = await clerkClient()
   const clerkUsersResponse = await clerk.users.getUserList({

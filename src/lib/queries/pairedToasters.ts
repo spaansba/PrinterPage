@@ -10,8 +10,6 @@ export const getUsersPairedToTaster = async (printerId: string) => {
     .from(printerUserPairing)
     .where(eq(printerUserPairing.printerId, printerId))
 
-  console.log("userIds", userIds)
-
   if (userIds.length === 0) {
     return {
       success: false,
