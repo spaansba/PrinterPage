@@ -1,12 +1,13 @@
 "use client"
 import { createContext, useContext, useState, type ReactNode } from "react"
 import type { Friend } from "../_components/_editorPage/_friendSelector/FriendSelector"
+import type { Toaster } from "../page"
 
 type ToasterUserContextType = {
   friendList: Friend[]
-  pairedToasters: string[]
+  pairedToasters: Toaster[]
   setFriendList: React.Dispatch<React.SetStateAction<Friend[]>>
-  setPairedToasters: React.Dispatch<React.SetStateAction<string[]>>
+  setPairedToasters: React.Dispatch<React.SetStateAction<Toaster[]>>
   username: string
   setUsername: React.Dispatch<React.SetStateAction<string>>
 }
@@ -23,7 +24,7 @@ const ToasterUserContext = createContext<ToasterUserContextType>({
 interface ToasterUserProviderProps {
   children: ReactNode
   initialFriendList: Friend[]
-  initialPairedToasters: string[]
+  initialPairedToasters: Toaster[]
   initialUsername: string
 }
 
@@ -34,7 +35,7 @@ export function ToasterUserProvider({
   initialUsername,
 }: ToasterUserProviderProps) {
   const [friendList, setFriendList] = useState<Friend[]>(initialFriendList)
-  const [pairedToasters, setPairedToasters] = useState<string[]>(initialPairedToasters)
+  const [pairedToasters, setPairedToasters] = useState<Toaster[]>(initialPairedToasters)
   const [username, setUsername] = useState<string>(initialUsername)
   return (
     <ToasterUserContext.Provider

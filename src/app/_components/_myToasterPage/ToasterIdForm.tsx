@@ -3,9 +3,10 @@ import { z } from "zod"
 import { printerIdSchema } from "../_editorPage/AddNewFriendForm"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { checkIfPrinterExists } from "@/lib/queries"
-import { checkIfAlreadyPaired, sendVerificationCode } from "@/lib/queries/printerVerificationCode"
+import { sendVerificationCode } from "@/lib/queries/printerVerificationCode"
 import { useUser } from "@clerk/nextjs"
 import type { Dispatch, SetStateAction } from "react"
+import { checkIfAlreadyPaired } from "@/lib/queries/pairedToasters"
 
 type ToasterIdFormProps = {
   setShowVerificationForm: Dispatch<SetStateAction<boolean>>

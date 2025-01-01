@@ -50,11 +50,15 @@ export const users = pgTable("printer_users", {
 
 export const printers = pgTable("printer_printers", {
   id: varchar("id", { length: 10 }).primaryKey(),
-  name: varchar("name", { length: 256 }),
+  internalName: varchar("internal_name", { length: 256 }),
+  name: varchar("name", { length: 256 }).notNull(),
+  profilePicture: varchar("profile_picture", { length: 512 }).notNull(),
   createdAt: timestamp("created_at", { mode: "string" })
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
-  updatedAt: timestamp("updatedAt", { mode: "string" }),
+  updatedAt: timestamp("updated_at", { mode: "string" })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
 })
 
 export const usersAssociatedPrinters = pgTable("printer_users_printer_association", {

@@ -10,14 +10,13 @@ import type { UseFormSetError } from "react-hook-form"
 import PairedToasterContainer from "./PairedToasterContainer"
 import { useToasterUser } from "@/app/context/userDataContext"
 import { Plus } from "lucide-react"
+import { getToaster } from "@/lib/queries/pairedToasters"
 
 function MyToasterPage() {
   const { pairedToasters, setPairedToasters } = useToasterUser()
   const [showVerificationForm, setShowVerificationForm] = useState(false)
   const [printerId, setPrinterId] = useState("")
-  const [showFullToasterIdForm, setShowFullToasterIdForm] = useState(
-    pairedToasters.length > 0 ? false : true
-  )
+  const [showFullToasterIdForm, setShowFullToasterIdForm] = useState(pairedToasters.length === 0)
 
   const handleVerificationSubmit = async (
     code: string,
@@ -52,8 +51,21 @@ function MyToasterPage() {
       setError("root", { message: pairingResult.message })
       return
     }
+
+    const toaster = await getToaster(printerId)
+    if (!toaster.success || !toaster.data) {
+      setError("root", { message: toaster.message })
+      return
+    }
     setShowVerificationForm(false)
-    setPairedToasters((prev) => [...prev, printerId])
+    setPairedToasters((prev) => {
+      const newToasters = [...prev, toaster.data]
+      // update so it rerenders the page
+      if (prev.length === 0) {
+        setShowFullToasterIdForm(false)
+      }
+      return newToasters
+    })
   }
 
   return (

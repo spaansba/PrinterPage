@@ -71,6 +71,20 @@
       "when": 1735638005594,
       "tag": "0009_wide_jean_grey",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1735735193975,
+      "tag": "0010_refactor-printer-table",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1735736273314,
+      "tag": "0011_little_blob",
+      "breakpoints": true
     }
   ]
 }
