@@ -7,7 +7,7 @@ import {
   incrementVerificationAttempt,
 } from "@/lib/queries/printerVerificationCode"
 import type { UseFormSetError } from "react-hook-form"
-import PairedToasterContainer from "./PairedToasterContainer"
+import PairedToasterContainer from "./_connectedToasters/PairedToasterContainer"
 import { useToasterUser } from "@/app/context/userDataContext"
 import { Plus } from "lucide-react"
 import { getToaster } from "@/lib/queries/pairedToasters"
@@ -71,10 +71,17 @@ function MyToasterPage() {
   return (
     <div className="border-[1px] border-gray-500 ">
       {pairedToasters.length > 0 && (
-        <PairedToasterContainer
-          pairedToasters={pairedToasters}
-          setPairedToasters={setPairedToasters}
-        />
+        <div className="flex flex-col gap-[0.3rem] p-4 bg-toastWhite rounded-lg">
+          <div className="text-lg font-medium mb-2">Your Connected Toasters</div>
+          {pairedToasters.map((toaster) => (
+            <PairedToasterContainer
+              key={toaster.id}
+              toaster={toaster}
+              // pairedToasters={pairedToasters}
+              // setPairedToasters={setPairedToasters}
+            />
+          ))}
+        </div>
       )}
       {showFullToasterIdForm ? (
         <div className="flex flex-col h-full bg-toastWhite border-t-[1px] border-gray-500">

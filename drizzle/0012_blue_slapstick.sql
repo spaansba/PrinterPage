@@ -1,0 +1,1 @@
+ALTER TABLE "printer_users" ALTER COLUMN "user_name" SET NOT NULL;

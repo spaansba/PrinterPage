@@ -37,6 +37,7 @@ export function ToasterUserProvider({
   const [friendList, setFriendList] = useState<Friend[]>(initialFriendList)
   const [pairedToasters, setPairedToasters] = useState<Toaster[]>(initialPairedToasters)
   const [username, setUsername] = useState<string>(initialUsername)
+
   return (
     <ToasterUserContext.Provider
       value={{

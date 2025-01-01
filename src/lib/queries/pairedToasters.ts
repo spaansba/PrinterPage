@@ -2,6 +2,33 @@
 import { db } from ".."
 import { printers, printerUserPairing } from "../schema"
 import { and, eq, inArray } from "drizzle-orm"
+import { getUserInformation } from "./userInfo"
+
+export const getUsersPairedToTaster = async (printerId: string) => {
+  const userIds = await db
+    .select({ id: printerUserPairing.userId })
+    .from(printerUserPairing)
+    .where(eq(printerUserPairing.printerId, printerId))
+
+  console.log("userIds", userIds)
+
+  if (userIds.length === 0) {
+    return {
+      success: false,
+      message: "no paired users found",
+      data: [],
+    }
+  }
+
+  const userIdStrings = userIds.map((user) => user.id)
+  const userInfo = await getUserInformation(userIdStrings)
+
+  return {
+    success: true,
+    message: "",
+    data: userInfo,
+  }
+}
 
 export const getToaster = async (printerId: string) => {
   try {

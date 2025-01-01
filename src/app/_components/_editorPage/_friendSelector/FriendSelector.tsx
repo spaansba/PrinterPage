@@ -10,6 +10,7 @@ export type Friend = {
   printerId: string
   name: string
   lastSendMessage: string
+  profilePicture: string
 }
 
 type FriendSelectorProps = {

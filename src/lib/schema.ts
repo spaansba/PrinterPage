@@ -40,7 +40,7 @@ export const printerSubscriptions = pgTable("subscriptions", {
 
 export const users = pgTable("printer_users", {
   id: varchar("id", { length: 256 }).primaryKey(),
-  userName: varchar("user_name", { length: 256 }),
+  userName: varchar("user_name", { length: 256 }).notNull(),
   messagesSend: integer("messages_send").default(0),
   createdAt: timestamp("created_at", { mode: "string" })
     .default(sql`CURRENT_TIMESTAMP`)
