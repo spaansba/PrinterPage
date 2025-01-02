@@ -60,7 +60,7 @@ function FriendsPage({ friendsHook }: FriendsPageProps) {
 
   return (
     <>
-      <div className=" border-t border-[1px] border-gray-500  flex flex-col relative">
+      <div className="border-t border-[1px] border-gray-500 flex flex-col relative">
         {friendsHook.friendList.map((friend, index) => (
           <div
             key={friend.printerId}
@@ -75,8 +75,14 @@ function FriendsPage({ friendsHook }: FriendsPageProps) {
                 friend.lastSendMessage.length - 4
               )}`}
             >
-              <div className="flex items-center justify-center mr-2  rounded-lg p-1">
-                <Image src="/images/Logo512BW.png" alt="Toaster" width={30} height={30} />
+              <div className="flex items-center justify-center mr-2 rounded-lg p-1">
+                <Image
+                  src={friend.profilePicture || "/images/Logo512BW.png"}
+                  alt={friend.profilePicture ? `${friend.name}'s profile picture` : "Toaster"}
+                  width={30}
+                  height={30}
+                  className="rounded-lg object-cover"
+                />
               </div>
               <div className="flex flex-col">
                 {editingId === friend.printerId ? (

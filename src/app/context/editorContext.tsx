@@ -143,7 +143,7 @@ export function CustomEditorProvider({ children, handleTextChange }: CustomEdito
     return z.object({
       textEditorInput: z
         .string()
-        .min(1, { message: "Message is a bit on the short side" })
+        .min(0, { message: "Message is a bit on the short side" }) //TODO set to 1 and make pictures count as 1
         .refine(
           () => {
             const editorElement = editor?.view?.dom as HTMLElement

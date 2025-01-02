@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 import type { Friend } from "./_friendSelector/FriendSelector"
 import type { FriendListHook } from "../AppWindow"
+import { getToaster } from "@/lib/queries/toasterInfo"
 
 export const friendNameSchema = z.object({
   name: z
@@ -47,15 +48,21 @@ function AddNewFriendForm({ friendsHook, setIsAddingFriend, addFriendRef }: AddN
       return
     }
     try {
-      const added = await addAssociatedPrinters(user.id, data.printerId, data.name)
+      const printerData = await getToaster(data.printerId)
+      if (!printerData.data) {
+        setErrorNew("root", { message: printerData.message })
+        return
+      }
+      const added = await addAssociatedPrinters(user.id, printerData.data.id, data.name)
       if (added.error) {
         setErrorNew("root", { message: added.error.message })
       } else {
         resetNew()
         const newFriend: Friend = {
-          printerId: added.data.printerId,
+          printerId: printerData.data.id,
           name: added.data.name,
           lastSendMessage: new Date().toISOString(),
+          profilePicture: printerData.data.profilePicture,
         }
         friendsHook.setFriendList((prev) => [...prev, newFriend])
         setIsAddingFriend(false)

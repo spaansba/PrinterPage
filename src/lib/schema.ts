@@ -11,9 +11,11 @@ export const printerUserPairing = pgTable("user_pairing", {
     .notNull()
     .references(() => users.id),
   createdAt: timestamp("created_at", { mode: "string" })
-    .default(sql`CURRENT_TIMESTAMP`)
+    .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
     .notNull(),
-  updatedAt: timestamp("updatedAt", { mode: "string" }),
+  updatedAt: timestamp("updated_at", { mode: "string" })
+    .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
+    .notNull(),
 })
 
 export const verificationAttempts = pgTable("verification_attempts", {
@@ -26,9 +28,11 @@ export const verificationAttempts = pgTable("verification_attempts", {
     .default(sql`NOW() + INTERVAL '60 minutes'`)
     .notNull(),
   createdAt: timestamp("created_at", { mode: "string" })
-    .default(sql`CURRENT_TIMESTAMP`)
+    .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
     .notNull(),
-  updatedAt: timestamp("updatedAt", { mode: "string" }),
+  updatedAt: timestamp("updated_at", { mode: "string" })
+    .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
+    .notNull(),
 })
 
 export const printerSubscriptions = pgTable("subscriptions", {
@@ -43,9 +47,11 @@ export const users = pgTable("printer_users", {
   userName: varchar("user_name", { length: 256 }).notNull(),
   messagesSend: integer("messages_send").default(0),
   createdAt: timestamp("created_at", { mode: "string" })
-    .default(sql`CURRENT_TIMESTAMP`)
+    .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
     .notNull(),
-  updatedAt: timestamp("updatedAt", { mode: "string" }),
+  updatedAt: timestamp("updated_at", { mode: "string" })
+    .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
+    .notNull(),
 })
 
 export const printers = pgTable("printer_printers", {
@@ -54,10 +60,10 @@ export const printers = pgTable("printer_printers", {
   name: varchar("name", { length: 256 }).notNull(),
   profilePicture: varchar("profile_picture", { length: 2048 }).notNull(),
   createdAt: timestamp("created_at", { mode: "string" })
-    .default(sql`CURRENT_TIMESTAMP`)
+    .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
     .notNull(),
   updatedAt: timestamp("updated_at", { mode: "string" })
-    .default(sql`CURRENT_TIMESTAMP`)
+    .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
     .notNull(),
 })
 
@@ -72,9 +78,11 @@ export const usersAssociatedPrinters = pgTable("printer_users_printer_associatio
   messagesSendToAssociatedPrinter: integer("messages_send_to_associated_printer").default(0),
   name: varchar("name", { length: 50 }).notNull(),
   createdAt: timestamp("created_at", { mode: "string" })
-    .default(sql`CURRENT_TIMESTAMP`)
+    .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
     .notNull(),
-  updatedAt: timestamp("updatedAt", { mode: "string" }),
+  updatedAt: timestamp("updated_at", { mode: "string" })
+    .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
+    .notNull(),
   lastSendMessage: timestamp("last_send_message", { mode: "string" })
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
@@ -86,9 +94,11 @@ export const verificationCodes = pgTable("verification_codes", {
     .notNull()
     .references(() => printers.id),
   code: varchar("code", { length: 6 }).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  expiresAt: timestamp("expires_at")
-    .default(sql`NOW() + INTERVAL '5 minutes'`)
+  createdAt: timestamp("created_at", { mode: "string" })
+    .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
+    .notNull(),
+  expiresAt: timestamp("expires_at", { mode: "string" })
+    .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC' + INTERVAL '5 minutes'`)
     .notNull(),
 })
 

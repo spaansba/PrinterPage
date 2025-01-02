@@ -45,6 +45,7 @@ export default async function Home() {
       }
     })
   )
+  console.log(serverFriendList)
   const serverUsername: string = user ? await getUserName(user.id) : ""
   const serverPairedToasters = user ? await getPairedToasters(user.id) : []
   const serverPairedToasterInformation: Toaster[] = user
