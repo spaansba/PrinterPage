@@ -4,17 +4,17 @@ import { ChevronDown } from "lucide-react"
 import type { Friend } from "./FriendSelector"
 import FriendProfilePicture from "../../_friendsPage/FriendProfilePicture"
 
-type TSelectedToastersViewProps = {
+type SelectedToastersViewProps = {
   selectedFriends: Friend[]
 }
 const maxVisibleRecipients = 5
-function SelectedToastersView({ selectedFriends }: TSelectedToastersViewProps) {
+function SelectedToastersView({ selectedFriends }: SelectedToastersViewProps) {
   return (
     <>
       <div className="flex flex-wrap items-start overflow-hidden w-[90%] gap-y-[0.4rem] gap-x-3">
         {selectedFriends.length > 0 ? (
           <>
-            {selectedFriends.slice(0, maxVisibleRecipients).map((friend, index) => (
+            {selectedFriends.slice(0, maxVisibleRecipients).map((friend) => (
               <div key={friend.printerId} className="inline-flex items-center">
                 <FriendProfilePicture friend={friend} pictureSizeInPX={32} />
                 <span className="ml-2 whitespace-nowrap">{friend.name}</span>

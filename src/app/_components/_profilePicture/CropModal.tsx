@@ -4,12 +4,16 @@ import ReactCrop, { centerCrop, makeAspectCrop, type Crop, type PixelCrop } from
 
 type CropModalProps = {
   setShowCropDialog: Dispatch<SetStateAction<boolean>>
-  handleCropComplete: (blob: Blob) => void
+  handleNewProfilePicture: (blob: Blob) => Promise<{
+    success: boolean
+    message: string
+  }>
   imgSrc: string
 }
 
-function CropModal({ setShowCropDialog, handleCropComplete, imgSrc }: CropModalProps) {
+function CropModal({ setShowCropDialog, handleNewProfilePicture, imgSrc }: CropModalProps) {
   const [isUploading, setIsUploading] = useState(false)
+  const [uploadError, setUploadError] = useState("")
   const [crop, setCrop] = useState<Crop>()
   const imgRef = useRef<HTMLImageElement>(null)
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>()
@@ -20,7 +24,7 @@ function CropModal({ setShowCropDialog, handleCropComplete, imgSrc }: CropModalP
       makeAspectCrop(
         {
           unit: "%",
-          width: 60, //the circle size on startup
+          width: 60,
         },
         1,
         width,
@@ -61,7 +65,6 @@ function CropModal({ setShowCropDialog, handleCropComplete, imgSrc }: CropModalP
       canvas.toBlob(
         (blob) => {
           if (!blob) throw new Error("Failed to create blob")
-          console.log("Blob created:", blob) // Add this
           resolve(blob)
         },
         "image/jpeg",
@@ -108,15 +111,26 @@ function CropModal({ setShowCropDialog, handleCropComplete, imgSrc }: CropModalP
               </ReactCrop>
             )}
           </div>
+          {uploadError && (
+            <div className="w-full mb-4">
+              <p className="text-red-500 text-sm text-center">{uploadError}</p>
+            </div>
+          )}
           <div className="flex justify-end gap-1 bg-toastPrimary w-full">
             <button
               onClick={async () => {
-                setIsUploading(true)
                 if (imgRef.current && completedCrop) {
+                  setIsUploading(true)
                   const blob = await setCroppedImg(imgRef.current, completedCrop)
-                  handleCropComplete(blob)
+                  const pictureChanged = await handleNewProfilePicture(blob)
+                  if (!pictureChanged.success) {
+                    setUploadError(pictureChanged.message)
+                    setIsUploading(false)
+                    return
+                  }
+                  setIsUploading(false)
+                  setShowCropDialog(false)
                 }
-                setIsUploading(false)
               }}
               disabled={isUploading}
               className="h-7 px-4 flex items-center justify-center bg-toastPrimary border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white disabled:opacity-50"

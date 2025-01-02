@@ -6,14 +6,18 @@ import "react-image-crop/dist/ReactCrop.css"
 import { deleteFromBlob, uploadToBlob } from "@/lib/uploadToasterProfilePicture"
 import { updateToasterInformation } from "@/lib/queries/toasterInfo"
 import CropModal from "./CropModal"
+import { useToasterUser } from "@/app/context/userDataContext"
 
 type ProfilePictureProps = {
+  handleNewProfilePicture: (blob: Blob) => Promise<{
+    success: boolean
+    message: string
+  }>
   pictureURL: string
   altName: string
-  vercelBlobFolder: string
 }
 
-function ProfilePicture({ pictureURL, altName, vercelBlobFolder }: ProfilePictureProps) {
+function ProfilePicture({ handleNewProfilePicture, pictureURL, altName }: ProfilePictureProps) {
   const [showCropDialog, setShowCropDialog] = useState(false)
   const [imgSrc, setImgSrc] = useState("")
 
@@ -29,35 +33,6 @@ function ProfilePicture({ pictureURL, altName, vercelBlobFolder }: ProfilePictur
     setShowCropDialog(true)
   }
 
-  const handleCropComplete = async (blob: Blob) => {
-    try {
-      const formData = new FormData()
-      formData.append("file", blob, `cropped-profile.jpg`)
-
-      // Pass both the folder and old URL to the server action
-      const { url } = await uploadToBlob(formData, vercelBlobFolder)
-
-      // Update toaster with the new URL
-      const result = await updateToasterInformation("fcs2ean4kg", {
-        profilePicture: url,
-      })
-
-      if (!result.success) {
-        throw new Error(result.message)
-      }
-
-      // If everything went well delete the old blob from vercel
-      const blobDeleted = await deleteFromBlob(pictureURL)
-      if (!blobDeleted.success) {
-        console.error(blobDeleted.message)
-      }
-      // window.location.reload()
-    } catch (error) {
-      console.error("Error uploading profile picture:", error)
-    } finally {
-      setShowCropDialog(false)
-    }
-  }
   return (
     <>
       <Image
@@ -87,7 +62,7 @@ function ProfilePicture({ pictureURL, altName, vercelBlobFolder }: ProfilePictur
       {showCropDialog && (
         <CropModal
           setShowCropDialog={setShowCropDialog}
-          handleCropComplete={handleCropComplete}
+          handleNewProfilePicture={handleNewProfilePicture}
           imgSrc={imgSrc}
         />
       )}

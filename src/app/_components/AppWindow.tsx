@@ -57,6 +57,13 @@ function useFriendList() {
     }
   }, [selectedFriends])
 
+  // Update the state of selected friends when friendlist gets altered, (updated profile pic etc)
+  useEffect(() => {
+    if (friendList) {
+      setSelectedFriends(getLastMessagedFriend(friendList))
+    }
+  }, [friendList])
+
   const deleteFriend = async (userId: string, friendToDelete: Friend) => {
     const result = await removeAssociatedPrinters(userId, friendToDelete.printerId)
     if (!result.success) {
