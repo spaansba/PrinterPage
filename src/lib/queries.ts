@@ -48,6 +48,7 @@ export const incrementPrinterMessageStats = async (userId: string, associatedPri
     .set({
       lastSendMessage: new Date().toISOString(),
       messagesSendToAssociatedPrinter: sql`${usersAssociatedPrinters.messagesSendToAssociatedPrinter} + 1`,
+      updatedAt: new Date().toISOString(),
     })
     .where(
       and(
