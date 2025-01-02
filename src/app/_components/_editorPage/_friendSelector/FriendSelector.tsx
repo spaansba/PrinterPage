@@ -19,7 +19,7 @@ type FriendSelectorProps = {
 
 const FriendSelector = ({ friendsHook }: FriendSelectorProps) => {
   const [editingId, setEditingId] = useState<string | null>(null)
-  const { friendList, selectedFriends, setFriendList, setSelectedFriends } = friendsHook
+  const { selectedFriends, setSelectedFriends } = friendsHook
   const { toggleButtonRef, dropdownRef, isDropdownOpen, setIsDropdownOpen } = useDropDownModal(
     () => {
       setIsDropdownOpen(false)
@@ -47,9 +47,9 @@ const FriendSelector = ({ friendsHook }: FriendSelectorProps) => {
         ref={toggleButtonRef}
         type="button"
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        className="w-full min-h-[40px] px-4 py-2 bg-toastWhite border-[1px] border-gray-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] cursor-pointer flex items-start justify-between"
+        className="w-full min-h-[50px] px-4 py-2 bg-toastWhite border-[1px] border-gray-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] cursor-pointer flex items-center justify-between"
       >
-        <SelectedToastersView selectedFriends={selectedFriends} />
+        <SelectedToastersView selectedFriends={selectedFriends} isDropdownOpen={isDropdownOpen} />
       </button>
       {isDropdownOpen && (
         <div

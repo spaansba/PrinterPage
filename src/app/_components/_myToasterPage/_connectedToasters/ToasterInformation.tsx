@@ -48,7 +48,6 @@ function ToasterInformation({ toaster }: ToasterInformationProps) {
           friend.printerId === toaster.id ? { ...friend, profilePicture: url } : friend
         )
       )
-      // window.location.reload()
       return {
         success: true,
         message: "",
@@ -81,10 +80,11 @@ function ToasterInformation({ toaster }: ToasterInformationProps) {
             <div className="font-medium text-gray-900">
               {toaster.name || `Toaster ${toaster.id}`}
             </div>
-            <div className="text-sm text-gray-500 mt-1">ID: {toaster.id}</div>
+            <div className="text-sm text-gray-500 mt-1">{toaster.id}</div>
           </div>
           <button className="text-gray-400 hover:text-gray-600" title="More options">
             •••
+            {/* TODO: add buttons */}
           </button>
         </div>
       </div>

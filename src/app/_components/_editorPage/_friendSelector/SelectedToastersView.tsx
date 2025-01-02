@@ -1,17 +1,18 @@
 import React from "react"
 import Image from "next/image"
-import { ChevronDown } from "lucide-react"
+import { ChevronDown, ChevronUp } from "lucide-react"
 import type { Friend } from "./FriendSelector"
 import FriendProfilePicture from "../../_profilePicture/FriendProfilePicture"
 
 type SelectedToastersViewProps = {
   selectedFriends: Friend[]
+  isDropdownOpen: boolean
 }
 const maxVisibleRecipients = 5
-function SelectedToastersView({ selectedFriends }: SelectedToastersViewProps) {
+function SelectedToastersView({ selectedFriends, isDropdownOpen }: SelectedToastersViewProps) {
   return (
     <>
-      <div className="flex flex-wrap items-start overflow-hidden w-[90%] gap-y-[0.4rem] gap-x-3">
+      <div className="flex flex-wrap overflow-hidden w-[90%] gap-y-[0.4rem] gap-x-3">
         {selectedFriends.length > 0 ? (
           <>
             {selectedFriends.slice(0, maxVisibleRecipients).map((friend) => (
@@ -43,7 +44,11 @@ function SelectedToastersView({ selectedFriends }: SelectedToastersViewProps) {
           <span className="text-gray-500">Select toaster...</span>
         )}
       </div>
-      <ChevronDown className="flex-shrink-0" size={14} />
+      {isDropdownOpen ? (
+        <ChevronUp className="flex-shrink-0 mt-[0.3rem]" size={14} />
+      ) : (
+        <ChevronDown className="flex-shrink-0 mt-[0.3rem]" size={14} />
+      )}
     </>
   )
 }

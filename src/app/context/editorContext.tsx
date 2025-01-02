@@ -67,11 +67,29 @@ export function CustomEditorProvider({ children, handleTextChange }: CustomEdito
         "data-gramm": "false", // existing attributes if any
       },
       handleKeyDown: (view, event) => {
+        // Handle all Enter/Return key presses the same way
+        if (event.key === "Enter") {
+          const { from, to } = view.state.selection
+
+          // Get the character right before the cursor
+          const text = view.state.doc.textBetween(from - 1, from)
+
+          // Mobile keyboards often send "space + return" for newlines
+          // This removes that extra space to match PC behavior
+          if (text === " ") {
+            const tr = view.state.tr.delete(from - 1, from)
+            view.dispatch(tr)
+          }
+
+          // Force a paragraph split regardless of modifier keys
+          view.dispatch(view.state.tr.split(from))
+          return true // Prevent default Enter handling
+        }
+
+        // Handle Backspace key presses
         if (event.key === "Backspace") {
           const { from, to } = view.state.selection
           if (from === to) {
-            // If no text is selected
-            // Get the current position and delete the previous character
             const tr = view.state.tr.delete(from - 1, from)
             view.dispatch(tr)
             return true
