@@ -17,7 +17,7 @@ export const getUserName = async (userId: string) => {
 export const updatedUserName = async (userId: string, newUserName: string) => {
   return await db
     .update(users)
-    .set({ userName: newUserName })
+    .set({ userName: newUserName, updatedAt: new Date().toISOString() })
     .where(eq(users.id, userId))
     .returning()
 }
@@ -77,7 +77,7 @@ export const changeNameAssociatedPrinters = async (
 
     const result = await db
       .update(usersAssociatedPrinters)
-      .set({ name: newName.trim() })
+      .set({ name: newName.trim(), updatedAt: new Date().toISOString() })
       .where(
         and(
           eq(usersAssociatedPrinters.userId, userId),

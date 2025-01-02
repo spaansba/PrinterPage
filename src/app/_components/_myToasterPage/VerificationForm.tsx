@@ -1,3 +1,4 @@
+"use client"
 import { KeyRound, X } from "lucide-react"
 import React, { type Dispatch, type SetStateAction } from "react"
 import { type UseFormSetError } from "react-hook-form"
@@ -6,6 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useUser } from "@clerk/nextjs"
 import { useForm } from "react-hook-form"
 export const verificationCodeLength = 6
+
+type FormValues = z.infer<typeof verificationSchema>
 
 const verificationSchema = z.object({
   code: z
@@ -34,12 +37,13 @@ function VerificationModal({
   handleVerificationSubmit,
 }: VerificationModalProps) {
   const { user } = useUser()
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     setError,
-  } = useForm<z.infer<typeof verificationSchema>>({
+  } = useForm<FormValues>({
     resolver: zodResolver(verificationSchema),
     mode: "onSubmit",
   })
