@@ -70,7 +70,7 @@ function ToasterInformation({ toaster }: ToasterInformationProps) {
           pictureURL={
             toaster.profilePicture
               ? toaster.profilePicture
-              : "https://utfs.io/f/HgS7iFpfFqdY1SuOpIcrIgrQG4suNhE1Z8XYiCSnofzHybqm"
+              : "https://utfs.io/f/HgS7iFpfFqdY9JdpqoC60orpq5mxeKSliHZt1By84hAazv23"
           }
           altName={`${toaster.name}'s profile`}
         />

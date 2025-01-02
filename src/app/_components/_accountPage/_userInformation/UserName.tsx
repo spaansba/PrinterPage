@@ -1,14 +1,12 @@
 import { useUser } from "@clerk/nextjs"
 import { zodResolver } from "@hookform/resolvers/zod"
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import type { z } from "zod"
-import { getUserName, updatedUserName } from "@/lib/queries"
+import { updatedUserName } from "@/lib/queries"
 import { Loader2, Pencil, SendHorizonal, X } from "lucide-react"
 import { friendNameSchema } from "../../_editorPage/AddNewFriendForm"
 import { useToasterUser } from "@/app/context/userDataContext"
-
-const usernameCache = new Map<string, string>()
 
 function UserName() {
   const { user } = useUser()

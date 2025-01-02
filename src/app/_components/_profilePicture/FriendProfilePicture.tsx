@@ -15,7 +15,7 @@ function FriendProfilePicture({ pictureUrl, altName, pictureSizeInPX }: FriendPr
     >
       <Image
         draggable={false}
-        src={pictureUrl || "/images/Logo512BW.png"}
+        src={pictureUrl || "/images/backupProfile.png"}
         alt={altName}
         width={pictureSizeInPX}
         height={pictureSizeInPX}
