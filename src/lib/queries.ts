@@ -24,10 +24,16 @@ export const updatedUserName = async (userId: string, newUserName: string) => {
 
 export const getAssociatedPrintersById = async (userId: string) => {
   return await db
-    .select()
+    .select({
+      printerId: usersAssociatedPrinters.associatedPrinterId,
+      name: usersAssociatedPrinters.name,
+      lastSendMessage: usersAssociatedPrinters.lastSendMessage,
+      profilePicture: printers.profilePicture,
+    })
     .from(usersAssociatedPrinters)
+    .leftJoin(printers, eq(usersAssociatedPrinters.associatedPrinterId, printers.id))
     .where(eq(usersAssociatedPrinters.userId, userId))
-    .orderBy(desc(usersAssociatedPrinters.lastSendMessage)) // Make sure the person you send the latest message to is on top of the recipients list
+    .orderBy(desc(usersAssociatedPrinters.lastSendMessage))
 }
 
 export const incrementPrinterMessageStats = async (userId: string, associatedPrinterId: string) => {

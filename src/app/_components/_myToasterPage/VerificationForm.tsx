@@ -6,16 +6,14 @@ import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useUser } from "@clerk/nextjs"
 import { useForm } from "react-hook-form"
-export const verificationCodeLength = 6
-
-type FormValues = z.infer<typeof verificationSchema>
+import { VERIFICATION_CODE_LENGTH } from "@/lib/constants"
 
 const verificationSchema = z.object({
   code: z
     .string()
     .length(
-      verificationCodeLength,
-      `Verification code is ${verificationCodeLength} characters long`
+      VERIFICATION_CODE_LENGTH,
+      `Verification code is ${VERIFICATION_CODE_LENGTH} characters long`
     ),
 })
 
@@ -37,13 +35,12 @@ function VerificationModal({
   handleVerificationSubmit,
 }: VerificationModalProps) {
   const { user } = useUser()
-
   const {
     register,
     handleSubmit,
     formState: { errors },
     setError,
-  } = useForm<FormValues>({
+  } = useForm<z.infer<typeof verificationSchema>>({
     resolver: zodResolver(verificationSchema),
     mode: "onSubmit",
   })

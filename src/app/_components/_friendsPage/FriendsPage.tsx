@@ -1,6 +1,5 @@
 import React, { useRef, useState } from "react"
 import type { FriendListHook } from "../AppWindow"
-import Image from "next/image"
 import { Check, Pencil, X } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -9,6 +8,7 @@ import { useUser } from "@clerk/nextjs"
 import DeleteFriend from "./DeleteFriend"
 import { friendNameSchema } from "../_editorPage/AddNewFriendForm"
 import AddNewFriend from "../_editorPage/_friendSelector/AddNewFriend"
+import FriendProfilePicture from "./FriendProfilePicture"
 
 type FriendsPageProps = {
   friendsHook: FriendListHook
@@ -76,13 +76,7 @@ function FriendsPage({ friendsHook }: FriendsPageProps) {
               )}`}
             >
               <div className="flex items-center justify-center mr-2 rounded-lg p-1">
-                <Image
-                  src={friend.profilePicture || "/images/Logo512BW.png"}
-                  alt={friend.profilePicture ? `${friend.name}'s profile picture` : "Toaster"}
-                  width={30}
-                  height={30}
-                  className="rounded-lg object-cover"
-                />
+                <FriendProfilePicture friend={friend} pictureSizeInPX={40} />
               </div>
               <div className="flex flex-col">
                 {editingId === friend.printerId ? (

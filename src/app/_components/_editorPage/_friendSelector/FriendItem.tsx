@@ -2,6 +2,7 @@ import React from "react"
 import Image from "next/image"
 import { Circle, CircleCheckBig, CircleMinus } from "lucide-react"
 import type { Friend } from "./FriendSelector"
+import FriendProfilePicture from "../../_friendsPage/FriendProfilePicture"
 
 type FriendItemProps = {
   friend: Friend
@@ -21,10 +22,8 @@ function FriendItem({ friend, isSelected, handleFriendSelect }: FriendItemProps)
         className="flex w-full items-center px-4 py-2 md:hover:bg-toastPrimaryHover cursor-pointer"
         title={`Toaster ID: ${friend.printerId}`}
       >
-        <div className="flex items-center justify-center mr-2">
-          <Image src="/images/Logo512BW.png" alt="Toaster" width={24} height={24} />
-        </div>
-        <div className="flex flex-col">
+        <div className="flex gap-2 items-center">
+          <FriendProfilePicture friend={friend} pictureSizeInPX={40} />
           <span>{friend.name}</span>
         </div>
         <div className="ml-auto">

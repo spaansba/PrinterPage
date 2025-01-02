@@ -1,14 +1,14 @@
 "use server"
-import { verificationCodeLength } from "@/app/_components/_myToasterPage/VerificationForm"
 import { randomBytes } from "crypto"
+import { VERIFICATION_CODE_LENGTH } from "./constants"
 
 export async function createCode(): Promise<{ code: string; bytes: Uint8Array }> {
   // Create charset without confusing characters (O, 0, I, L)
   const charset = "123456789ABCDEFGHJKMNPQRSTUVWXYZ"
   let code = ""
-  const randomValues = randomBytes(verificationCodeLength)
+  const randomValues = randomBytes(VERIFICATION_CODE_LENGTH)
 
-  for (let i = 0; i < verificationCodeLength; i++) {
+  for (let i = 0; i < VERIFICATION_CODE_LENGTH; i++) {
     code += charset[randomValues[i] % charset.length]
   }
 

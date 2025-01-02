@@ -49,7 +49,6 @@ export const sendVerificationCode = async (printerId: string) => {
   try {
     return await db.transaction(async (tx) => {
       const verificationCode = await createCode()
-
       // Delete any existing codes
       await tx.delete(verificationCodes).where(eq(verificationCodes.printerId, printerId))
 
@@ -103,7 +102,7 @@ export const checkVerificationCode = async (printerId: string, userInputtedCode:
     }
   }
 
-  if (code.expiresAt < now.toISOString()) {
+  if (new Date(code.expiresAt + "Z").toISOString() < now.toISOString()) {
     return {
       verified: false,
       message: "Verification code has expired",
