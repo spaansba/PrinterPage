@@ -2,7 +2,7 @@ import React from "react"
 import Image from "next/image"
 import { Circle, CircleCheckBig, CircleMinus } from "lucide-react"
 import type { Friend } from "./FriendSelector"
-import FriendProfilePicture from "../../_friendsPage/FriendProfilePicture"
+import FriendProfilePicture from "../../_profilePicture/FriendProfilePicture"
 
 type FriendItemProps = {
   friend: Friend
@@ -23,7 +23,11 @@ function FriendItem({ friend, isSelected, handleFriendSelect }: FriendItemProps)
         title={`Toaster ID: ${friend.printerId}`}
       >
         <div className="flex gap-2 items-center">
-          <FriendProfilePicture friend={friend} pictureSizeInPX={40} />
+          <FriendProfilePicture
+            altName={friend.name}
+            pictureUrl={friend.profilePicture}
+            pictureSizeInPX={40}
+          />
           <span>{friend.name}</span>
         </div>
         <div className="ml-auto">

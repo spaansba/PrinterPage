@@ -2,11 +2,12 @@ import Image from "next/image"
 import type { Friend } from "../_editorPage/_friendSelector/FriendSelector"
 
 type FriendProfilePictureProps = {
-  friend: Friend
+  pictureUrl: string | null
+  altName: string
   pictureSizeInPX: number
 }
 
-function FriendProfilePicture({ friend, pictureSizeInPX }: FriendProfilePictureProps) {
+function FriendProfilePicture({ pictureUrl, altName, pictureSizeInPX }: FriendProfilePictureProps) {
   return (
     <div
       className="overflow-hidden rounded-full"
@@ -14,9 +15,8 @@ function FriendProfilePicture({ friend, pictureSizeInPX }: FriendProfilePictureP
     >
       <Image
         draggable={false}
-        key={friend.printerId}
-        src={friend.profilePicture || "/images/Logo512BW.png"}
-        alt={friend.profilePicture ? `${friend.name}'s profile picture` : "Toaster"}
+        src={pictureUrl || "/images/Logo512BW.png"}
+        alt={altName}
         width={pictureSizeInPX}
         height={pictureSizeInPX}
         className="object-cover w-full h-full"

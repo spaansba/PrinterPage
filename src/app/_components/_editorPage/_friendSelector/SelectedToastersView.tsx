@@ -2,7 +2,7 @@ import React from "react"
 import Image from "next/image"
 import { ChevronDown } from "lucide-react"
 import type { Friend } from "./FriendSelector"
-import FriendProfilePicture from "../../_friendsPage/FriendProfilePicture"
+import FriendProfilePicture from "../../_profilePicture/FriendProfilePicture"
 
 type SelectedToastersViewProps = {
   selectedFriends: Friend[]
@@ -16,7 +16,11 @@ function SelectedToastersView({ selectedFriends }: SelectedToastersViewProps) {
           <>
             {selectedFriends.slice(0, maxVisibleRecipients).map((friend) => (
               <div key={friend.printerId} className="inline-flex items-center">
-                <FriendProfilePicture friend={friend} pictureSizeInPX={32} />
+                <FriendProfilePicture
+                  pictureUrl={friend.profilePicture}
+                  altName={friend.name}
+                  pictureSizeInPX={32}
+                />
                 <span className="ml-2 whitespace-nowrap">{friend.name}</span>
               </div>
             ))}

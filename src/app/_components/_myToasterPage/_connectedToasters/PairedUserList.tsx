@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react"
 import Image from "next/image"
 import { User } from "lucide-react"
 import { getUsersPairedToTaster } from "@/lib/queries/toasterInfo"
+import FriendProfilePicture from "../../_profilePicture/FriendProfilePicture"
 
 type PairedUserList = {
   toaster: Toaster
@@ -23,18 +24,12 @@ function PairedUserList({ toaster }: PairedUserList) {
             key={user.id}
             className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-full text-sm"
           >
-            {user.profileImageUrl ? (
-              <div className="relative w-5 h-5">
-                <Image
-                  src={user.profileImageUrl}
-                  alt={user.userName}
-                  fill
-                  className="rounded-full object-cover"
-                />
-              </div>
-            ) : (
-              <User className="w-4 h-4 text-gray-400" />
-            )}
+            <FriendProfilePicture
+              pictureUrl={user.profileImageUrl}
+              altName={user.userName}
+              pictureSizeInPX={28}
+            />
+
             <span className="text-gray-700">{user.userName}</span>
           </div>
         ))}

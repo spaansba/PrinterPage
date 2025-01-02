@@ -8,7 +8,7 @@ import { useUser } from "@clerk/nextjs"
 import DeleteFriend from "./DeleteFriend"
 import { friendNameSchema } from "../_editorPage/AddNewFriendForm"
 import AddNewFriend from "../_editorPage/_friendSelector/AddNewFriend"
-import FriendProfilePicture from "./FriendProfilePicture"
+import FriendProfilePicture from "../_profilePicture/FriendProfilePicture"
 
 type FriendsPageProps = {
   friendsHook: FriendListHook
@@ -76,7 +76,11 @@ function FriendsPage({ friendsHook }: FriendsPageProps) {
               )}`}
             >
               <div className="flex items-center justify-center mr-2 rounded-lg p-1">
-                <FriendProfilePicture friend={friend} pictureSizeInPX={40} />
+                <FriendProfilePicture
+                  pictureUrl={friend.profilePicture}
+                  altName={friend.name}
+                  pictureSizeInPX={40}
+                />
               </div>
               <div className="flex flex-col">
                 {editingId === friend.printerId ? (

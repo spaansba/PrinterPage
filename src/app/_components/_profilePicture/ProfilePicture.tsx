@@ -1,12 +1,8 @@
 import React, { useState, useRef } from "react"
 import Image from "next/image"
-import { Camera, X } from "lucide-react"
-import ReactCrop, { Crop, PixelCrop, centerCrop, makeAspectCrop } from "react-image-crop"
+import { Camera } from "lucide-react"
 import "react-image-crop/dist/ReactCrop.css"
-import { deleteFromBlob, uploadToBlob } from "@/lib/uploadToasterProfilePicture"
-import { updateToasterInformation } from "@/lib/queries/toasterInfo"
 import CropModal from "./CropModal"
-import { useToasterUser } from "@/app/context/userDataContext"
 
 type ProfilePictureProps = {
   handleNewProfilePicture: (blob: Blob) => Promise<{
