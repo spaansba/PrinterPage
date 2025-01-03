@@ -17,11 +17,14 @@ function PairedUserList({ toaster }: PairedUserListProps) {
       <div className="mt-3 flex flex-wrap gap-2">
         {toaster.pairedAccounts?.map((account) => (
           <div
-            key={account.id}
+            key={`${toaster.id} & ${account.id}`}
             className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-full text-sm"
           >
             <FriendProfilePicture
-              pictureUrl="https://utfs.io/f/HgS7iFpfFqdY9JdpqoC60orpq5mxeKSliHZt1By84hAazv23"
+              pictureUrl={
+                account.profileImageUrl ||
+                "https://utfs.io/f/HgS7iFpfFqdY9JdpqoC60orpq5mxeKSliHZt1By84hAazv23"
+              }
               altName={account.userName}
               pictureSizeInPX={28}
             />

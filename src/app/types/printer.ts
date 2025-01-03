@@ -7,5 +7,5 @@ export type Toaster = {
 type ToasterUser = {
   id: string
   userName: string
-  // profileImageUrl: string | null
+  profileImageUrl?: string | null
 }

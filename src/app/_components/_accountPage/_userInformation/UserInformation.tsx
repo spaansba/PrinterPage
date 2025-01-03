@@ -1,19 +1,37 @@
-import React from "react"
+import React, { useEffect } from "react"
 import UserName from "./UserName"
 import ProfilePicture from "../../_profilePicture/ProfilePicture"
 import { useUser } from "@clerk/nextjs"
+import { useToasterUser } from "@/app/context/userDataContext"
 
 export default function UserInformation() {
   const { user } = useUser()
   if (!user) {
     return
   }
+
+  const { setPairedToasters } = useToasterUser()
+
   const handleNewProfilePicture = async (blob: Blob) => {
     try {
-      //  setIsProfileImageUploading(true)
       const file = new File([blob], "profile.jpg", { type: blob.type })
 
       await user.setProfileImage({ file })
+      const localImageUrl = URL.createObjectURL(file)
+
+      setPairedToasters((prev) => {
+        return prev.map((toaster) => ({
+          ...toaster,
+          pairedAccounts: toaster.pairedAccounts?.map((account) =>
+            account.id === user.id
+              ? {
+                  ...account,
+                  profileImageUrl: localImageUrl,
+                }
+              : account
+          ),
+        }))
+      })
       return {
         success: true,
         message: "",

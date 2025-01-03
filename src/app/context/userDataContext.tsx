@@ -1,5 +1,5 @@
 "use client"
-import { createContext, useContext, useState, type ReactNode } from "react"
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
 import type { Friend } from "../_components/_editorPage/_friendSelector/FriendSelector"
 import type { Toaster } from "../types/printer"
 
@@ -37,7 +37,7 @@ export function ToasterUserProvider({
   const [friendList, setFriendList] = useState<Friend[]>(initialFriendList)
   const [pairedToasters, setPairedToasters] = useState<Toaster[]>(initialPairedToasters)
   const [username, setUsername] = useState<string>(initialUsername)
-  console.log(pairedToasters)
+
   return (
     <ToasterUserContext.Provider
       value={{

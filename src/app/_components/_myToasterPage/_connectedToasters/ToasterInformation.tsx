@@ -21,7 +21,7 @@ function ToasterInformation({ toaster }: ToasterInformationProps) {
       const { url } = await uploadToBlob(formData, vercelBlobFolder)
 
       // Update toaster with the new URL
-      const result = await updateToasterInformation("fcs2ean4kg", {
+      const result = await updateToasterInformation(toaster.id, {
         profilePicture: url,
       })
 
