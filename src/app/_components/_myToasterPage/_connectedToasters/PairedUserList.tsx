@@ -1,16 +1,12 @@
-import type { Toaster, ToasterUser } from "@/app/page"
-import React, { useEffect, useState } from "react"
-import Image from "next/image"
-import { User } from "lucide-react"
-import { getUsersPairedToTaster } from "@/lib/queries/toasterInfo"
+import React from "react"
+import type { Toaster } from "@/app/types/printer"
 import FriendProfilePicture from "../../_profilePicture/FriendProfilePicture"
 
-type PairedUserList = {
+type PairedUserListProps = {
   toaster: Toaster
 }
 
-function PairedUserList({ toaster }: PairedUserList) {
-  const { pairedUsers, setPairedUsers } = usePairedUsersToToaster(toaster.id)
+function PairedUserList({ toaster }: PairedUserListProps) {
   return (
     <>
       {/* Connected Users Section with full-width line */}
@@ -19,35 +15,22 @@ function PairedUserList({ toaster }: PairedUserList) {
         <div className="h-px bg-gray-200 flex-grow" />
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
-        {pairedUsers?.map((user) => (
+        {toaster.pairedAccounts?.map((account) => (
           <div
-            key={user.id}
+            key={account.id}
             className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-full text-sm"
           >
             <FriendProfilePicture
-              pictureUrl={user.profileImageUrl}
-              altName={user.userName}
+              pictureUrl="https://utfs.io/f/HgS7iFpfFqdY9JdpqoC60orpq5mxeKSliHZt1By84hAazv23"
+              altName={account.userName}
               pictureSizeInPX={28}
             />
-
-            <span className="text-gray-700">{user.userName}</span>
+            <span className="text-gray-700">{account.userName}</span>
           </div>
         ))}
       </div>
     </>
   )
-}
-
-const usePairedUsersToToaster = (printerId: string) => {
-  const [pairedUsers, setPairedUsers] = useState<ToasterUser[]>([])
-  useEffect(() => {
-    const getPairedUsers = async () => {
-      const getUsers = await getUsersPairedToTaster(printerId)
-      setPairedUsers(getUsers.data)
-    }
-    getPairedUsers()
-  }, [])
-  return { pairedUsers, setPairedUsers }
 }
 
 export default PairedUserList

@@ -1,4 +1,4 @@
-import type { Toaster } from "@/app/page"
+import type { Toaster } from "@/app/types/printer"
 import PairedUserList from "./PairedUserList"
 import ToasterInformation from "./ToasterInformation"
 
