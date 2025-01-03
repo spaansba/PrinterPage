@@ -59,7 +59,7 @@ function ToasterIdForm({ setShowVerificationForm, printerId, setPrinterId }: Toa
         return
       }
       const verficiationCode = await sendVerificationCode(data.printerId)
-      console.log(verficiationCode)
+
       if (!verficiationCode.success) {
         setErrorNew("root", {
           message: verficiationCode.message,

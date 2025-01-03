@@ -69,7 +69,6 @@ export async function sendCodeToUser(code: Uint8Array, printerId: string) {
       }),
     })
     const responseText = await response.text()
-    console.log(responseText)
   } catch (error) {
     console.error("Error sending code:", error)
   }

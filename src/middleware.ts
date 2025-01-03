@@ -1,4 +1,5 @@
 import { clerkMiddleware } from "@clerk/nextjs/server"
+import { NextResponse, type NextRequest } from "next/server"
 
 // Make sure that the `/api/webhooks/(.*)` route is not protected here
 export default clerkMiddleware()
@@ -11,3 +12,15 @@ export const config = {
     "/(api|trpc)(.*)",
   ],
 }
+
+// export function middleware(request: NextRequest) {
+//   console.log({
+//     method: request.method,
+//     path: request.nextUrl.pathname,
+//     //  body: request.body, // Note: body is a ReadableStream
+//     query: Object.fromEntries(request.nextUrl.searchParams),
+//     timestamp: new Date().toISOString(),
+
+//   })
+//   return NextResponse.next()
+// }

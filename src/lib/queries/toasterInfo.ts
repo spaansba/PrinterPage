@@ -1,8 +1,9 @@
 "use server"
 import { db } from ".."
-import { printers, printerUserPairing } from "../schema"
+import { printers, printerUserPairing, users } from "../schema"
 import { and, eq, inArray } from "drizzle-orm"
 import { getUserInformation } from "./userInfo"
+import type { Toaster } from "@/app/types/printer"
 
 type UpdateToasterData = {
   name?: string
@@ -102,25 +103,61 @@ export const getToaster = async (printerId: string) => {
   }
 }
 
-export const getToasterInformation = async (printerIds: string[]) => {
-  const pairedToasterInfo = await db
+// export const getToasterInformation = async (printerIds: string[]) => {
+//   const pairedToasterInfo = await db
+//     .select({
+//       id: printers.id,
+//       name: printers.name,
+//       profilePicture: printers.profilePicture,
+//     })
+//     .from(printers)
+//     .where(inArray(printers.id, printerIds))
+//   return pairedToasterInfo
+// }
+
+/**
+ * Retrieves all printers (toasters) that have user pairings, including their basic information and paired user accounts.
+ * Each printer can have multiple users paired to it.
+ *
+ * First gets all printer data (id, name, profile picture) from the printers table.
+ * Then for each printer, queries the users table to get information about all paired users.
+ *
+ * @param userId - The ID of the user to get paired printers for
+ * @returns An array of Toaster objects, each containing the printer info and an array of paired user accounts
+ */
+export const getPairedToasters = async (userId: string): Promise<Toaster[]> => {
+  const printerResults = await db
     .select({
       id: printers.id,
       name: printers.name,
       profilePicture: printers.profilePicture,
     })
-    .from(printers)
-    .where(inArray(printers.id, printerIds))
-
-  return pairedToasterInfo
-}
-
-export const getPairedToasters = async (userId: string) => {
-  const pairedToasters = await db
-    .select()
     .from(printerUserPairing)
+    .innerJoin(printers, eq(printerUserPairing.printerId, printers.id))
     .where(eq(printerUserPairing.userId, userId))
-  return pairedToasters.map((toaster) => toaster.printerId)
+
+  // For each printer, get its paired users from the users table
+  const toasters = await Promise.all(
+    printerResults.map(async (printer) => {
+      const pairedUsers = await db
+        .select({
+          id: users.id,
+          userName: users.userName,
+        })
+        .from(users)
+        .innerJoin(printerUserPairing, eq(users.id, printerUserPairing.userId))
+        .where(eq(printerUserPairing.printerId, printer.id))
+
+      return {
+        id: printer.id,
+        name: printer.name,
+        profilePicture: printer.profilePicture,
+        pairedAccounts: pairedUsers,
+      }
+    })
+  )
+
+  return toasters
 }
 
 export const checkIfAlreadyPaired = async (printerId: string, userId: string) => {

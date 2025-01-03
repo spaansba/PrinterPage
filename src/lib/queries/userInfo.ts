@@ -5,7 +5,6 @@ import { clerkClient } from "@clerk/nextjs/server"
 import type { User } from "@clerk/nextjs/server"
 
 export const getUserInformation = async (userIds: string | string[]) => {
-  console.log(userIds)
   // Convert single userId to array for consistent handling
   const userIdArray = Array.isArray(userIds) ? userIds : [userIds]
 
