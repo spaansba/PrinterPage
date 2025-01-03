@@ -1,8 +1,8 @@
-import type { Toaster } from "@/app/page"
 import ProfilePicture from "../../_profilePicture/ProfilePicture"
 import { useToasterUser } from "@/app/context/userDataContext"
 import { deleteFromBlob, uploadToBlob } from "@/lib/uploadToasterProfilePicture"
 import { updateToasterInformation } from "@/lib/queries/toasterInfo"
+import type { Toaster } from "@/app/types/printer"
 
 type ToasterInformationProps = {
   toaster: Toaster
