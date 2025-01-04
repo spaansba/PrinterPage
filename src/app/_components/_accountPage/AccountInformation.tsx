@@ -13,7 +13,7 @@ type AccountInformationProps = {
 function AccountInformation({ setIsEditProfileModalOpen }: AccountInformationProps) {
   const { user } = useUser()
   if (!user) {
-    return
+    return null
   }
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { setPairedToasters, currentUser } = useToasterUser()

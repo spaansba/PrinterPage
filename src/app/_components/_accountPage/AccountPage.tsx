@@ -1,21 +1,14 @@
 "use client"
-import { useClerk, UserProfile } from "@clerk/nextjs"
+import { UserProfile } from "@clerk/nextjs"
 import React, { useEffect, useState } from "react"
 import { useUser } from "@clerk/nextjs"
 import { useToasterUser } from "@/app/context/userDataContext"
-import { Edit, ImageUp, LogOut, UserPen } from "lucide-react"
-import { MenuModal, type MenuOption } from "../_helperComponents/MenuModal"
-import ProfilePicture from "../_profilePicture/ProfilePicture"
 import AccountInformation from "./AccountInformation"
 
 function AccountPage() {
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false)
   const { user } = useUser()
   const { currentUser } = useToasterUser()
-  if (!user || currentUser.id != user.id) {
-    return <div>Error please reload the app</div>
-  }
-
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") setIsEditProfileModalOpen(false)
@@ -23,6 +16,9 @@ function AccountPage() {
     window.addEventListener("keydown", handleEscape)
     return () => window.removeEventListener("keydown", handleEscape)
   }, [])
+  if (!user || currentUser.id != user.id) {
+    return <div>Error please reload the app</div>
+  }
 
   return (
     <div className=" bg-toastWhite">

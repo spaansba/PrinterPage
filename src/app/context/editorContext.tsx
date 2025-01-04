@@ -69,7 +69,7 @@ export function CustomEditorProvider({ children, handleTextChange }: CustomEdito
       handleKeyDown: (view, event) => {
         // Handle all Enter/Return key presses the same way
         if (event.key === "Enter") {
-          const { from, to } = view.state.selection
+          const { from } = view.state.selection
 
           // Get the character right before the cursor
           const text = view.state.doc.textBetween(from - 1, from)

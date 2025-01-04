@@ -6,7 +6,7 @@ type CameraPreviewProps = {
   videoConstraints: videoConstraints
   isStreaming: boolean
   setIsStreaming: React.Dispatch<React.SetStateAction<boolean>>
-  webcamRef: React.RefObject<Webcam>
+  webcamRef: React.RefObject<Webcam | null>
 }
 
 function CameraPreview({

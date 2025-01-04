@@ -5,6 +5,7 @@ import { useDropDownModal } from "../../../_customHooks/useDropdownModal"
 import type { FriendListHook } from "../../AppWindow"
 import SelectedToastersView from "./SelectedToastersView"
 import FriendSelectorModal from "./FriendSelectorModal"
+import type { Friend } from "@/app/types/printer"
 
 type FriendSelectorProps = {
   friendsHook: FriendListHook

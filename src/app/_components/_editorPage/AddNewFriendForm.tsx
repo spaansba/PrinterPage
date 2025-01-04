@@ -26,7 +26,7 @@ export const printerIdSchema = z.object({
 
 type AddNewFriendFormProps = {
   setIsAddingFriend: Dispatch<SetStateAction<boolean>>
-  addFriendRef: React.RefObject<HTMLFormElement>
+  addFriendRef: React.RefObject<HTMLFormElement | null>
   friendsHook: FriendListHook
 }
 
