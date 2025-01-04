@@ -49,34 +49,46 @@ export default async function Home() {
 }
 
 const getProfilePicFromUsers = async (toasters: Toaster[]) => {
-  if (toasters.length === 0) {
+  if (!toasters || toasters.length === 0) {
     return toasters
   }
-  const clerk = await clerkClient()
-  const updatedToasters = await Promise.all(
-    toasters.map(async (toaster) => {
-      if (toaster.pairedAccounts && toaster.pairedAccounts.length > 0) {
+
+  try {
+    const clerk = await clerkClient()
+    const updatedToasters = await Promise.all(
+      toasters.map(async (toaster) => {
+        if (!toaster.pairedAccounts || toaster.pairedAccounts.length === 0) {
+          return toaster
+        }
+
         const pairedAccountsWithImages = await Promise.all(
           toaster.pairedAccounts.map(async (account) => {
             try {
               const clerkUser = await clerk.users.getUser(account.id)
               return {
                 ...account,
-                profileImageUrl: clerkUser.imageUrl,
+                profileImageUrl: clerkUser?.imageUrl || account.profileImageUrl || null,
               }
             } catch (error) {
-              console.error(`Failed to fetch profile picture for user ${account.id}:`, error)
-              return account
+              // Return original account if fetch fails
+              return {
+                ...account,
+                profileImageUrl: account.profileImageUrl || null,
+              }
             }
           })
         )
+
         return {
           ...toaster,
           pairedAccounts: pairedAccountsWithImages,
         }
-      }
-      return toaster
-    })
-  )
-  return updatedToasters
+      })
+    )
+    return updatedToasters
+  } catch (error) {
+    console.error("Failed to process toasters:", error)
+    // Return original toasters if overall process fails
+    return toasters
+  }
 }

@@ -12,7 +12,7 @@ function UserName() {
   const { user } = useUser()
   const [isEditingUsername, setIsEditingUsername] = useState(false)
   const [isUpdatingUsername, setIsUpdatingUsername] = useState(false)
-  const { username, alterUsername } = useToasterUser()
+  const { currentUser, alterUsername } = useToasterUser()
   const {
     register: registerEdit,
     handleSubmit: handleSubmitEdit,
@@ -62,7 +62,7 @@ function UserName() {
             <input
               {...registerEdit("name")}
               className="w-[120px] border-[1px] text-[16px] px-1 py-0.5 rounded"
-              defaultValue={username}
+              defaultValue={currentUser.userName}
               placeholder="Enter username"
             />
             <button
@@ -88,7 +88,7 @@ function UserName() {
           </form>
         ) : (
           <div className="flex">
-            <span className="truncate">{username}</span>
+            <span className="truncate">{currentUser.userName}</span>
             <button title="Edit Username" className="ml-auto" onClick={handleEditClick}>
               <Pencil size={14} />
             </button>

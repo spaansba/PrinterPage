@@ -1,8 +1,10 @@
+import React, { useState, useRef, useEffect } from "react"
 import ProfilePicture from "../../_profilePicture/ProfilePicture"
 import { useToasterUser } from "@/app/context/userDataContext"
 import { deleteFromBlob, uploadToBlob } from "@/lib/uploadToasterProfilePicture"
 import { updateToasterInformation } from "@/lib/queries/toasterInfo"
 import type { Toaster } from "@/app/types/printer"
+import { MoreVertical, Edit, Trash2, RefreshCw } from "lucide-react"
 
 type ToasterInformationProps = {
   toaster: Toaster
@@ -10,17 +12,34 @@ type ToasterInformationProps = {
 
 function ToasterInformation({ toaster }: ToasterInformationProps) {
   const { setPairedToasters, setFriendList } = useToasterUser()
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        menuRef.current &&
+        buttonRef.current &&
+        !menuRef.current.contains(event.target as Node) &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
+        setIsMenuOpen(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
 
   const handleNewProfilePicture = async (blob: Blob) => {
     try {
       const formData = new FormData()
       formData.append("file", blob, `cropped-profile.jpg`)
 
-      // Pass both the folder and old URL to the server action
       const vercelBlobFolder = "ToasterProfilePicture"
       const { url } = await uploadToBlob(formData, vercelBlobFolder)
 
-      // Update toaster with the new URL
       const result = await updateToasterInformation(toaster.id, {
         profilePicture: url,
       })
@@ -29,7 +48,6 @@ function ToasterInformation({ toaster }: ToasterInformationProps) {
         throw new Error(result.message)
       }
 
-      // If everything went well delete the old blob from vercel
       if (toaster.profilePicture) {
         const blobDeleted = await deleteFromBlob(toaster.profilePicture)
         if (!blobDeleted.success) {
@@ -82,18 +100,58 @@ function ToasterInformation({ toaster }: ToasterInformationProps) {
             </div>
             <div className="text-sm text-gray-500 mt-1">{toaster.id}</div>
           </div>
-          <button className="text-gray-400 hover:text-gray-600" title="More options">
-            •••
-            {/* TODO: add buttons */}
-          </button>
+
+          <div className="relative">
+            <button
+              ref={buttonRef}
+              className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              <MoreVertical className="h-5 w-5" />
+            </button>
+
+            {isMenuOpen && (
+              <div
+                ref={menuRef}
+                className="absolute right-0 w-48 mt-1 bg-white rounded-lg border shadow-lg z-50 py-1"
+              >
+                <button
+                  className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 w-full text-left text-sm"
+                  onClick={() => {
+                    // Handle edit
+                    setIsMenuOpen(false)
+                  }}
+                >
+                  <Edit className="h-4 w-4" />
+                  Edit Name
+                </button>
+                <button
+                  className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 w-full text-left text-sm"
+                  onClick={() => {
+                    // Handle reconnect
+                    setIsMenuOpen(false)
+                  }}
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  Reconnect
+                </button>
+                <button
+                  className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 w-full text-left text-sm text-red-600"
+                  onClick={() => {
+                    // Handle remove
+                    setIsMenuOpen(false)
+                  }}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Remove
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
   )
 }
 
-// const useProfilePictureUpload = () => {
-
-//   return { isUploading, setIsUploading }
-// }
 export default ToasterInformation
