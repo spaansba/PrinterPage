@@ -4,7 +4,8 @@ import { useToasterUser } from "@/app/context/userDataContext"
 import { deleteFromBlob, uploadToBlob } from "@/lib/uploadToasterProfilePicture"
 import { updateToasterInformation } from "@/lib/queries/toasterInfo"
 import type { Toaster } from "@/app/types/printer"
-import { MoreVertical, Edit, Trash2, RefreshCw } from "lucide-react"
+import { MoreVertical, Edit, Trash2, RefreshCw, ImageUp } from "lucide-react"
+import { MenuModal } from "../../_helperComponents/MenuModal"
 
 type ToasterInformationProps = {
   toaster: Toaster
@@ -13,24 +14,6 @@ type ToasterInformationProps = {
 function ToasterInformation({ toaster }: ToasterInformationProps) {
   const { setPairedToasters, setFriendList } = useToasterUser()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const menuRef = useRef<HTMLDivElement>(null)
-  const buttonRef = useRef<HTMLButtonElement>(null)
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        menuRef.current &&
-        buttonRef.current &&
-        !menuRef.current.contains(event.target as Node) &&
-        !buttonRef.current.contains(event.target as Node)
-      ) {
-        setIsMenuOpen(false)
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [])
 
   const handleNewProfilePicture = async (blob: Blob) => {
     try {
@@ -79,6 +62,29 @@ function ToasterInformation({ toaster }: ToasterInformationProps) {
     }
   }
 
+  const menuOptions = [
+    {
+      label: "Edit Name",
+      icon: <Edit className="size-4" />,
+      onClick: () => {},
+    },
+    {
+      label: "Edit Picture",
+      icon: <ImageUp className="size-4" />,
+      onClick: () => {
+        // Handle edit
+      },
+    },
+    {
+      label: "Remove Toaster",
+      icon: <Trash2 className="size-4" />,
+      onClick: () => {
+        // Handle remove
+      },
+      className: "text-red-600",
+    },
+  ]
+
   return (
     <div className="flex items-start gap-4 pb-4">
       <div className="relative w-16 h-16 flex-shrink-0 group">
@@ -101,53 +107,7 @@ function ToasterInformation({ toaster }: ToasterInformationProps) {
             <div className="text-sm text-gray-500 mt-1">{toaster.id}</div>
           </div>
 
-          <div className="relative">
-            <button
-              ref={buttonRef}
-              className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              <MoreVertical className="h-5 w-5" />
-            </button>
-
-            {isMenuOpen && (
-              <div
-                ref={menuRef}
-                className="absolute right-0 w-48 mt-1 bg-white rounded-lg border shadow-lg z-50 py-1"
-              >
-                <button
-                  className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 w-full text-left text-sm"
-                  onClick={() => {
-                    // Handle edit
-                    setIsMenuOpen(false)
-                  }}
-                >
-                  <Edit className="h-4 w-4" />
-                  Edit Name
-                </button>
-                <button
-                  className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 w-full text-left text-sm"
-                  onClick={() => {
-                    // Handle reconnect
-                    setIsMenuOpen(false)
-                  }}
-                >
-                  <RefreshCw className="h-4 w-4" />
-                  Reconnect
-                </button>
-                <button
-                  className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 w-full text-left text-sm text-red-600"
-                  onClick={() => {
-                    // Handle remove
-                    setIsMenuOpen(false)
-                  }}
-                >
-                  <Trash2 className="h-4 w-4" />
-                  Remove
-                </button>
-              </div>
-            )}
-          </div>
+          <MenuModal isOpen={isMenuOpen} setIsOpen={setIsMenuOpen} options={menuOptions} />
         </div>
       </div>
     </div>
