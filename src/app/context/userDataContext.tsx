@@ -1,7 +1,6 @@
 "use client"
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
 import type { Friend, Toaster, ToasterUser } from "../types/printer"
-import UserName from "../_components/_accountPage/_userInformation/UserName"
 
 type ToasterUserContextType = {
   friendList: Friend[]
@@ -19,7 +18,8 @@ const ToasterUserContext = createContext<ToasterUserContextType>({
   setPairedToasters: () => {},
   currentUser: {
     id: "",
-    userName: "",
+    username: "",
+    toastsSend: 0,
     profileImageUrl: "",
   },
   alterUsername: (userId: string, newName: string) => {},
@@ -47,7 +47,8 @@ export function ToasterUserProvider({
   const alterUsername = (userId: string, newName: string) => {
     setCurrentUser((prev) => ({
       id: prev.id,
-      userName: newName,
+      username: newName,
+      toastsSend: prev.toastsSend,
       profileImageUrl: prev.profileImageUrl,
     }))
 
@@ -58,7 +59,7 @@ export function ToasterUserProvider({
           account.id === userId
             ? {
                 ...account,
-                userName: newName,
+                username: newName,
               }
             : account
         ),

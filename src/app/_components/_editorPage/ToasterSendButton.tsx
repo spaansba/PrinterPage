@@ -2,11 +2,12 @@ import { useUser } from "@clerk/nextjs"
 import React, { useState, type Dispatch, type SetStateAction } from "react"
 import { useEditorContext } from "../../context/editorContext"
 import { getVisualLinesFromHTML } from "../../_helpers/getVisualLines"
-import { getUserName, incrementPrinterMessageStats } from "@/lib/queries"
+import { incrementPrinterMessageStats } from "@/lib/queries"
 import { PrepareTextToSend } from "../../_helpers/StringToBytes"
 import type { Lines } from "./RetroTextEditor"
 import type { messageStatus } from "../MainWrapper"
 import type { Friend } from "@/app/types/printer"
+import { useToasterUser } from "@/app/context/userDataContext"
 
 type ToasterSendButtonProps = {
   setMessageStatus: Dispatch<SetStateAction<messageStatus>>
@@ -72,8 +73,12 @@ function ToasterSendButton({
     const editorElement = editor!.view.dom as HTMLElement
     const lines = getVisualLinesFromHTML(editorElement)
     const htmlContentWithLineBreaks = addLineBreaksToHTML(hTMLContent, lines)
-    const username = await getUserName(user.id)
-    const content = await PrepareTextToSend(htmlContentWithLineBreaks, username, user.imageUrl)
+    const { currentUser } = useToasterUser()
+    const content = await PrepareTextToSend(
+      htmlContentWithLineBreaks,
+      currentUser.username,
+      user.imageUrl
+    )
 
     if (!selectedFriends) {
       return

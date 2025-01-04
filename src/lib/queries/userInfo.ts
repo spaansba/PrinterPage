@@ -15,7 +15,7 @@ export const getUserInformation = async (userIds: string | string[]) => {
 
   // Query all user information from your database
   const userInfo = await db
-    .select({ id: users.id, userName: users.userName })
+    .select({ id: users.id, username: users.username })
     .from(users)
     .where(inArray(users.id, userIdArray))
 

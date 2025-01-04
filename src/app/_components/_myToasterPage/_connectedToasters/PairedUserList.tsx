@@ -25,10 +25,10 @@ function PairedUserList({ toaster }: PairedUserListProps) {
                 account.profileImageUrl ||
                 "https://utfs.io/f/HgS7iFpfFqdY9JdpqoC60orpq5mxeKSliHZt1By84hAazv23"
               }
-              altName={account.userName}
+              altName={account.username}
               pictureSizeInPX={28}
             />
-            <span className="text-gray-700">{account.userName}</span>
+            <span className="text-gray-700">{account.username}</span>
           </div>
         ))}
       </div>

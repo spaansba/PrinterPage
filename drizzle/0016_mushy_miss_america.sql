@@ -1,0 +1,1 @@
+ALTER TABLE "printer_users" RENAME COLUMN "messages_send" TO "toasts_send";

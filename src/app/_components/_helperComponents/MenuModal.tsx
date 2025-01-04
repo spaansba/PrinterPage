@@ -38,7 +38,7 @@ export const MenuModal: React.FC<MenuModalProps> = ({ isOpen, setIsOpen, options
     <div className="relative">
       <button
         ref={buttonRef}
-        className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100"
+        className="text-gray-400 hover:text-gray-600 rounded-full "
         onClick={() => setIsOpen(!isOpen)}
       >
         <MoreVertical className="h-5 w-5" />

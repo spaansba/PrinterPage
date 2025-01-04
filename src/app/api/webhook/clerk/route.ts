@@ -13,9 +13,9 @@ export async function POST(req: Request) {
 
   // 2. Get Headers
   const headerPayload = headers()
-  const svix_id = headerPayload.get("svix-id")
-  const svix_timestamp = headerPayload.get("svix-timestamp")
-  const svix_signature = headerPayload.get("svix-signature")
+  const svix_id = (await headerPayload).get("svix-id")
+  const svix_timestamp = (await headerPayload).get("svix-timestamp")
+  const svix_signature = (await headerPayload).get("svix-signature")
 
   if (!svix_id || !svix_timestamp || !svix_signature) {
     return new Response("Error -- no svix headers", { status: 400 })
@@ -50,8 +50,8 @@ export async function POST(req: Request) {
 
       await db.insert(users).values({
         id: id,
-        userName: first_name || id,
-        messagesSend: 0,
+        username: first_name || id,
+        toastsSend: 0,
       })
 
       return new Response(JSON.stringify({ successs: true }), {

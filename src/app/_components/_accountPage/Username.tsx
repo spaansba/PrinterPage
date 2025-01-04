@@ -1,16 +1,20 @@
 import { useUser } from "@clerk/nextjs"
 import { zodResolver } from "@hookform/resolvers/zod"
-import React, { useState } from "react"
+import React, { useState, type Dispatch, type SetStateAction } from "react"
 import { useForm } from "react-hook-form"
 import type { z } from "zod"
 import { updatedUserName } from "@/lib/queries"
-import { Loader2, Pencil, SendHorizonal, X } from "lucide-react"
-import { friendNameSchema } from "../../_editorPage/AddNewFriendForm"
+import { Check, Loader2, SendHorizonal, X } from "lucide-react"
 import { useToasterUser } from "@/app/context/userDataContext"
+import { friendNameSchema } from "../_editorPage/AddNewFriendForm"
 
-function UserName() {
+type UsernameProps = {
+  isEditingUsername: boolean
+  setIsEditingUsername: Dispatch<SetStateAction<boolean>>
+}
+
+function Username({ isEditingUsername, setIsEditingUsername }: UsernameProps) {
   const { user } = useUser()
-  const [isEditingUsername, setIsEditingUsername] = useState(false)
   const [isUpdatingUsername, setIsUpdatingUsername] = useState(false)
   const { currentUser, alterUsername } = useToasterUser()
   const {
@@ -24,14 +28,6 @@ function UserName() {
     resolver: zodResolver(friendNameSchema),
     mode: "onSubmit",
   })
-  function handleEditClick(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
-    e.stopPropagation()
-    setIsEditingUsername(true)
-    resetEdit()
-    setTimeout(() => {
-      setEditFocus("name")
-    }, 0)
-  }
 
   async function handleNewUserName(data: z.infer<typeof friendNameSchema>) {
     if (!user) {
@@ -55,14 +51,13 @@ function UserName() {
   }
   return (
     <>
-      <div title="Username" className="text-[16px] font-medium items-center gap-1 min-w-0">
-        <div className="font-bold tex-sm">Username:</div>
+      <div title="Username" className="items-center gap-1 min-w-0">
         {isEditingUsername ? (
           <form className="flex items-center flex-1" onSubmit={handleSubmitEdit(handleNewUserName)}>
             <input
               {...registerEdit("name")}
-              className="w-[120px] border-[1px] text-[16px] px-1 py-0.5 rounded"
-              defaultValue={currentUser.userName}
+              className="w-[100px] border-[1px]  px-1 py-0.5 rounded"
+              defaultValue={currentUser.username}
               placeholder="Enter username"
             />
             <button
@@ -74,7 +69,7 @@ function UserName() {
               {isUpdatingUsername ? (
                 <Loader2 size={14} className="animate-spin" />
               ) : (
-                <SendHorizonal size={14} />
+                <Check size={14} />
               )}
             </button>
             <button
@@ -88,10 +83,7 @@ function UserName() {
           </form>
         ) : (
           <div className="flex">
-            <span className="truncate">{currentUser.userName}</span>
-            <button title="Edit Username" className="ml-auto" onClick={handleEditClick}>
-              <Pencil size={14} />
-            </button>
+            <span className="truncate">{currentUser.username}</span>
           </div>
         )}
       </div>
@@ -100,4 +92,4 @@ function UserName() {
   )
 }
 
-export default UserName
+export default Username

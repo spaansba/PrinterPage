@@ -1,11 +1,20 @@
 "use client"
-import { SignOutButton, UserProfile } from "@clerk/nextjs"
-import { X } from "lucide-react"
+import { useClerk, UserProfile } from "@clerk/nextjs"
 import React, { useEffect, useState } from "react"
-import UserInformation from "./_userInformation/UserInformation"
+import { useUser } from "@clerk/nextjs"
+import { useToasterUser } from "@/app/context/userDataContext"
+import { Edit, ImageUp, LogOut, UserPen } from "lucide-react"
+import { MenuModal, type MenuOption } from "../_helperComponents/MenuModal"
+import ProfilePicture from "../_profilePicture/ProfilePicture"
+import AccountInformation from "./AccountInformation"
 
 function AccountPage() {
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false)
+  const { user } = useUser()
+  const { currentUser } = useToasterUser()
+  if (!user || currentUser.id != user.id) {
+    return <div>Error please reload the app</div>
+  }
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -16,38 +25,26 @@ function AccountPage() {
   }, [])
 
   return (
-    <>
-      <div className="p-2 border-t border-[1px] border-gray-500 bg-white flex flex-col gap-2 relative">
-        <UserInformation />
-        <div className="grid  grid-cols-2 grid-rows-1 gap-1">
-          <button
-            onClick={() => setIsEditProfileModalOpen(true)}
-            className=" h-8 bg-toastPrimary border-2 border-t-white border-l-white border-b-[#808080] border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white px-4 text-sm font-bold hover:bg-[#e6e3de]"
-          >
-            Edit
-          </button>
-          <SignOutButton>
-            <button className=" h-8 bg-toastPrimary border-2 border-t-white border-l-white border-b-[#808080] border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white px-4 text-sm font-bold hover:bg-[#e6e3de]">
-              Sign Out
-            </button>
-          </SignOutButton>
-        </div>
+    <div className=" bg-toastWhite">
+      <div className="p-3">
+        <AccountInformation setIsEditProfileModalOpen={setIsEditProfileModalOpen} />
       </div>
 
+      {/* Edit Profile Modal */}
       {isEditProfileModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
-          <div className="relative">
+          <div className="relative bg-[#c0c0c0] border-2 border-white">
             <button
               onClick={() => setIsEditProfileModalOpen(false)}
-              className="absolute right-2 top-2 z-[60] p-2 hover:bg-gray-100 rounded-full"
+              className="absolute right-1 top-1 z-[60] p-1 text-sm"
             >
-              <X size={24} />
+              ✕
             </button>
             <UserProfile routing="hash" path={undefined} />
           </div>
         </div>
       )}
-    </>
+    </div>
   )
 }
 

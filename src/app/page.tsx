@@ -2,7 +2,7 @@
 import { clerkClient, currentUser } from "@clerk/nextjs/server"
 import AppDownloadButton from "./_components/AppDownloadButton"
 import MainWrapper from "./_components/MainWrapper"
-import { getAssociatedPrintersById, getUserName } from "@/lib/queries"
+import { getAssociatedPrintersById, getUserInfo } from "@/lib/queries"
 import { ToasterUserProvider } from "./context/userDataContext"
 import { getPairedToasters } from "@/lib/queries/toasterInfo"
 import type { Friend, Toaster, ToasterUser } from "./types/printer"
@@ -22,10 +22,12 @@ export default async function Home() {
   // Get user's friendlist from server
   const fullServerFriendsList: Friend[] = await getAssociatedPrintersById(user.id)
 
+  const dbUserInfo = await getUserInfo(user.id)
   // Get user information
   const toasterUser: ToasterUser = {
     id: user.id,
-    userName: await getUserName(user.id),
+    username: dbUserInfo[0].username,
+    toastsSend: dbUserInfo[0].toastsSend,
     profileImageUrl: user.imageUrl,
   }
 

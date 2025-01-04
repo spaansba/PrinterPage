@@ -7,7 +7,8 @@ export type Toaster = {
 
 export type ToasterUser = {
   id: string
-  userName: string
+  username: string
+  toastsSend: number
   profileImageUrl?: string | null
 }
 

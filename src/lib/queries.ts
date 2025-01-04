@@ -9,15 +9,18 @@ import {
 } from "./schema"
 import { eq, and, desc, sql } from "drizzle-orm"
 
-export const getUserName = async (userId: string) => {
-  const user = await db.select().from(users).where(eq(users.id, userId))
-  return user[0].userName ? user[0].userName : "username not found"
+export const getUserInfo = async (userId: string) => {
+  return await db
+    .select({ username: users.username, toastsSend: users.toastsSend })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1)
 }
 
-export const updatedUserName = async (userId: string, newUserName: string) => {
+export const updatedUserName = async (userId: string, newUsername: string) => {
   return await db
     .update(users)
-    .set({ userName: newUserName, updatedAt: new Date().toISOString() })
+    .set({ username: newUsername, updatedAt: new Date().toISOString() })
     .where(eq(users.id, userId))
     .returning()
 }
@@ -45,7 +48,7 @@ export const incrementPrinterMessageStats = async (userId: string, associatedPri
   // Global message counter
   await db
     .update(users)
-    .set({ messagesSend: sql`${users.messagesSend} + 1` })
+    .set({ toastsSend: sql`${users.toastsSend} + 1` })
     .where(eq(users.id, userId))
 
   // Message counter per associated printer ID
@@ -53,7 +56,7 @@ export const incrementPrinterMessageStats = async (userId: string, associatedPri
     .update(usersAssociatedPrinters)
     .set({
       lastSendMessage: new Date().toISOString(),
-      messagesSendToAssociatedPrinter: sql`${usersAssociatedPrinters.messagesSendToAssociatedPrinter} + 1`,
+      toastsSendToAssociatedPrinter: sql`${usersAssociatedPrinters.toastsSendToAssociatedPrinter} + 1`,
       updatedAt: new Date().toISOString(),
     })
     .where(

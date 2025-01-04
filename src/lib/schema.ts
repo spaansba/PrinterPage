@@ -44,8 +44,8 @@ export const printerSubscriptions = pgTable("subscriptions", {
 
 export const users = pgTable("printer_users", {
   id: varchar("id", { length: 256 }).primaryKey(),
-  userName: varchar("user_name", { length: 256 }).notNull(),
-  messagesSend: integer("messages_send").default(0),
+  username: varchar("username", { length: 256 }).notNull(),
+  toastsSend: integer("toasts_send").default(0).notNull(),
   createdAt: timestamp("created_at", { mode: "string" })
     .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
     .notNull(),
@@ -75,7 +75,7 @@ export const usersAssociatedPrinters = pgTable("printer_users_printer_associatio
   associatedPrinterId: varchar("associated_printer_id", { length: 10 })
     .notNull()
     .references(() => printers.id),
-  messagesSendToAssociatedPrinter: integer("messages_send_to_associated_printer").default(0),
+  toastsSendToAssociatedPrinter: integer("toasts_send_to_associated_printer").default(0).notNull(),
   name: varchar("name", { length: 50 }).notNull(),
   createdAt: timestamp("created_at", { mode: "string" })
     .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)

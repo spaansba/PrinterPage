@@ -142,7 +142,8 @@ export const getPairedToasters = async (userId: string): Promise<Toaster[]> => {
       const pairedUsers = await db
         .select({
           id: users.id,
-          userName: users.userName,
+          username: users.username,
+          toastsSend: users.toastsSend,
         })
         .from(users)
         .innerJoin(printerUserPairing, eq(users.id, printerUserPairing.userId))
