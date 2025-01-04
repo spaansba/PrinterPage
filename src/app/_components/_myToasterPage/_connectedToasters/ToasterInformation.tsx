@@ -4,8 +4,8 @@ import { useToasterUser } from "@/app/context/userDataContext"
 import { deleteFromBlob, uploadToBlob } from "@/lib/uploadToasterProfilePicture"
 import { updateToasterInformation } from "@/lib/queries/toasterInfo"
 import type { Toaster } from "@/app/types/printer"
-import { MoreVertical, Edit, Trash2, RefreshCw, ImageUp } from "lucide-react"
-import { MenuModal } from "../../_helperComponents/MenuModal"
+import { Edit, Trash2, ImageUp } from "lucide-react"
+import { MenuModal, type MenuOption } from "../../_helperComponents/MenuModal"
 
 type ToasterInformationProps = {
   toaster: Toaster
@@ -62,7 +62,7 @@ function ToasterInformation({ toaster }: ToasterInformationProps) {
     }
   }
 
-  const menuOptions = [
+  const menuOptions: MenuOption[] = [
     {
       label: "Edit Name",
       icon: <Edit className="size-4" />,

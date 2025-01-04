@@ -1,10 +1,4 @@
-import React, { useRef } from "react"
 import type { FriendListHook } from "../AppWindow"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import type { z } from "zod"
-import { useUser } from "@clerk/nextjs"
-import { friendNameSchema } from "../_editorPage/AddNewFriendForm"
 import AddNewFriend from "../_editorPage/_friendSelector/AddNewFriend"
 import FriendRow from "./FriendRow"
 

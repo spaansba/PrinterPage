@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from "react"
 import { MoreVertical } from "lucide-react"
 
-type MenuOption = {
+export type MenuOption = {
   label: string
   icon: React.ReactNode
   onClick: () => void
@@ -45,10 +45,7 @@ export const MenuModal: React.FC<MenuModalProps> = ({ isOpen, setIsOpen, options
       </button>
 
       {isOpen && (
-        <div
-          ref={menuRef}
-          className="absolute right-0 w-48 mt-1 bg-white rounded-lg border shadow-lg z-50 py-1"
-        >
+        <div ref={menuRef} className="absolute right-0 w-48 mt-1 bg-white border shadow-lg z-50">
           {options.map((option, index) => (
             <button
               key={index}
