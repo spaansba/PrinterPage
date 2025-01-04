@@ -8,10 +8,10 @@ import { useEditorContext } from "../context/editorContext"
 import { changeNameAssociatedPrinters, removeAssociatedPrinters } from "@/lib/queries"
 import type { z } from "zod"
 import type { messageStatus } from "./MainWrapper"
-import type { Friend } from "./_editorPage/_friendSelector/FriendSelector"
 import type { friendNameSchema } from "./_editorPage/AddNewFriendForm"
 import MyToasterPage from "./_myToasterPage/MyToasterPage"
 import { useToasterUser } from "../context/userDataContext"
+import type { Friend } from "../types/printer"
 
 type AppWindowProps = {
   messageStatus: messageStatus

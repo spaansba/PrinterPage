@@ -12,7 +12,7 @@ function UserName() {
   const { user } = useUser()
   const [isEditingUsername, setIsEditingUsername] = useState(false)
   const [isUpdatingUsername, setIsUpdatingUsername] = useState(false)
-  const { username, setUsername } = useToasterUser()
+  const { username, alterUsername } = useToasterUser()
   const {
     register: registerEdit,
     handleSubmit: handleSubmitEdit,
@@ -42,7 +42,7 @@ function UserName() {
     try {
       setIsUpdatingUsername(true)
       await updatedUserName(user.id, data.name)
-      setUsername(data.name)
+      alterUsername(user.id, data.name)
       setIsEditingUsername(false)
     } catch (error) {
       console.error("Error updating username:", error)

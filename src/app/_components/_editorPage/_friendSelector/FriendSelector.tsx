@@ -6,13 +6,6 @@ import type { FriendListHook } from "../../AppWindow"
 import SelectedToastersView from "./SelectedToastersView"
 import FriendSelectorModal from "./FriendSelectorModal"
 
-export type Friend = {
-  printerId: string
-  name: string
-  lastSendMessage: string
-  profilePicture: string | null
-}
-
 type FriendSelectorProps = {
   friendsHook: FriendListHook
 }

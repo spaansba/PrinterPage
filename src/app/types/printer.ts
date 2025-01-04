@@ -4,8 +4,16 @@ export type Toaster = {
   profilePicture: string | null
   pairedAccounts?: ToasterUser[]
 }
-type ToasterUser = {
+
+export type ToasterUser = {
   id: string
   userName: string
   profileImageUrl?: string | null
+}
+
+export type Friend = {
+  printerId: string
+  name: string
+  lastSendMessage: string
+  profilePicture: string | null
 }

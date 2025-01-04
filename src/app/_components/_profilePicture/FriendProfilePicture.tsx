@@ -1,5 +1,4 @@
 import Image from "next/image"
-import type { Friend } from "../_editorPage/_friendSelector/FriendSelector"
 
 type FriendProfilePictureProps = {
   pictureUrl: string | null

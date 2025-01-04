@@ -1,8 +1,8 @@
 import React from "react"
 import Image from "next/image"
 import { ChevronDown, ChevronUp } from "lucide-react"
-import type { Friend } from "./FriendSelector"
 import FriendProfilePicture from "../../_profilePicture/FriendProfilePicture"
+import type { Friend } from "@/app/types/printer"
 
 type SelectedToastersViewProps = {
   selectedFriends: Friend[]

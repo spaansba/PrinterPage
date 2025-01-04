@@ -2,7 +2,7 @@ import { Trash2 } from "lucide-react"
 import React, { useState } from "react"
 import DeleteModal from "../_helperComponents/DeleteModal"
 import { useUser } from "@clerk/nextjs"
-import type { Friend } from "../_editorPage/_friendSelector/FriendSelector"
+import type { Friend } from "@/app/types/printer"
 
 type DeleteFriendProps = {
   friendToDelete: Friend

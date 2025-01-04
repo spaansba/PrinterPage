@@ -5,8 +5,8 @@ import { getVisualLinesFromHTML } from "../../_helpers/getVisualLines"
 import { getUserName, incrementPrinterMessageStats } from "@/lib/queries"
 import { PrepareTextToSend } from "../../_helpers/StringToBytes"
 import type { Lines } from "./RetroTextEditor"
-import type { Friend } from "./_friendSelector/FriendSelector"
 import type { messageStatus } from "../MainWrapper"
+import type { Friend } from "@/app/types/printer"
 
 type ToasterSendButtonProps = {
   setMessageStatus: Dispatch<SetStateAction<messageStatus>>

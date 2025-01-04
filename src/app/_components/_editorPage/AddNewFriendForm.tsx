@@ -5,9 +5,9 @@ import { Plus } from "lucide-react"
 import React, { type Dispatch, type SetStateAction } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import type { Friend } from "./_friendSelector/FriendSelector"
 import type { FriendListHook } from "../AppWindow"
 import { getToaster } from "@/lib/queries/toasterInfo"
+import type { Friend } from "@/app/types/printer"
 
 export const friendNameSchema = z.object({
   name: z

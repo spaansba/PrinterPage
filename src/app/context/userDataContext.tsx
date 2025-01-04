@@ -1,15 +1,15 @@
 "use client"
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
-import type { Friend } from "../_components/_editorPage/_friendSelector/FriendSelector"
-import type { Toaster } from "../types/printer"
+import type { Friend, Toaster, ToasterUser } from "../types/printer"
+import UserName from "../_components/_accountPage/_userInformation/UserName"
 
 type ToasterUserContextType = {
   friendList: Friend[]
   pairedToasters: Toaster[]
   setFriendList: React.Dispatch<React.SetStateAction<Friend[]>>
   setPairedToasters: React.Dispatch<React.SetStateAction<Toaster[]>>
-  username: string
-  setUsername: React.Dispatch<React.SetStateAction<string>>
+  currentUser: ToasterUser
+  alterUsername: (userId: string, newName: string) => void
 }
 
 const ToasterUserContext = createContext<ToasterUserContextType>({
@@ -17,26 +17,54 @@ const ToasterUserContext = createContext<ToasterUserContextType>({
   pairedToasters: [],
   setFriendList: () => {},
   setPairedToasters: () => {},
-  username: "",
-  setUsername: () => {},
+  currentUser: {
+    id: "",
+    userName: "",
+    profileImageUrl: "",
+  },
+  alterUsername: (userId: string, newName: string) => {},
 })
 
 interface ToasterUserProviderProps {
   children: ReactNode
   initialFriendList: Friend[]
   initialPairedToasters: Toaster[]
-  initialUsername: string
+  initialUser: ToasterUser
 }
 
 export function ToasterUserProvider({
   children,
   initialFriendList,
   initialPairedToasters,
-  initialUsername,
+  initialUser,
 }: ToasterUserProviderProps) {
   const [friendList, setFriendList] = useState<Friend[]>(initialFriendList)
   const [pairedToasters, setPairedToasters] = useState<Toaster[]>(initialPairedToasters)
-  const [username, setUsername] = useState<string>(initialUsername)
+  const [currentUser, setCurrentUser] = useState<ToasterUser>(initialUser)
+
+  //const alterPairedToasters
+
+  const alterUsername = (userId: string, newName: string) => {
+    setCurrentUser((prev) => ({
+      id: prev.id,
+      userName: newName,
+      profileImageUrl: prev.profileImageUrl,
+    }))
+
+    setPairedToasters((prev) => {
+      return prev.map((toaster) => ({
+        ...toaster,
+        pairedAccounts: toaster.pairedAccounts?.map((account) =>
+          account.id === userId
+            ? {
+                ...account,
+                userName: newName,
+              }
+            : account
+        ),
+      }))
+    })
+  }
 
   return (
     <ToasterUserContext.Provider
@@ -45,8 +73,8 @@ export function ToasterUserProvider({
         pairedToasters,
         setFriendList,
         setPairedToasters,
-        username,
-        setUsername,
+        currentUser,
+        alterUsername,
       }}
     >
       {children}

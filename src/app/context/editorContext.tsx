@@ -11,7 +11,7 @@ import { useForm, UseFormReturn } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { getVisualLinesFromHTML } from "../_helpers/getVisualLines"
-import type { Friend } from "../_components/_editorPage/_friendSelector/FriendSelector"
+import type { Friend } from "../types/printer"
 
 type EditorFormData = {
   textEditorInput: string

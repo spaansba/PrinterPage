@@ -6,7 +6,8 @@ import { useToasterUser } from "@/app/context/userDataContext"
 
 export default function UserInformation() {
   const { user } = useUser()
-  if (!user) {
+  const { currentUser } = useToasterUser()
+  if (!user || currentUser.id != user.id) {
     return
   }
 

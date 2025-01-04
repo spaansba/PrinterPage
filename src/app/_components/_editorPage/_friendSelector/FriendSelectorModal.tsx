@@ -1,8 +1,8 @@
 import React from "react"
 import FriendItem from "./FriendItem"
-import type { Friend } from "./FriendSelector"
 import type { FriendListHook } from "../../AppWindow"
 import AddNewFriend from "./AddNewFriend"
+import type { Friend } from "@/app/types/printer"
 
 type FriendSelectorModalProps = {
   handleFriendSelect: (selectedFriend: Friend) => void
