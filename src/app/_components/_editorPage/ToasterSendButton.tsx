@@ -23,7 +23,7 @@ function ToasterSendButton({
   const { editor, editorForm } = useEditorContext()
   const [buttonClickable, setButtonClickable] = useState(true)
   const { user } = useUser()
-
+  const { currentUser } = useToasterUser()
   async function sendToast(userId: string, friend: Friend, content: Uint8Array) {
     let result = {
       friend: friend.name,
@@ -73,7 +73,7 @@ function ToasterSendButton({
     const editorElement = editor!.view.dom as HTMLElement
     const lines = getVisualLinesFromHTML(editorElement)
     const htmlContentWithLineBreaks = addLineBreaksToHTML(hTMLContent, lines)
-    const { currentUser } = useToasterUser()
+
     const content = await PrepareTextToSend(
       htmlContentWithLineBreaks,
       currentUser.username,

@@ -59,6 +59,7 @@ export const printers = pgTable("printer_printers", {
   internalName: varchar("internal_name", { length: 256 }),
   name: varchar("name", { length: 256 }).notNull(),
   profilePicture: varchar("profile_picture", { length: 2048 }).notNull(),
+  toastsReceived: integer("toasts_received").default(0).notNull(),
   createdAt: timestamp("created_at", { mode: "string" })
     .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
     .notNull(),

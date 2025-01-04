@@ -12,14 +12,11 @@ function PairedUserList({ toaster }: PairedUserListProps) {
       {/* Connected Users Section with full-width line */}
       <div className="flex items-center gap-3 w-full">
         <div className="text-sm font-medium text-gray-700">Users Paired to Toaster</div>
-        <div className="h-px bg-gray-200 flex-grow" />
+        <div className="h-px  flex-grow" />
       </div>
-      <div className="mt-3 flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-4 mt-3">
         {toaster.pairedAccounts?.map((account) => (
-          <div
-            key={`${toaster.id} & ${account.id}`}
-            className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-full text-sm"
-          >
+          <div key={`${toaster.id} & ${account.id}`} className="flex items-center gap-2">
             <FriendProfilePicture
               pictureUrl={
                 account.profileImageUrl ||

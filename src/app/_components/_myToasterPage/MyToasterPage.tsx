@@ -71,7 +71,7 @@ function MyToasterPage() {
   return (
     <div className="border-[1px] border-gray-500 ">
       {pairedToasters.length > 0 && (
-        <div className="flex flex-col gap-[0.3rem] p-4 bg-toastWhite ">
+        <div className="flex flex-col gap-[0.3rem] bg-toastWhite ">
           {pairedToasters.map((toaster) => (
             <PairedToasterContainer key={toaster.id} toaster={toaster} />
           ))}

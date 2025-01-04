@@ -51,6 +51,12 @@ export const incrementPrinterMessageStats = async (userId: string, associatedPri
     .set({ toastsSend: sql`${users.toastsSend} + 1` })
     .where(eq(users.id, userId))
 
+  // Printer specific message received counter
+  await db
+    .update(printers)
+    .set({ toastsReceived: sql`${printers.toastsReceived} + 1` })
+    .where(eq(printers.id, associatedPrinterId))
+
   // Message counter per associated printer ID
   await db
     .update(usersAssociatedPrinters)

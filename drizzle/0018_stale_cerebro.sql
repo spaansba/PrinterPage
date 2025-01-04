@@ -1,0 +1,1 @@
+ALTER TABLE "printer_printers" ADD COLUMN "toasts_received" integer DEFAULT 0 NOT NULL;

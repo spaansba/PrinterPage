@@ -1,8 +1,7 @@
 "use server"
 import { db } from ".."
 import { printers, printerUserPairing, users } from "../schema"
-import { and, eq, inArray } from "drizzle-orm"
-import { getUserInformation } from "./userInfo"
+import { and, eq } from "drizzle-orm"
 import type { Toaster } from "@/app/types/printer"
 
 type UpdateToasterData = {
@@ -78,6 +77,7 @@ export const getToaster = async (printerId: string) => {
         id: printers.id,
         name: printers.name,
         profilePicture: printers.profilePicture,
+        toastsReceived: printers.toastsReceived,
       })
       .from(printers)
       .where(eq(printers.id, printerId))
@@ -131,6 +131,7 @@ export const getPairedToasters = async (userId: string): Promise<Toaster[]> => {
       id: printers.id,
       name: printers.name,
       profilePicture: printers.profilePicture,
+      toastsReceived: printers.toastsReceived,
     })
     .from(printerUserPairing)
     .innerJoin(printers, eq(printerUserPairing.printerId, printers.id))
@@ -153,6 +154,7 @@ export const getPairedToasters = async (userId: string): Promise<Toaster[]> => {
         id: printer.id,
         name: printer.name,
         profilePicture: printer.profilePicture,
+        toastsReceived: printer.toastsReceived,
         pairedAccounts: pairedUsers,
       }
     })

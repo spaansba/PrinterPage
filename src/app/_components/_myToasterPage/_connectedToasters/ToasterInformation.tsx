@@ -87,24 +87,29 @@ function ToasterInformation({ toaster }: ToasterInformationProps) {
 
   return (
     <div className="flex items-start gap-4 pb-4">
-      <div className="relative w-16 h-16 flex-shrink-0 group">
-        <ProfilePicture
-          handleNewProfilePicture={handleNewProfilePicture}
-          pictureURL={
-            toaster.profilePicture
-              ? toaster.profilePicture
-              : "https://utfs.io/f/HgS7iFpfFqdY9JdpqoC60orpq5mxeKSliHZt1By84hAazv23"
-          }
-          altName={`${toaster.name}'s profile`}
-        />
+      <div className="pt-1">
+        <div className="relative size-14 flex-shrink-0 group">
+          <ProfilePicture
+            handleNewProfilePicture={handleNewProfilePicture}
+            pictureURL={
+              toaster.profilePicture
+                ? toaster.profilePicture
+                : "https://utfs.io/f/HgS7iFpfFqdY9JdpqoC60orpq5mxeKSliHZt1By84hAazv23"
+            }
+            altName={`${toaster.name}'s profile`}
+          />
+        </div>
       </div>
       <div className="flex-grow">
         <div className="flex justify-between items-start">
           <div>
-            <div className="font-medium text-gray-900">
+            <div className="font-lg text-md text-gray-900">
               {toaster.name || `Toaster ${toaster.id}`}
             </div>
-            <div className="text-sm text-gray-500 mt-1">{toaster.id}</div>
+            <div className="text-sm text-gray-500 mt-1">ID: {toaster.id}</div>
+            <div className="text-sm text-gray-500 mt-1">
+              Toasts Received: {toaster.toastsReceived}
+            </div>
           </div>
 
           <MenuModal isOpen={isMenuOpen} setIsOpen={setIsMenuOpen} options={menuOptions} />
