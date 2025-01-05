@@ -87,7 +87,9 @@ function Username({ isEditingUsername, setIsEditingUsername }: UsernameProps) {
           </div>
         )}
       </div>
-      {errorsEdit.name && <span className="text-red-500 text-sm">{errorsEdit.name.message}</span>}
+      {errorsEdit.name && (
+        <span className="text-toastError text-sm">{errorsEdit.name.message}</span>
+      )}
     </>
   )
 }

@@ -35,34 +35,34 @@ export const MenuModal: React.FC<MenuModalProps> = ({ isOpen, setIsOpen, options
   }, [setIsOpen])
 
   return (
-    <div className="relative">
-      <button
-        ref={buttonRef}
-        className="text-gray-400 hover:text-gray-600 rounded-full "
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <MoreVertical className="h-5 w-5" />
+    <div className="relative ">
+      <button ref={buttonRef} onClick={() => setIsOpen(!isOpen)}>
+        <MoreVertical className="size-5 text-gray-700 md:hover:text-gray-400" />
       </button>
 
       {isOpen && (
-        <div ref={menuRef} className="absolute right-0 w-48 mt-1 bg-white border shadow-lg z-50">
-          {options.map((option, index) => (
-            <button
-              key={index}
-              className={`flex items-center gap-2 px-4 py-2 hover:bg-gray-100 w-full text-left text-sm ${
-                option.className || ""
-              }`}
-              onClick={() => {
-                option.onClick()
-                setIsOpen(false)
-              }}
-            >
-              {option.icon}
-              {option.label}
-            </button>
-          ))}
+        <div ref={menuRef} className="absolute right-0 w-48 mt-1 bg-toastWhite shadow-lg z-50">
+          <div className="border border-gray-500 ">
+            {options.map((option) => (
+              <button
+                key={option.label}
+                className={`flex items-center gap-2 px-2 py-[0.4rem] w-full text-left text-sm md:hover:bg-toastPrimaryHover ${
+                  option.className || ""
+                }`}
+                onClick={() => {
+                  option.onClick()
+                  setIsOpen(false)
+                }}
+              >
+                <div className="flex items-center justify-center">{option.icon}</div>
+                {option.label}
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </div>
   )
 }
+
+export default MenuModal

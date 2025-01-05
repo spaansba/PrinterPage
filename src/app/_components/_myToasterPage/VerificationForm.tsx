@@ -92,7 +92,7 @@ function VerificationModal({
                     placeholder="XXXXXX"
                     maxLength={6}
                   />
-                  <div className="text-red-600 text-sm mt-1">
+                  <div className="text-toastError text-sm mt-1">
                     {errors.code?.message && <p>{errors.code.message}</p>}
                     {errors.root?.message && <p>{errors.root.message}</p>}
                   </div>

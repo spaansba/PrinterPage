@@ -113,7 +113,7 @@ function CropModal({ setShowCropDialog, handleNewProfilePicture, imgSrc }: CropM
           </div>
           {uploadError && (
             <div className="w-full mb-4">
-              <p className="text-red-500 text-sm text-center">{uploadError}</p>
+              <p className="text-toastError text-sm text-center">{uploadError}</p>
             </div>
           )}
           <div className="flex justify-end gap-1 bg-toastPrimary w-full">

@@ -81,7 +81,7 @@ function ToasterInformation({ toaster }: ToasterInformationProps) {
       onClick: () => {
         // Handle remove
       },
-      className: "text-red-600",
+      className: "text-toastError",
     },
   ]
 

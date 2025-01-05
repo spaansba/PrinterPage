@@ -97,7 +97,7 @@ function AddNewFriendForm({ friendsHook, setIsAddingFriend, addFriendRef }: AddN
           autoComplete="off"
           spellCheck="false"
         />
-        <div className="col-span-2 text-red-600 pt-1">
+        <div className="col-span-2 text-toastError pt-1">
           {errorsNew.printerId?.message && <p key="id_error">{errorsNew.printerId?.message}</p>}
         </div>
       </div>
@@ -112,11 +112,11 @@ function AddNewFriendForm({ friendsHook, setIsAddingFriend, addFriendRef }: AddN
           placeholder="Name"
           className="border-solid border border-gray-300 text-[16px] px-2 py-1 rounded"
         />
-        <div className="col-span-2 text-red-600 pt-1">
+        <div className="col-span-2 text-toastError pt-1">
           {errorsNew.name?.message && <p key="name_error">{errorsNew.name?.message}</p>}
         </div>
       </div>
-      <div className="text-red-600 pt-1">
+      <div className="text-toastError pt-1">
         {errorsNew.root?.message && <p key="root_error">{errorsNew.root?.message}</p>}
       </div>
       <button

@@ -62,7 +62,7 @@ function FriendRow({ friendsHook, friend }: FriendRowProps) {
       onClick: () => {
         setShowDeleteModal(true)
       },
-      className: "text-red-600",
+      className: "text-toastError",
     },
   ]
 
@@ -151,7 +151,7 @@ function FriendRow({ friendsHook, friend }: FriendRowProps) {
         </div>
 
         {isEditingName && (
-          <div className="text-red-600 pl-[43px] text-[11px]">
+          <div className="text-toastError pl-[43px] text-[11px]">
             {errorsEdit.name?.message && <p key="id_error">{errorsEdit.name?.message}</p>}
           </div>
         )}

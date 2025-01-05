@@ -27,6 +27,9 @@ const config: Config = {
         toastPrimaryHover: {
           DEFAULT: "#e4d3b2",
         },
+        toastError: {
+          DEFAULT: "#b91c1c",
+        },
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {

@@ -32,7 +32,7 @@ export default function ToasterStatusBar({ messageStatus }: ToasterPageProps) {
         {status.success ? (
           <CheckCircle className="size-4 text-green-600" />
         ) : (
-          <XCircle className="size-4 text-red-600" />
+          <XCircle className="size-4 text-toastError" />
         )}
 
         <span className="text-sm">{status.friend}</span>

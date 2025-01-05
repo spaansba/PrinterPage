@@ -51,7 +51,7 @@ function EditorPage({
               />
               {getFirstFormError() && (
                 <div className="bg-toastPrimary border-t border-[#808080] px-2 py-1">
-                  <span className="text-red-500 text-xs">{getFirstFormError()}</span>
+                  <span className="text-toastError text-xs">{getFirstFormError()}</span>
                 </div>
               )}
             </div>

@@ -91,7 +91,7 @@ function ToasterIdForm({ setShowVerificationForm, printerId, setPrinterId }: Toa
             className="w-full px-2 py-1 bg-white border-2 border-t-[#808080] border-l-[#808080] border-b-white border-r-white font-mono text-sm"
             placeholder="xxxxxxxxxx"
           />
-          <div className="text-red-600 pt-1">
+          <div className="text-toastError pt-1">
             {errorsNew.printerId?.message && <p>{errorsNew.printerId.message}</p>}
             {errorsNew.root?.message && <p>{errorsNew.root?.message}</p>}
           </div>
