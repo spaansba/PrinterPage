@@ -83,7 +83,7 @@ function MyToasterPage() {
             <div className="mb-6">
               <h1 className="text-lg font-normal mb-4">Work in Progress</h1>
               <p className="text-sm mb-4">
-                Enter your toaster's unique ID to connect it to your account.
+                Enter your toaster&apos;s unique ID to connect it to your account.
               </p>
             </div>
 

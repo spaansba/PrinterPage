@@ -17,7 +17,7 @@ function AccountPage() {
     return () => window.removeEventListener("keydown", handleEscape)
   }, [])
   if (!user || currentUser.id != user.id) {
-    return <div>Error please reload the app</div>
+    return null
   }
 
   return (

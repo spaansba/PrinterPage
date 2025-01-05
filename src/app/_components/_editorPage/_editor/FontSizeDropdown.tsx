@@ -9,7 +9,7 @@ interface FontSize {
 }
 
 interface FontSizeDropdownProps {
-  editor: Editor | null
+  editor: Editor
 }
 
 const fontSizes: readonly FontSize[] = [
@@ -47,8 +47,6 @@ DropdownItem.displayName = "DropdownItem"
 
 const FontSizeDropdown: React.FC<FontSizeDropdownProps> = ({ editor }) => {
   const [currentSize, setCurrentSize] = useState<string>("text-[13px]")
-
-  if (!editor) return null
 
   const updateFontSize = useCallback(() => {
     const activeSize = fontSizes.find((size) =>

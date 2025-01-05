@@ -195,13 +195,14 @@ export function CustomEditorProvider({ children, handleTextChange }: CustomEdito
     },
   })
 
-  const contextValue = useMemo(
-    () => ({
-      editor,
-      editorForm,
-    }),
-    [editor, editorForm]
-  )
+  if (!editor) {
+    return null // Or loading state
+  }
+
+  const contextValue = {
+    editor,
+    editorForm,
+  }
 
   return <EditorContext.Provider value={contextValue}>{children}</EditorContext.Provider>
 }

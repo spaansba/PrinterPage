@@ -12,13 +12,12 @@ type AccountInformationProps = {
 
 function AccountInformation({ setIsEditProfileModalOpen }: AccountInformationProps) {
   const { user } = useUser()
-  if (!user) {
-    return null
-  }
+
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { setPairedToasters, currentUser } = useToasterUser()
   const [isEditingUsername, setIsEditingUsername] = useState(false)
   const { signOut } = useClerk()
+  if (!user) return
   const handleNewProfilePicture = async (blob: Blob) => {
     try {
       const file = new File([blob], "profile.jpg", { type: blob.type })
