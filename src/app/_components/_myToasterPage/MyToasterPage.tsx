@@ -11,6 +11,7 @@ import PairedToasterContainer from "./_connectedToasters/PairedToasterContainer"
 import { useToasterUser } from "@/app/context/userDataContext"
 import { Plus } from "lucide-react"
 import { getToaster } from "@/lib/queries/toasterInfo"
+import PageBorderDiv from "../_helperComponents/PageBorderDiv"
 
 function MyToasterPage() {
   const { pairedToasters, setPairedToasters } = useToasterUser()
@@ -69,19 +70,19 @@ function MyToasterPage() {
   }
 
   return (
-    <div className="border-[1px] border-gray-500 ">
+    <PageBorderDiv>
       {pairedToasters.length > 0 && (
-        <div className="flex flex-col gap-[0.3rem] bg-toastWhite ">
+        <div className="flex flex-col gap-[0.3rem]">
           {pairedToasters.map((toaster) => (
             <PairedToasterContainer key={toaster.id} toaster={toaster} />
           ))}
         </div>
       )}
       {showFullToasterIdForm ? (
-        <div className="flex flex-col h-full bg-toastWhite border-t-[1px] border-gray-500">
+        <div className="flex flex-col h-full border-t-[1px] border-gray-500">
           <div className="p-4">
             <div className="mb-6">
-              <h1 className="text-lg font-normal mb-4">Work in Progress</h1>
+              <h1 className="text-lg font-normal mb-4">Pair Your Toaster</h1>
               <p className="text-sm mb-4">
                 Enter your toaster&apos;s unique ID to connect it to your account.
               </p>
@@ -114,7 +115,7 @@ function MyToasterPage() {
           </button>
         </div>
       )}
-    </div>
+    </PageBorderDiv>
   )
 }
 

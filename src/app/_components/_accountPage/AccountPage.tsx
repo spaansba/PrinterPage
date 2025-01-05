@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react"
 import { useUser } from "@clerk/nextjs"
 import { useToasterUser } from "@/app/context/userDataContext"
 import AccountInformation from "./AccountInformation"
+import PageBorderDiv from "../_helperComponents/PageBorderDiv"
 
 function AccountPage() {
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false)
@@ -21,7 +22,7 @@ function AccountPage() {
   }
 
   return (
-    <div className=" bg-toastWhite">
+    <PageBorderDiv>
       <div className="p-3">
         <AccountInformation setIsEditProfileModalOpen={setIsEditProfileModalOpen} />
       </div>
@@ -40,7 +41,7 @@ function AccountPage() {
           </div>
         </div>
       )}
-    </div>
+    </PageBorderDiv>
   )
 }
 

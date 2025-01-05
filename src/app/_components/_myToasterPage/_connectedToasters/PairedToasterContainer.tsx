@@ -8,7 +8,7 @@ type PairedToasterContainerProps = {
 
 function PairedToasterContainer({ toaster }: PairedToasterContainerProps) {
   return (
-    <div className="border-b border-gray-300 p-4 bg-toastWhite">
+    <div className="[&:not(:last-child)]:border-b-2 [&:not(:last-child)]:border-gray-300 p-4 ">
       <div className="flex flex-col">
         <ToasterInformation toaster={toaster} />
         <PairedUserList toaster={toaster} />

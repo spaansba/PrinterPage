@@ -1,5 +1,4 @@
-import type { Lines } from "../_components/_editorPage/RetroTextEditor"
-
+export type Lines = { characters: string; characterCount: number }[]
 // Since you cant see the visual line breaks (like you see on the website) inside an html element
 // We extract those here.
 export function getVisualLinesFromHTML(element: HTMLElement): Lines {

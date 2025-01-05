@@ -77,9 +77,7 @@ function FriendRow({ friendsHook, friend }: FriendRowProps) {
       />
       <div
         key={friend.printerId}
-        className={`group/friend  bg-toastWhite ${
-          friendsHook.friendList.length - 1 ? "border-b border-gray-300" : ""
-        }`}
+        className={`group/friend  bg-toastWhite [&:not(:last-child)]:border-b [&:not(:last-child)]:border-gray-300`}
       >
         <div
           className="flex w-full items-center px-2 py-2 cursor-pointer"
