@@ -1,20 +1,58 @@
 import type { Editor } from "@tiptap/core"
 import { Smile } from "lucide-react"
-import React, { memo, useEffect, useState } from "react"
-
-type SmileyDropdownProps = {
-  editor: Editor
-}
+import React, { useEffect, useState } from "react"
 
 type Smiley = {
   smiley: string
   alt: string
 }
 
+interface SmileyDropdownProps {
+  editor: Editor
+}
+
+interface DropdownItemProps {
+  smiley: Smiley
+  onMouseDown: (value: string) => void
+}
+
+const smileys: Smiley[] = [
+  { smiley: ":-)", alt: "smile" },
+  { smiley: ":-(", alt: "frown" },
+  { smiley: ":-P", alt: "tongue" },
+  { smiley: ":-D", alt: "grin" },
+  { smiley: ":-O", alt: "surprised" },
+  { smiley: ":-|", alt: "neutral" },
+  { smiley: ":^)", alt: "happy" },
+  { smiley: ">:-(", alt: "angry" },
+  { smiley: ">_<", alt: "frustrated" },
+  { smiley: "T_T", alt: "crying" },
+  { smiley: "^_^", alt: "joy" },
+  { smiley: "=^.^=", alt: "cat" },
+  { smiley: "(>_<)", alt: "squeezed" },
+  { smiley: "\\(^o^)/", alt: "excited" },
+  { smiley: "(-_-)", alt: "unimpressed" },
+  { smiley: "(^_^;)", alt: "nervous" },
+]
+
+const DropdownItem = ({ smiley, onMouseDown }: DropdownItemProps) => (
+  <button
+    title={smiley.alt}
+    type="button"
+    onMouseDown={(e) => {
+      e.preventDefault()
+      onMouseDown(smiley.smiley)
+    }}
+    className="w-full px-2 py-1 text-left text-black text-sm md:hover:bg-toastPrimaryHover"
+  >
+    {smiley.smiley}
+  </button>
+)
+
 export default function SmileyDropdown({ editor }: SmileyDropdownProps) {
   const [isOpen, setIsOpen] = useState(false)
 
-  function handleSmileyInput(smiley: string) {
+  const handleSmileyInput = (smiley: string) => {
     setIsOpen(false)
     editor
       .chain()
@@ -36,41 +74,6 @@ export default function SmileyDropdown({ editor }: SmileyDropdownProps) {
     document.addEventListener("mousedown", handleClickOutside)
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [isOpen])
-
-  const DropdownItem = memo(
-    ({ smiley, onMouseDown }: { smiley: Smiley; onMouseDown: (value: string) => void }) => (
-      <button
-        title={smiley.alt}
-        type="button"
-        onMouseDown={(e) => {
-          e.preventDefault()
-          onMouseDown(smiley.smiley)
-        }}
-        className="w-full px-2 py-1 text-left text-black text-sm md:hover:bg-toastPrimaryHover"
-      >
-        {smiley.smiley}
-      </button>
-    )
-  )
-
-  const smileys: Smiley[] = [
-    { smiley: ":-)", alt: "smile" },
-    { smiley: ":-(", alt: "frown" },
-    { smiley: ":-P", alt: "tongue" },
-    { smiley: ":-D", alt: "grin" },
-    { smiley: ":-O", alt: "surprised" },
-    { smiley: ":-|", alt: "neutral" },
-    { smiley: ":^)", alt: "happy" },
-    { smiley: ">:-(", alt: "angry" },
-    { smiley: ">_<", alt: "frustrated" },
-    { smiley: "T_T", alt: "crying" },
-    { smiley: "^_^", alt: "joy" },
-    { smiley: "=^.^=", alt: "cat" },
-    { smiley: "(>_<)", alt: "squeezed" },
-    { smiley: "\\(^o^)/", alt: "excited" },
-    { smiley: "(-_-)", alt: "unimpressed" },
-    { smiley: "(^_^;)", alt: "nervous" },
-  ]
 
   return (
     <div className="relative select-none z-[3]" data-smiley-dropdown>

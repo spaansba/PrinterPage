@@ -1,6 +1,6 @@
 "use client"
 import { Editor, useEditor } from "@tiptap/react"
-import React, { createContext, useContext, useMemo } from "react"
+import React, { createContext, useContext } from "react"
 import StarterKit from "@tiptap/starter-kit"
 import Underline from "@tiptap/extension-underline"
 import Highlight from "@tiptap/extension-highlight"
@@ -157,7 +157,7 @@ export function CustomEditorProvider({ children, handleTextChange }: CustomEdito
   })
 
   // Create the schema with access to the editor instance
-  const editorFormSchema = useMemo(() => {
+  const editorFormSchema = () => {
     return z.object({
       textEditorInput: z
         .string()
@@ -183,11 +183,11 @@ export function CustomEditorProvider({ children, handleTextChange }: CustomEdito
           message: "Please select a recipient",
         }),
     })
-  }, [editor]) // Recreate schema when editor changes
+  }
 
   // Initialize form with the dynamic schema
   const editorForm = useForm<EditorFormData>({
-    resolver: zodResolver(editorFormSchema),
+    resolver: zodResolver(editorFormSchema()),
     mode: "onChange",
     defaultValues: {
       textEditorInput: "",
