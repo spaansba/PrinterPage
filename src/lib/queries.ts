@@ -9,14 +9,6 @@ import {
 } from "./schema"
 import { eq, and, desc, sql } from "drizzle-orm"
 
-export const getUserInfo = async (userId: string) => {
-  return await db
-    .select({ username: users.username, toastsSend: users.toastsSend })
-    .from(users)
-    .where(eq(users.id, userId))
-    .limit(1)
-}
-
 export const updatedUserName = async (userId: string, newUsername: string) => {
   return await db
     .update(users)

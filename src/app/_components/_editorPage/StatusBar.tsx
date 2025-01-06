@@ -12,7 +12,6 @@ type ToasterPageProps = {
 export default function ToasterStatusBar({ messageStatus }: ToasterPageProps) {
   const { editor } = useEditorContext()
   const [openTooltipId, setOpenTooltipId] = useState<string | null>(null)
-
   function updateLineCount() {
     if (!editor?.view?.dom) {
       return { lines: [], count: 0 }

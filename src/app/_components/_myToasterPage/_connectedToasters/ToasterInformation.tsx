@@ -2,10 +2,12 @@ import React, { useState, useRef, useEffect } from "react"
 import ProfilePicture from "../../_profilePicture/ProfilePicture"
 import { useToasterUser } from "@/app/context/userDataContext"
 import { deleteFromBlob, uploadToBlob } from "@/lib/uploadToasterProfilePicture"
-import { updateToasterInformation } from "@/lib/queries/toasterInfo"
+import { deleteToasterPairing, updateToasterInformation } from "@/lib/queries/toasterInfo"
 import type { Toaster } from "@/app/types/printer"
 import { Edit, Trash2, ImageUp } from "lucide-react"
 import { MenuModal, type MenuOption } from "../../_helperComponents/MenuModal"
+import { MAX_PROFILE_PICTURE_SIZE_IN_MB } from "@/lib/constants"
+import { useUser } from "@clerk/nextjs"
 
 type ToasterInformationProps = {
   toaster: Toaster
@@ -14,21 +16,33 @@ type ToasterInformationProps = {
 function ToasterInformation({ toaster }: ToasterInformationProps) {
   const { setPairedToasters, setFriendList } = useToasterUser()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const { user } = useUser()
   const handleNewProfilePicture = async (blob: Blob) => {
     try {
       const formData = new FormData()
       formData.append("file", blob, `cropped-profile.jpg`)
 
+      const maxSize = MAX_PROFILE_PICTURE_SIZE_IN_MB * 1024 * 1024 // 10MB in bytes
+      if (blob.size > maxSize) {
+        return {
+          success: false,
+          message: "Image size must be less than 10MB",
+        }
+      }
+
       const vercelBlobFolder = "ToasterProfilePicture"
       const { url } = await uploadToBlob(formData, vercelBlobFolder)
-
+      console.log(url)
       const result = await updateToasterInformation(toaster.id, {
         profilePicture: url,
       })
 
       if (!result.success) {
-        throw new Error(result.message)
+        return {
+          success: false,
+          message: result.message,
+        }
       }
 
       if (toaster.profilePicture) {
@@ -72,19 +86,29 @@ function ToasterInformation({ toaster }: ToasterInformationProps) {
       label: "Edit Picture",
       icon: <ImageUp className="size-4" />,
       onClick: () => {
-        // Handle edit
+        fileInputRef.current?.click()
+        setIsMenuOpen(false)
       },
     },
     {
       label: "Remove Toaster",
       icon: <Trash2 className="size-4" />,
-      onClick: () => {
-        // Handle remove
-      },
+      onClick: async () => await deleteToasterUserPairing(toaster.id, user?.id),
       className: "text-toastError",
     },
   ]
 
+  const deleteToasterUserPairing = async (printerId: string, userId: string | null | undefined) => {
+    if (!userId) {
+      return
+    }
+    const deleted = await deleteToasterPairing(printerId, userId)
+    if (!deleted.success) {
+      console.error(deleted.message)
+      return
+    }
+    setPairedToasters((prev) => prev.filter((t) => t.id !== printerId))
+  }
   return (
     <div className="flex items-start gap-4 pb-4">
       <div className="pt-1">
@@ -97,6 +121,7 @@ function ToasterInformation({ toaster }: ToasterInformationProps) {
                 : "https://utfs.io/f/HgS7iFpfFqdY9JdpqoC60orpq5mxeKSliHZt1By84hAazv23"
             }
             altName={`${toaster.name}'s profile`}
+            fileInputRef={fileInputRef}
           />
         </div>
       </div>

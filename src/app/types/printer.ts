@@ -19,3 +19,16 @@ export type Friend = {
   lastSendMessage: string
   profilePicture: string | null
 }
+
+export type DBResult = {
+  success: boolean
+  message: string
+}
+
+export type DBResultToaster = DBResult & {
+  data: Toaster
+}
+
+export type DBResultUser = DBResult & {
+  data: ToasterUser
+}

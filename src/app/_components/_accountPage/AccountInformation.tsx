@@ -1,10 +1,11 @@
 import { useToasterUser } from "@/app/context/userDataContext"
 import { useClerk, useUser } from "@clerk/nextjs"
-import React, { useState, type Dispatch, type SetStateAction } from "react"
+import React, { useRef, useState, type Dispatch, type SetStateAction } from "react"
 import { MenuModal, type MenuOption } from "../_helperComponents/MenuModal"
 import { Edit, ImageUp, LogOut, UserPen } from "lucide-react"
 import ProfilePicture from "../_profilePicture/ProfilePicture"
 import Username from "./Username"
+import { formatDate } from "@/app/_helpers/getCurrentDate"
 
 type AccountInformationProps = {
   setIsEditProfileModalOpen: Dispatch<SetStateAction<boolean>>
@@ -12,7 +13,7 @@ type AccountInformationProps = {
 
 function AccountInformation({ setIsEditProfileModalOpen }: AccountInformationProps) {
   const { user } = useUser()
-
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { setPairedToasters, currentUser } = useToasterUser()
   const [isEditingUsername, setIsEditingUsername] = useState(false)
@@ -46,7 +47,10 @@ function AccountInformation({ setIsEditProfileModalOpen }: AccountInformationPro
     {
       label: "Edit Picture",
       icon: <ImageUp className="size-4" />,
-      onClick: () => {},
+      onClick: () => {
+        fileInputRef.current?.click()
+        setIsMenuOpen(false)
+      },
     },
     {
       label: "Edit Clerk",
@@ -73,6 +77,7 @@ function AccountInformation({ setIsEditProfileModalOpen }: AccountInformationPro
             pictureURL={user.imageUrl}
             key={user.id}
             handleNewProfilePicture={handleNewProfilePicture}
+            fileInputRef={fileInputRef}
           />
         </div>
       </div>
@@ -94,11 +99,7 @@ function AccountInformation({ setIsEditProfileModalOpen }: AccountInformationPro
               <div>
                 <span className="text-gray-500">Member Since:</span>
                 <span className="ml-1">
-                  {user.createdAt
-                    ? `${user.createdAt.getFullYear()}/${String(
-                        user.createdAt.getMonth() + 1
-                      ).padStart(2, "0")}/${String(user.createdAt.getDate()).padStart(2, "0")}`
-                    : "Not Found"}
+                  {user.createdAt ? `${formatDate(user.createdAt, true)}` : "Not Found"}
                 </span>
               </div>
               <div>

@@ -11,9 +11,15 @@ type ProfilePictureProps = {
   }>
   pictureURL: string
   altName: string
+  fileInputRef: React.RefObject<HTMLInputElement | null>
 }
 
-function ProfilePicture({ handleNewProfilePicture, pictureURL, altName }: ProfilePictureProps) {
+function ProfilePicture({
+  handleNewProfilePicture,
+  pictureURL,
+  altName,
+  fileInputRef,
+}: ProfilePictureProps) {
   const [showCropDialog, setShowCropDialog] = useState(false)
   const [imgSrc, setImgSrc] = useState("")
 
@@ -53,6 +59,7 @@ function ProfilePicture({ handleNewProfilePicture, pictureURL, altName }: Profil
         className="hidden"
         accept="image/*"
         onChange={handleProfilePictureChange}
+        ref={fileInputRef}
       />
 
       {showCropDialog && (

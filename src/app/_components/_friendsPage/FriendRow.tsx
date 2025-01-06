@@ -10,6 +10,7 @@ import FriendProfilePicture from "../_profilePicture/FriendProfilePicture"
 import { Check, Edit, Trash2, X } from "lucide-react"
 import { MenuModal, type MenuOption } from "../_helperComponents/MenuModal"
 import DeleteModal from "../_helperComponents/DeleteModal"
+import { formatDate } from "@/app/_helpers/getCurrentDate"
 
 type FriendRowProps = {
   friendsHook: FriendListHook
@@ -81,10 +82,7 @@ function FriendRow({ friendsHook, friend }: FriendRowProps) {
       >
         <div
           className="flex w-full items-center px-2 py-2 cursor-pointer"
-          title={`Last send Toast: ${friend.lastSendMessage.slice(
-            0,
-            friend.lastSendMessage.length - 4
-          )}`}
+          title={`Last Send Toast: ${formatDate(friend.lastSendMessage, true)}`}
         >
           <div className="flex items-center justify-center mr-2 rounded-lg p-1">
             <FriendProfilePicture
@@ -144,7 +142,8 @@ function FriendRow({ friendsHook, friend }: FriendRowProps) {
               </button>
             </div>
           ) : (
-            <div className="ml-auto gap-2 flex">
+            // dont remove empty title, otherwise title from main div will persists on menumodal
+            <div className="ml-auto gap-2 flex" title="">
               <MenuModal isOpen={isMenuOpen} setIsOpen={setIsMenuOpen} options={menuOptions} />
             </div>
           )}

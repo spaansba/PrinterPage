@@ -1,10 +1,11 @@
 import { db } from ".."
 import { users } from "../schema"
-import { inArray } from "drizzle-orm"
+import { inArray, eq } from "drizzle-orm"
 import { clerkClient } from "@clerk/nextjs/server"
 import type { User } from "@clerk/nextjs/server"
+import type { ToasterUser } from "@/app/types/printer"
 
-export const getUserInformation = async (userIds: string | string[]) => {
+export const getUserInformation = async (userIds: string | string[]): Promise<ToasterUser[]> => {
   // Convert single userId to array for consistent handling
   const userIdArray = Array.isArray(userIds) ? userIds : [userIds]
 
@@ -15,7 +16,7 @@ export const getUserInformation = async (userIds: string | string[]) => {
 
   // Query all user information from your database
   const userInfo = await db
-    .select({ id: users.id, username: users.username })
+    .select({ id: users.id, username: users.username, toastsSend: users.toastsSend })
     .from(users)
     .where(inArray(users.id, userIdArray))
 

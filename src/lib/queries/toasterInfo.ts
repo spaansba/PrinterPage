@@ -46,30 +46,6 @@ export const updateToasterInformation = async (toasterId: string, data: UpdateTo
   }
 }
 
-// export const getUsersPairedToTaster = async (printerId: string) => {
-//   const userIds = await db
-//     .select({ id: printerUserPairing.userId })
-//     .from(printerUserPairing)
-//     .where(eq(printerUserPairing.printerId, printerId))
-
-//   if (userIds.length === 0) {
-//     return {
-//       success: false,
-//       message: "no paired users found",
-//       data: [],
-//     }
-//   }
-
-//   const userIdStrings = userIds.map((user) => user.id)
-//   const userInfo = await getUserInformation(userIdStrings)
-
-//   return {
-//     success: true,
-//     message: "",
-//     data: userInfo,
-//   }
-// }
-
 export const getToaster = async (printerId: string) => {
   try {
     const toaster = await db
@@ -103,18 +79,6 @@ export const getToaster = async (printerId: string) => {
   }
 }
 
-// export const getToasterInformation = async (printerIds: string[]) => {
-//   const pairedToasterInfo = await db
-//     .select({
-//       id: printers.id,
-//       name: printers.name,
-//       profilePicture: printers.profilePicture,
-//     })
-//     .from(printers)
-//     .where(inArray(printers.id, printerIds))
-//   return pairedToasterInfo
-// }
-
 /**
  * Retrieves all printers (toasters) that have user pairings, including their basic information and paired user accounts.
  * Each printer can have multiple users paired to it.
@@ -126,7 +90,7 @@ export const getToaster = async (printerId: string) => {
  * @returns An array of Toaster objects, each containing the printer info and an array of paired user accounts
  */
 export const getPairedToasters = async (userId: string): Promise<Toaster[]> => {
-  const printerResults = await db
+  const printerResults: Toaster[] = await db
     .select({
       id: printers.id,
       name: printers.name,
@@ -169,4 +133,31 @@ export const checkIfAlreadyPaired = async (printerId: string, userId: string) =>
     .from(printerUserPairing)
     .where(and(eq(printerUserPairing.printerId, printerId), eq(printerUserPairing.userId, userId)))
     .limit(1)
+}
+
+export const deleteToasterPairing = async (printerId: string, userId: string) => {
+  try {
+    const result = await db
+      .delete(printerUserPairing)
+      .where(
+        and(eq(printerUserPairing.printerId, printerId), eq(printerUserPairing.userId, userId))
+      )
+      .returning()
+
+    if (result.length === 0) {
+      return {
+        success: false,
+        message: "Paired printer not found",
+      }
+    }
+    return {
+      success: true,
+      message: "",
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: "Error in deleting printer pairing",
+    }
+  }
 }

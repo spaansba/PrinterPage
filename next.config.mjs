@@ -21,6 +21,16 @@ const nextConfig = {
       },
     ],
   },
+  experimenta: {
+    serverActions: {
+      bodySizeLimit: "10mb",
+    },
+  },
+  api: {
+    bodyParser: {
+      sizeLimit: "10mb",
+    },
+  },
   logging: {
     fetches: {
       fullUrl: true,
