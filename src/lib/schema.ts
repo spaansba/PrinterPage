@@ -35,13 +35,6 @@ export const verificationAttempts = pgTable("verification_attempts", {
     .notNull(),
 })
 
-export const printerSubscriptions = pgTable("subscriptions", {
-  id: serial("id").primaryKey(),
-  printerId: varchar("printer_id", { length: 10 })
-    .notNull()
-    .references(() => printers.id),
-})
-
 export const users = pgTable("printer_users", {
   id: varchar("id", { length: 256 }).primaryKey(),
   username: varchar("username", { length: 256 }).notNull(),

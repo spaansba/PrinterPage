@@ -134,6 +134,13 @@
       "when": 1736010249164,
       "tag": "0018_stale_cerebro",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1737100977835,
+      "tag": "0019_giant_lifeguard",
+      "breakpoints": true
     }
   ]
 }
