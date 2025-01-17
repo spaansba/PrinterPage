@@ -1,10 +1,10 @@
 "use client"
 import { useState } from "react"
 import { CustomEditorProvider } from "../context/editorContext"
-import { SignInButton, useAuth } from "@clerk/nextjs"
-import Image from "next/image"
+import { useAuth } from "@clerk/nextjs"
 import AppWindow from "./AppWindow"
 import NotSignedInPage from "./NotSignedInPage"
+import { getWeatherReport } from "@/lib/queries/subscriptions/weather"
 
 export type SendStatus = {
   friend: string
@@ -37,16 +37,23 @@ function MainWrapper() {
   if (!isLoaded) {
     return null
   }
+  const handleOnClick = async () => {
+    const x = await getWeatherReport("amsterdam")
+    console.log(x)
+  }
 
   if (isSignedIn) {
     return (
-      <CustomEditorProvider handleTextChange={handleTextChange}>
-        <AppWindow
-          messageStatus={messageStatus}
-          setMessageStatus={setMessageStatus}
-          hTMLContent={hTMLContent}
-        />
-      </CustomEditorProvider>
+      <>
+        <CustomEditorProvider handleTextChange={handleTextChange}>
+          <AppWindow
+            messageStatus={messageStatus}
+            setMessageStatus={setMessageStatus}
+            hTMLContent={hTMLContent}
+          />
+        </CustomEditorProvider>
+        <button className="size-10 bg-slate-300" onClick={handleOnClick}></button>
+      </>
     )
   }
 

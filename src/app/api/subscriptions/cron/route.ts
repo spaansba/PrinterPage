@@ -1,18 +1,18 @@
 import { NextResponse } from "next/server"
 import { headers } from "next/headers"
+import { sendNewsReport, sendWeatherReport } from "@/lib/queries/subscriptions/weather"
 import {
   getSubscriptionsToRun,
-  sendNewsReport,
-  sendWeatherReport,
   type GetSubscriptions,
-} from "@/lib/queries/subscriptionsQueries"
+} from "@/lib/queries/subscriptions/generalSubscription"
 
 export async function GET() {
   const headersList = await headers()
   const token = headersList.get("x-cron-token")
   const timeHeader = headersList.get("x-time-send")
   const dateSend = timeHeader ? new Date(Number(timeHeader) * 1000) : new Date()
-  const timeSend = RoundToClosest5Minutes(dateSend)
+  let timeSend = RoundToClosest5Minutes(dateSend)
+  timeSend = "15:50"
   console.log(timeSend)
   if (token !== process.env.CRON_ORG_SECRET) {
     return new NextResponse("Unauthorized", { status: 401 })

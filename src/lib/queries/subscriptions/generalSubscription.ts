@@ -1,8 +1,8 @@
 "use server"
 
-import { and, eq, sql } from "drizzle-orm"
-import { printerSubscriptions, type printerSubscription } from "../schema/subscriptions"
-import { db } from ".."
+import { db } from "@/lib"
+import { printerSubscriptions, type printerSubscription } from "@/lib/schema/subscriptions"
+import { and, eq } from "drizzle-orm"
 
 export type GetSubscriptions = {
   success: boolean
@@ -41,18 +41,3 @@ export async function getSubscriptionsToRun(timeSend: string): Promise<GetSubscr
     }
   }
 }
-
-export const sendWeatherReport = async (sub: printerSubscription) => {
-  const content = new TextEncoder().encode("hello world")
-  const response = await fetch(`https://${sub.printerId}.toasttexter.com/print`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      data: Array.from(content),
-    }),
-  })
-}
-
-export const sendNewsReport = async (sub: printerSubscription) => {}
