@@ -141,6 +141,13 @@
       "when": 1737100977835,
       "tag": "0019_giant_lifeguard",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1737125959266,
+      "tag": "0020_careful_magneto",
+      "breakpoints": true
     }
   ]
 }
