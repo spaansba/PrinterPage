@@ -6,6 +6,7 @@ import AppWindow from "./AppWindow"
 import NotSignedInPage from "./NotSignedInPage"
 import { getWeatherReport } from "@/lib/queries/subscriptions/weather"
 import { PRINTER_WIDTH } from "@/lib/constants"
+import { drawWeatherCard } from "../_helpers/imageCreating/weatherCard"
 
 export type SendStatus = {
   friend: string
@@ -39,8 +40,16 @@ function MainWrapper() {
     return null
   }
   const handleOnClick = async () => {
-    const x = await getWeatherReport("bergschenhoek")
-    console.log(x)
+    const weather = await getWeatherReport("bergschenhoek")
+    console.log(weather)
+    if (weather.forecast?.length == 0 || !weather.forecast) {
+      return
+    }
+    const weatherCards = weather.forecast.map((period) =>
+      drawWeatherCard(weather.location!, period)
+    )
+    await Promise.all(weatherCards)
+    console.log(weatherCards)
   }
 
   const canvasRef = useRef<HTMLCanvasElement>(null)

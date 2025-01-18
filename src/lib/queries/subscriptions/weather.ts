@@ -60,9 +60,9 @@ const PERIOD_CONFIGS = [
 
 export type WeatherPeriod = (typeof PERIOD_CONFIGS)[number]["name"]
 
-type PeriodWeather = {
+export type PeriodWeather = {
   period: WeatherPeriod
-  condition: string
+  condition: WeatherCondition
   chance_of_rain: number
   chance_of_snow: number
   cloud: number
@@ -78,7 +78,7 @@ type PeriodWeather = {
   feelslike_f: number
 }
 
-type weatherLocation = {
+export type weatherLocation = {
   name: string
   region: string
   country: string
@@ -95,8 +95,6 @@ const processWeatherData = (hourlyData: any[]) => {
   return PERIOD_CONFIGS.map((period) => {
     const periodData = period.hours.map((hour) => hourlyData[hour]).filter(Boolean)
 
-    if (periodData.length === 0) return null
-
     const avgData: PeriodWeather = {
       period: period.name,
       temp_c: averageBy(periodData, "temp_c"),
@@ -112,7 +110,7 @@ const processWeatherData = (hourlyData: any[]) => {
       chance_of_snow: Math.max(...periodData.map((d) => d.chance_of_snow)),
       will_it_rain: periodData.some((d) => d.will_it_rain === 1) ? 1 : 0,
       will_it_snow: periodData.some((d) => d.will_it_snow === 1) ? 1 : 0,
-      condition: getMostFrequent(periodData.map((d) => d.condition.text)),
+      condition: getMostFrequentCondition(periodData.map((d) => d.condition.text)),
     }
 
     return {
@@ -126,12 +124,21 @@ const averageBy = (arr: any[], key: string) => {
   return Number((sum / arr.length).toFixed(1))
 }
 
-const getMostFrequent = (arr: string[]): string => {
-  if (!arr.length) return "Unknown"
+const getMostFrequentCondition = (arr: WeatherCondition[]): WeatherCondition => {
+  const frequencyMap = arr.reduce((map, condition) => {
+    const key = condition.text
+    map.set(key, (map.get(key) || 0) + 1)
+    return map
+  }, new Map<string, number>())
+
+  const mostFrequentText = [...frequencyMap.entries()].sort((a, b) => b[1] - a[1])[0][0]
+
   return (
-    arr
-      .sort((a, b) => arr.filter((v) => v === a).length - arr.filter((v) => v === b).length)
-      .pop() || "Unknown"
+    arr.find((condition) => condition.text === mostFrequentText) || {
+      code: 401,
+      icon: "",
+      text: "",
+    }
   )
 }
 
