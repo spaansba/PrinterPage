@@ -1,10 +1,37 @@
 import type { PeriodWeather, weatherLocation } from "@/lib/queries/subscriptions/weather"
 import { baseCanvas, loadImage } from "../createImagesToPrint"
+import ReceiptPrinterEncoder from "@point-of-sale/receipt-printer-encoder"
+import type { imageCanvas } from "./toastBanner"
+import { PRINTER_WIDTH } from "@/lib/constants"
 
-export const drawWeatherCard = async (location: weatherLocation, forcast: PeriodWeather) => {
+export const weatherCardBytes = async (imageCanvas: imageCanvas) => {
+  const encoder = new ReceiptPrinterEncoder({
+    printerModel: "pos-8360",
+    columns: 32,
+    newLine: "\n",
+    imageMode: "column",
+    font: "9x17",
+  })
+
+  const image = imageCanvas.context?.getImageData(0, 0, 384, 320)
+  return encoder
+    .initialize()
+    .raw([0x1b, 0x40])
+    .font("a")
+    .size(1)
+    .image(image, PRINTER_WIDTH, imageCanvas.canvas.height, "atkinson", 128)
+    .rule()
+    .align("left")
+    .encode()
+}
+
+export const drawWeatherCard = async (
+  location: weatherLocation,
+  forcast: PeriodWeather
+): Promise<imageCanvas> => {
   const base = baseCanvas(80)
   const iconSize = 50
-  if (!base.context) return
+  if (!base.context) return base
 
   const ctx = base.context
   ctx.fillStyle = "#E8E8E8"

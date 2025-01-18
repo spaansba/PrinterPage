@@ -26,10 +26,7 @@ export function drawCircularImage(
 export function loadImage(src: string, timeout = 10000): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image()
-    if (src.startsWith("http")) {
-      img.crossOrigin = "anonymous"
-    }
-
+    img.crossOrigin = "anonymous"
     img.onload = () => resolve(img)
     img.onerror = (error) => reject(new Error(`Failed to load image: ${error}`))
     img.src = src

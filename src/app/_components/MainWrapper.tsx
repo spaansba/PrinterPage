@@ -6,7 +6,7 @@ import AppWindow from "./AppWindow"
 import NotSignedInPage from "./NotSignedInPage"
 import { getWeatherReport } from "@/lib/queries/subscriptions/weather"
 import { PRINTER_WIDTH } from "@/lib/constants"
-import { drawWeatherCard } from "../_helpers/imageCreating/weatherCard"
+import { drawWeatherCard, weatherCardBytes } from "../_helpers/imageCreating/weatherCard"
 
 export type SendStatus = {
   friend: string
@@ -38,49 +38,66 @@ function MainWrapper() {
     setHTMLContent(inputHTML)
   }
 
-  const drawOnCanvas = async (
-    weatherResults: Promise<
-      { canvas: HTMLCanvasElement; context: CanvasRenderingContext2D | null } | undefined
-    >[]
-  ) => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    const ctx = canvas.getContext("2d")
-    if (!ctx) return
-
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-    // Wait for all weather cards to be rendered
-    const cards = await Promise.all(weatherResults)
-    const validCards = cards.filter(
-      (card): card is { canvas: HTMLCanvasElement; context: CanvasRenderingContext2D | null } =>
-        card !== undefined
-    )
-
-    if (validCards.length === 0) return
-
-    // Calculate total height needed
-    const totalHeight = validCards.length * (validCards[0].canvas.height + 10)
-    canvas.height = totalHeight
-    canvas.width = PRINTER_WIDTH
-
-    // Draw each card
-    validCards.forEach((card, index) => {
-      const y = index * (card.canvas.height + 10)
-      ctx.drawImage(card.canvas, 0, y)
-    })
-  }
   const handleOnClick = async () => {
     const weather = await getWeatherReport("bergschenhoek")
     if (!weather.forecast?.length) return
-    console.log(weather.forecast)
-    const weatherCards = weather.forecast.map((period) =>
-      drawWeatherCard(weather.location!, period)
-    )
+    console.log(weather)
+    // Create weather cards and combine them
+    const firstCard = await drawWeatherCard(weather.location!, weather.forecast[0])
+    if (!firstCard) return
 
-    await drawOnCanvas(weatherCards)
+    // Create a new canvas with the total height needed
+    const combinedCanvas = document.createElement("canvas")
+    const combinedCtx = combinedCanvas.getContext("2d")
+    if (!combinedCtx) return
+
+    const cardHeight = firstCard.canvas.height
+    const spacing = 10
+    const totalHeight = weather.forecast.length * (cardHeight + spacing)
+
+    combinedCanvas.width = PRINTER_WIDTH
+    combinedCanvas.height = totalHeight
+
+    // Draw first card
+    combinedCtx.drawImage(firstCard.canvas, 0, 0)
+
+    // Draw remaining cards
+    let currentY = cardHeight + spacing
+    for (let i = 1; i < weather.forecast.length; i++) {
+      const card = await drawWeatherCard(weather.location!, weather.forecast[i])
+      if (!card) continue
+      combinedCtx.drawImage(card.canvas, 0, currentY)
+      currentY += cardHeight + spacing
+    }
+
+    // Display on page
+    const displayCanvas = canvasRef.current
+    if (!displayCanvas) return
+    const displayCtx = displayCanvas.getContext("2d")
+    if (!displayCtx) return
+
+    displayCanvas.width = combinedCanvas.width
+    displayCanvas.height = combinedCanvas.height
+    displayCtx.drawImage(combinedCanvas, 0, 0)
+
+    try {
+      const content = await weatherCardBytes({
+        canvas: combinedCanvas,
+        context: combinedCtx,
+      })
+
+      await fetch(`https://fcs2ean4kg.toasttexter.com/print`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          data: Array.from(content),
+        }),
+      })
+    } catch (error) {
+      console.error("Error sending to printer:", error)
+    }
   }
 
   if (!isLoaded) return null

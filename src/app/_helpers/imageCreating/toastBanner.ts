@@ -1,5 +1,10 @@
 import { baseCanvas, drawCircularImage } from "../createImagesToPrint"
 
+export type imageCanvas = {
+  canvas: HTMLCanvasElement
+  context: CanvasRenderingContext2D | null
+}
+
 export async function createBannerSection(bannerImage: HTMLImageElement): Promise<ImageData> {
   const { canvas, context } = baseCanvas(88)
   if (!context) throw new Error("Could not get canvas context")
