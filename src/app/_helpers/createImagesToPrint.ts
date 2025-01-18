@@ -30,7 +30,6 @@ export function loadImage(src: string, timeout = 10000): Promise<HTMLImageElemen
     img.onload = () => resolve(img)
     img.onerror = (error) => reject(new Error(`Failed to load image: ${error}`))
     img.src = src
-
     setTimeout(() => reject(new Error("Image loading timed out")), timeout)
   })
 }

@@ -32,7 +32,7 @@ function processImgTags(rawText: string): { text: string; images: string[] } {
   return { text, images }
 }
 
-async function printingOpenTag(sender: string, imageURL: string): Promise<Uint8Array> {
+async function printingOpenTag(sender: string, profileImageUrl: string): Promise<Uint8Array> {
   const encoder = new ReceiptPrinterEncoder({
     printerModel: "pos-8360",
     columns: 32,
@@ -44,7 +44,7 @@ async function printingOpenTag(sender: string, imageURL: string): Promise<Uint8A
   try {
     const [bannerImg, profileImg] = await Promise.all([
       loadImage("/images/Toast.png"),
-      loadImage(imageURL),
+      loadImage(profileImageUrl),
     ])
 
     const bannerData = await createBannerSection(bannerImg)

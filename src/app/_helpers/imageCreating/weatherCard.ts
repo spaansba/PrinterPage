@@ -13,7 +13,12 @@ export const weatherCardBytes = async (imageCanvas: imageCanvas) => {
     font: "9x17",
   })
 
-  const image = imageCanvas.context?.getImageData(0, 0, 384, 320)
+  const image = imageCanvas.context?.getImageData(
+    0,
+    0,
+    imageCanvas.canvas.width,
+    imageCanvas.canvas.height
+  )
   return encoder
     .initialize()
     .raw([0x1b, 0x40])
@@ -21,6 +26,7 @@ export const weatherCardBytes = async (imageCanvas: imageCanvas) => {
     .size(1)
     .image(image, PRINTER_WIDTH, imageCanvas.canvas.height, "atkinson", 128)
     .rule()
+    .newline(2)
     .align("left")
     .encode()
 }
@@ -34,13 +40,14 @@ export const drawWeatherCard = async (
   if (!base.context) return base
 
   const ctx = base.context
-  ctx.fillStyle = "#E8E8E8"
-  ctx.fillRect(0, 0, base.canvas.width, base.canvas.height)
+  //   ctx.fillStyle = "#E8E8E8"
+  //   ctx.fillRect(0, 0, base.canvas.width, base.canvas.height)
 
-  // Weather icon
+  // Weather icon with black filter
   const weatherImg = await loadImage(forcast.condition.icon)
+  ctx.filter = "brightness(0)" // Make everything black
   ctx.drawImage(weatherImg, 10, (base.canvas.height - iconSize) / 2, iconSize, iconSize)
-
+  ctx.filter = "none"
   // Temperature
   ctx.fillStyle = "#000000"
   const tempNum = `${forcast.temp_c}`
