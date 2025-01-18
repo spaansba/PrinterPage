@@ -1,10 +1,11 @@
 "use client"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { CustomEditorProvider } from "../context/editorContext"
 import { useAuth } from "@clerk/nextjs"
 import AppWindow from "./AppWindow"
 import NotSignedInPage from "./NotSignedInPage"
 import { getWeatherReport } from "@/lib/queries/subscriptions/weather"
+import { PRINTER_WIDTH } from "@/lib/constants"
 
 export type SendStatus = {
   friend: string
@@ -42,6 +43,19 @@ function MainWrapper() {
     console.log(x)
   }
 
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    const context = canvas.getContext("2d")
+    if (!context) return
+
+    canvas.width = PRINTER_WIDTH
+    canvas.height = 88
+    context.fillStyle = "green"
+  }, []) // Empty dependency array means this runs once when component mounts
   if (isSignedIn) {
     return (
       <>
@@ -53,6 +67,7 @@ function MainWrapper() {
           />
         </CustomEditorProvider>
         <button className="size-10 bg-slate-300" onClick={handleOnClick}></button>
+        <canvas ref={canvasRef} id="canvas"></canvas>
       </>
     )
   }

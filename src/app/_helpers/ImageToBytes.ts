@@ -1,3 +1,5 @@
+import { PRINTER_WIDTH } from "@/lib/constants"
+
 interface ImageProcessingOptions {
   size?: number // Image size in pixels, will be adjusted to multiple of 8
 }
@@ -55,8 +57,7 @@ async function processImageFromUrl(
   imageUrl: string,
   options: ImageProcessingOptions = {}
 ): Promise<{ data: Uint8Array; width: number; height: number }> {
-  // Default to 384 if no size specified
-  let targetSize = options.size ?? 384
+  let targetSize = options.size ?? PRINTER_WIDTH
 
   // Round to nearest multiple of 8 (required for printer)
   targetSize = Math.round(targetSize / 8) * 8
@@ -83,8 +84,7 @@ async function processImageFromArray(
   const imageUrl = URL.createObjectURL(blob)
 
   try {
-    // Default to 384 if no size specified
-    let targetSize = options.size ?? 384
+    let targetSize = options.size ?? PRINTER_WIDTH
 
     // Round to nearest multiple of 8 (required for printer)
     targetSize = Math.round(targetSize / 8) * 8

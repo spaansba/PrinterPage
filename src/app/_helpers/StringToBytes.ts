@@ -1,6 +1,8 @@
 "use client"
 import ReceiptPrinterEncoder from "@point-of-sale/receipt-printer-encoder"
 import { HtmlEncoder } from "./HtmlEncoder"
+import { PRINTER_WIDTH } from "@/lib/constants"
+import { baseCanvas } from "./createImagesToPrint"
 
 export const PrepareTextToSend = async (
   text: string,
@@ -46,66 +48,59 @@ async function printingOpenTag(sender: string, imageURL: string): Promise<Uint8A
     const onAllImagesLoaded = () => {
       try {
         // Render the logo banner
-        const bannerCanvas = document.createElement("canvas")
-        const bannerContext = bannerCanvas.getContext("2d")
-        bannerCanvas.width = 384 // widht of the printer 48mm * 8 dots per mm
-        bannerCanvas.height = 88
-
-        // Create a new canvas for profile picture + username + send date
-        const profileCanvas = document.createElement("canvas")
-        const profileContext = profileCanvas.getContext("2d", { willReadFrequently: true })
+        const banner = baseCanvas(88)
         const profileSize = 56
-        profileCanvas.width = 384
-        profileCanvas.height = profileSize + 16 // Increased padding for text + 8 for name +8 for time
+        const profile = baseCanvas(profileSize + 16) // Increased padding for text + 8 for name +8 for time
+        // Create a new canvas for profile picture + username + send date
 
-        if (!bannerContext) {
+        if (!banner.context) {
           reject(new Error("Could not get canvas context"))
           return
         }
 
-        if (!profileContext) {
+        if (!profile.context) {
           reject(new Error("Could not get profile canvas context"))
           return
         }
 
-        bannerContext.drawImage(bannerImg, 0, 0, bannerCanvas.width, bannerCanvas.height)
-        const logoImageData = bannerContext.getImageData(
+        banner.context.drawImage(bannerImg, 0, 0, banner.canvas.width, banner.canvas.height)
+        const logoImageData = banner.context.getImageData(
           0,
           0,
-          bannerCanvas.width,
-          bannerCanvas.height
+          banner.canvas.width,
+          banner.canvas.height
         )
 
         // Draw profile picture as circle
-        profileContext.save()
-        profileContext.beginPath()
-        profileContext.arc(
+        profile.context.save()
+        profile.context.beginPath()
+        profile.context.arc(
           profileSize / 2 + 10,
           profileSize / 2 + 4,
           profileSize / 2,
           0,
           Math.PI * 2
         )
-        profileContext.closePath()
-        profileContext.clip()
-        profileContext.drawImage(profileImg, 10, 4, profileSize, profileSize)
-        profileContext.restore()
+        profile.context.closePath()
+        profile.context.clip()
+        profile.context.drawImage(profileImg, 10, 4, profileSize, profileSize)
+        profile.context.restore()
 
         // Add username next to profile picture
-        profileContext.font = "bold 34px Arial"
-        profileContext.textBaseline = "middle"
+        profile.context.font = "bold 34px Arial"
+        profile.context.textBaseline = "middle"
         const textY = profileSize / 3 + 4
-        profileContext.fillText(sender, profileSize + 20, textY)
+        profile.context.fillText(sender, profileSize + 20, textY)
 
         // Add timestamp under username in smaller font
-        profileContext.font = "24px Arial"
-        profileContext.fillText(getFormattedDateTime(), profileSize + 20, textY + 30)
+        profile.context.font = "24px Arial"
+        profile.context.fillText(getFormattedDateTime(), profileSize + 20, textY + 30)
 
-        const profileImageData = profileContext.getImageData(
+        const profileImageData = profile.context.getImageData(
           0,
           0,
-          profileCanvas.width,
-          profileCanvas.height
+          profile.canvas.width,
+          profile.canvas.height
         )
 
         // Create the printer output
@@ -114,9 +109,9 @@ async function printingOpenTag(sender: string, imageURL: string): Promise<Uint8A
           .raw([0x1b, 0x40])
           .font("a")
           .size(1)
-          .image(logoImageData, bannerCanvas.width, bannerCanvas.height, "atkinson", 128)
+          .image(logoImageData, banner.canvas.width, banner.canvas.height, "atkinson", 128)
           .rule()
-          .image(profileImageData, profileCanvas.width, profileCanvas.height, "atkinson", 128)
+          .image(profileImageData, profile.canvas.width, profile.canvas.height, "atkinson", 128)
           .align("left")
           .encode()
 
