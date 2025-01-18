@@ -23,7 +23,7 @@ export function drawCircularImage(
   context.restore()
 }
 
-export function loadImage(src: string, timeout = 10000): Promise<HTMLImageElement> {
+export function loadImages(src: string, timeout = 10000): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image()
     img.crossOrigin = "anonymous"

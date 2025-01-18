@@ -2,7 +2,7 @@
 import ReceiptPrinterEncoder from "@point-of-sale/receipt-printer-encoder"
 import { HtmlEncoder } from "./HtmlEncoder"
 import { PRINTER_WIDTH } from "@/lib/constants"
-import { loadImage } from "./createImagesToPrint"
+import { loadImages } from "./createImagesToPrint"
 import { createBannerSection, createProfileSection } from "./imageCreating/toastBanner"
 
 export const PrepareTextToSend = async (
@@ -43,8 +43,8 @@ async function printingOpenTag(sender: string, profileImageUrl: string): Promise
 
   try {
     const [bannerImg, profileImg] = await Promise.all([
-      loadImage("/images/Toast.png"),
-      loadImage(profileImageUrl),
+      loadImages("/images/Toast.png"),
+      loadImages(profileImageUrl),
     ])
 
     const bannerData = await createBannerSection(bannerImg)

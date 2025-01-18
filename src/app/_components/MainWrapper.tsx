@@ -11,6 +11,7 @@ import {
   drawWeatherCard,
   weatherCardBytes,
 } from "../_helpers/imageCreating/weatherCard"
+import { createCanvas } from "canvas"
 
 export type SendStatus = {
   friend: string
@@ -55,18 +56,13 @@ function MainWrapper() {
         weather.forecast.map((forecast) => drawWeatherCard(forecast))
       )
 
-      // Create a new canvas with the total height needed
-      const combinedCanvas = document.createElement("canvas")
-      const combinedCtx = combinedCanvas.getContext("2d")
-      if (!combinedCtx) return
-
       const spacing = 10
       const totalHeight =
         locationHeader.canvas.height +
         weatherCards.length * (weatherCards[0].canvas.height + spacing)
 
-      combinedCanvas.width = PRINTER_WIDTH
-      combinedCanvas.height = totalHeight
+      const combinedCanvas = createCanvas(PRINTER_WIDTH, totalHeight)
+      const combinedCtx = combinedCanvas.getContext("2d")
 
       // Draw location header first
       combinedCtx.drawImage(locationHeader.canvas, 0, 0)
@@ -78,21 +74,17 @@ function MainWrapper() {
         currentY += card.canvas.height + spacing
       })
 
-      // Display on page
-      const displayCanvas = canvasRef.current
-      if (!displayCanvas) return
-      const displayCtx = displayCanvas.getContext("2d")
-      if (!displayCtx) return
-
-      displayCanvas.width = combinedCanvas.width
-      displayCanvas.height = combinedCanvas.height
-      displayCtx.drawImage(combinedCanvas, 0, 0)
-
       // Convert to printer bytes
       const content = await weatherCardBytes({
         canvas: combinedCanvas,
         context: combinedCtx,
       })
+
+      const dataUrl = combinedCanvas.toDataURL("image/png")
+      navigator.clipboard
+        .writeText(dataUrl)
+        .then(() => console.log("Data URL copied to clipboard"))
+        .catch((err) => console.error("Failed to copy:", err))
 
       await fetch(`https://fcs2ean4kg.toasttexter.com/print`, {
         method: "POST",

@@ -42,16 +42,18 @@ export const sendWeatherReport = async (sub: printerSubscription) => {
     context: combinedCtx,
   })
 
-  const response = await fetch(`https://${sub.printerId}.toasttexter.com/print`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      data: Array.from(content),
-    }),
-  })
-  console.log(response)
+  const dataUrl = combinedCanvas.toDataURL("image/png")
+  console.log("Canvas image URL:", dataUrl)
+
+  // const response = await fetch(`https://${sub.printerId}.toasttexter.com/print`, {
+  //   method: "POST",
+  //   headers: {
+  //     "Content-Type": "application/json",
+  //   },
+  //   body: JSON.stringify({
+  //     data: Array.from(content),
+  //   }),
+  // })
 }
 
 type WeatherCondition = {
@@ -120,6 +122,7 @@ export type weatherLocation = {
   name: string
   region: string
   country: string
+  localTimeEpoch: number
 }
 
 type weather = {
@@ -208,6 +211,7 @@ export const getWeatherReport = async (userLocation: string) => {
       name: forecastData.location.name,
       country: forecastData.location.country,
       region: forecastData.location.region,
+      localTimeEpoch: forecastData.location.localtime_epoch,
     }
 
     return {

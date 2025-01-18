@@ -2,11 +2,6 @@ import type { Canvas, CanvasRenderingContext2D as NodeCanvasContext } from "canv
 import { baseCanvas, drawCircularImage } from "../createImagesToPrint"
 
 export type imageCanvas = {
-  canvas: HTMLCanvasElement
-  context: CanvasRenderingContext2D | null
-}
-
-export type imageCanvas2 = {
   canvas: Canvas
   context: NodeCanvasContext
 }

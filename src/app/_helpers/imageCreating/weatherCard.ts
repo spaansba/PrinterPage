@@ -1,11 +1,10 @@
 import type { PeriodWeather, weatherLocation } from "@/lib/queries/subscriptions/weather"
-import { baseCanvas } from "../createImagesToPrint"
 import ReceiptPrinterEncoder from "@point-of-sale/receipt-printer-encoder"
-import type { imageCanvas, imageCanvas2 } from "./toastBanner"
 import { PRINTER_WIDTH } from "@/lib/constants"
 import { createCanvas, loadImage } from "canvas"
+import { imageCanvas } from "./toastBanner"
 
-export const weatherCardBytes = async (imageCanvas: imageCanvas2) => {
+export const weatherCardBytes = async (imageCanvas: imageCanvas) => {
   const encoder = new ReceiptPrinterEncoder({
     printerModel: "pos-8360",
     columns: 32,
@@ -34,26 +33,39 @@ export const weatherCardBytes = async (imageCanvas: imageCanvas2) => {
 
 export const drawLocationHeader = async (location: weatherLocation) => {
   // Create a canvas with a standard height for the header
-  const canvas = createCanvas(PRINTER_WIDTH, 80)
+  const canvas = createCanvas(PRINTER_WIDTH, 96) // Increased height to accommodate date
   const ctx = canvas.getContext("2d")
   if (!ctx) return { canvas, ctx }
 
-  // Background fill
-  //   ctx.fillStyle = "#4A90E2"
-  //   ctx.fillRect(0, 0, base.canvas.width, base.canvas.height)
-
-  // Text styling
-  ctx.fillStyle = "#000000" // White text
+  ctx.fillStyle = "#000000"
   ctx.textAlign = "center"
 
+  // Date from localTimeEpoch
+  const localDate = new Date(location.localTimeEpoch * 1000)
+  const dateString = localDate.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  })
+
+  // Add date below location name
+  ctx.font = "18px Courier New"
+  ctx.fillText(dateString, canvas.width / 2, 15)
+
   // Location name (main text)
-  ctx.font = "bold 30px Courier New"
-  ctx.fillText(location.name, canvas.width / 2, 25)
+  ctx.font = "bold 40px Courier New"
+  ctx.fillText(location.name, canvas.width / 2, 55)
 
   // Smaller text for region and country
-  ctx.font = "22px Courier New"
-  const subLocationText = `${location.region}, ${location.country}`
-  ctx.fillText(subLocationText, canvas.width / 2, 60)
+  const regionAndCountry = `${location.region}, ${location.country}`
+  if (regionAndCountry.length > 26) {
+    ctx.font = "18px Courier New"
+  } else {
+    ctx.font = "24px Courier New"
+  }
+  const subLocationText = regionAndCountry
+  ctx.fillText(subLocationText, canvas.width / 2, 90)
 
   return { canvas, ctx }
 }
@@ -74,9 +86,11 @@ export const drawWeatherCard = async (forcast: PeriodWeather) => {
   ctx.fillText(forcast.period, 10, 25)
 
   // Weather icon with black filter
-  loadImage(forcast.condition.icon).then((image) => {
+
+  loadImage(`https:${forcast.condition.icon}`).then((image) => {
     ctx.drawImage(image, 5, (canvas.height - iconSize) / 2 + yCenterOffset, iconSize, iconSize)
   })
+
   // ctx.filter = "brightness(0)" // Make everything black
 
   // ctx.filter = "none"
