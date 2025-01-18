@@ -25,12 +25,6 @@ function ToasterSendButton({
   const { currentUser } = useToasterUser()
 
   async function sendToast(userId: string, friend: Friend, content: Uint8Array) {
-    let result = {
-      friend: friend.name,
-      success: true,
-      errorMessage: "",
-    }
-
     try {
       const response = await fetch(`https://${friend.printerId}.toasttexter.com/print`, {
         method: "POST",
