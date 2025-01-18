@@ -51,7 +51,17 @@ type HourlyWeather = {
   is_day: number
 }
 
+const PERIOD_CONFIGS = [
+  { name: "Morning", hours: [6, 7, 8, 9, 10, 11] },
+  { name: "Afternoon", hours: [12, 13, 14, 15, 16, 17] },
+  { name: "Evening", hours: [18, 19, 20, 21, 22] },
+  { name: "Night", hours: [23, 0, 1, 2, 3, 4, 5] },
+] as const
+
+export type WeatherPeriod = (typeof PERIOD_CONFIGS)[number]["name"]
+
 type PeriodWeather = {
+  period: WeatherPeriod
   condition: string
   chance_of_rain: number
   chance_of_snow: number
@@ -68,32 +78,27 @@ type PeriodWeather = {
   feelslike_f: number
 }
 
-type CurrentWeather = {
-  temp_c: number
-  condition: string
-  humidity: number
-  wind_kph: number
-}
-
-type WeatherPeriod = {
-  hours: number[]
+type weatherLocation = {
   name: string
+  region: string
+  country: string
 }
 
-const PERIODS: WeatherPeriod[] = [
-  { name: "Morning", hours: [6, 7, 8, 9, 10, 11] },
-  { name: "Afternoon", hours: [12, 13, 14, 15, 16, 17] },
-  { name: "Evening", hours: [18, 19, 20, 21, 22] },
-  { name: "Night", hours: [23, 0, 1, 2, 3, 4, 5] },
-]
+type weather = {
+  success: boolean
+  message: string
+  location: weatherLocation
+  periods: PeriodWeather[]
+}
 
 const processWeatherData = (hourlyData: any[]) => {
-  return PERIODS.map((period) => {
+  return PERIOD_CONFIGS.map((period) => {
     const periodData = period.hours.map((hour) => hourlyData[hour]).filter(Boolean)
 
     if (periodData.length === 0) return null
 
     const avgData: PeriodWeather = {
+      period: period.name,
       temp_c: averageBy(periodData, "temp_c"),
       temp_f: averageBy(periodData, "temp_f"),
       wind_kph: averageBy(periodData, "wind_kph"),
@@ -111,7 +116,6 @@ const processWeatherData = (hourlyData: any[]) => {
     }
 
     return {
-      period: period.name,
       ...avgData,
     }
   }).filter(Boolean)
@@ -131,18 +135,18 @@ const getMostFrequent = (arr: string[]): string => {
   )
 }
 
-export const getWeatherReport = async (location: string) => {
+export const getWeatherReport = async (userLocation: string) => {
   try {
     const [current, forecast] = await Promise.all([
       fetch(
         `http://api.weatherapi.com/v1/current.json?key=${
           process.env.WEATHER_API_KEY
-        }&q=${encodeURIComponent(location)}&aqi=no`
+        }&q=${encodeURIComponent(userLocation)}&aqi=no`
       ),
       fetch(
         `http://api.weatherapi.com/v1/forecast.json?key=${
           process.env.WEATHER_API_KEY
-        }&q=${encodeURIComponent(location)}&aqi=no`
+        }&q=${encodeURIComponent(userLocation)}&aqi=no`
       ),
     ])
 
@@ -155,6 +159,12 @@ export const getWeatherReport = async (location: string) => {
 
     const processedData = processWeatherData(forecastData.forecast.forecastday[0].hour)
     console.log(processedData)
+    const weatherLocation: weatherLocation = {
+      name: forecastData.location.name,
+      country: forecastData.location.country,
+      region: forecastData.location.region,
+    }
+
     return {
       success: true,
       current: {
@@ -165,6 +175,7 @@ export const getWeatherReport = async (location: string) => {
       },
       forecast: processedData,
       extra: forecastData,
+      location: weatherLocation,
     }
   } catch (error) {
     console.error("Failed to fetch weather:", error)

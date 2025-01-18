@@ -38,7 +38,7 @@ function MainWrapper() {
     return null
   }
   const handleOnClick = async () => {
-    const x = await getWeatherReport("amsterdam")
+    const x = await getWeatherReport("bergschenhoek")
     console.log(x)
   }
 
