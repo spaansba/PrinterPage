@@ -56,6 +56,7 @@ function MainWrapper() {
     canvas.height = 88
     context.fillStyle = "green"
   }, []) // Empty dependency array means this runs once when component mounts
+
   if (isSignedIn) {
     return (
       <>
