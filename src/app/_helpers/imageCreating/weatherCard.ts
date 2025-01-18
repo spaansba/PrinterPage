@@ -60,7 +60,7 @@ export const drawLocationHeader = async (location: weatherLocation): Promise<ima
 
 export const drawWeatherCard = async (forcast: PeriodWeather): Promise<imageCanvas> => {
   const base = baseCanvas(120)
-  const iconSize = 80
+  const iconSize = 55
   const yCenterOffset = 10
   if (!base.context) return base
 
@@ -86,14 +86,14 @@ export const drawWeatherCard = async (forcast: PeriodWeather): Promise<imageCanv
   ctx.filter = "none"
 
   // Temperature
-  const tempNum = `${forcast.temp_c}`
+  const tempNum = `${formatNumber(forcast.temp_c)}`
 
   // Main temperature number
   ctx.font = "bold 38px Courier New"
   const metrics = ctx.measureText(tempNum)
   const fontHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent
   const tempWidth = metrics.width
-  const tempX = iconSize + 32 + (120 - (iconSize + 32)) / 2 - tempWidth / 2
+  const tempX = iconSize + 35 + (120 - (iconSize + 35)) / 2 - tempWidth / 2
   const tempY =
     (base.canvas.height + fontHeight) / 2 - metrics.actualBoundingBoxDescent + yCenterOffset
   ctx.fillText(tempNum, tempX, tempY)
@@ -103,11 +103,19 @@ export const drawWeatherCard = async (forcast: PeriodWeather): Promise<imageCanv
   ctx.fillText("°C", tempX + tempWidth - 4, tempY - fontHeight + 3)
 
   // Info column
-  const infoX = iconSize + 115
+  const infoX = iconSize + 145
   ctx.font = "16px Courier New"
   ctx.fillText(`Chance of rain: ${forcast.chance_of_rain}%`, infoX, 40)
   ctx.fillText(`Wind: ${forcast.wind_kph} km/h`, infoX, 65)
   ctx.fillText(`Feels Like: ${forcast.feelslike_c}°C`, infoX, 90)
 
   return base
+}
+
+const formatNumber = (c: number, totalLength: number = 5): string => {
+  // Convert to string with one decimal place
+  const formattedNum = c.toFixed(1)
+
+  // Pad or trim to ensure consistent length
+  return formattedNum.padStart(totalLength, " ")
 }

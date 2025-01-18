@@ -43,9 +43,9 @@ function MainWrapper() {
   }
 
   const handleOnClick = async () => {
-    const weather = await getWeatherReport("Sri Lanka")
+    const weather = await getWeatherReport("amsterdam")
     if (!weather.forecast?.length) return
-
+    console.log(weather)
     try {
       // Create location header
       const locationHeader = await drawLocationHeader(weather.location!)
@@ -60,7 +60,6 @@ function MainWrapper() {
       const combinedCtx = combinedCanvas.getContext("2d")
       if (!combinedCtx) return
 
-      const cardHeight = locationHeader.canvas.height + weatherCards[0].canvas.height
       const spacing = 10
       const totalHeight =
         locationHeader.canvas.height +
