@@ -23,6 +23,7 @@ function ToasterSendButton({
   const [buttonClickable, setButtonClickable] = useState(true)
   const { user } = useUser()
   const { currentUser } = useToasterUser()
+
   async function sendToast(userId: string, friend: Friend, content: Uint8Array) {
     let result = {
       friend: friend.name,
@@ -44,21 +45,25 @@ function ToasterSendButton({
       await incrementPrinterMessageStats(userId, friend.printerId)
 
       if (!response.ok) {
-        result = {
+        return {
           friend: friend.name,
           success: false,
           errorMessage: `HTTP error! status: ${response.status}, body: ${responseText}`,
         }
       }
     } catch (error) {
-      result = {
+      return {
         friend: friend.name,
         success: false,
         errorMessage:
           "Error sending to printer: " + (error instanceof Error ? error.message : String(error)),
       }
     } finally {
-      return result
+      return {
+        friend: friend.name,
+        success: true,
+        errorMessage: "",
+      }
     }
   }
 
