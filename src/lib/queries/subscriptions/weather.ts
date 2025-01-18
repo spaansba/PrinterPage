@@ -110,7 +110,7 @@ const processWeatherData = (hourlyData: any[]) => {
       chance_of_snow: Math.max(...periodData.map((d) => d.chance_of_snow)),
       will_it_rain: periodData.some((d) => d.will_it_rain === 1) ? 1 : 0,
       will_it_snow: periodData.some((d) => d.will_it_snow === 1) ? 1 : 0,
-      condition: getMostFrequentCondition(periodData.map((d) => d.condition.text)),
+      condition: getMostFrequentCondition(periodData.map((d) => d.condition)),
     }
 
     return {
