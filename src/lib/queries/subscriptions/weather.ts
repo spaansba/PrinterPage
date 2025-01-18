@@ -1,19 +1,57 @@
 "use server"
+import {
+  drawLocationHeader,
+  drawWeatherCard,
+  weatherCardBytes,
+} from "@/app/_helpers/imageCreating/weatherCard"
+import { PRINTER_WIDTH } from "@/lib/constants"
 import type { printerSubscription } from "@/lib/schema/subscriptions"
+import { createCanvas } from "canvas"
 
 export const sendWeatherReport = async (sub: printerSubscription) => {
-  const content = new TextEncoder().encode("hello world")
-  const weather = getWeatherReport("amsterdam")
-  // const response = await fetch(`https://${sub.printerId}.toasttexter.com/print`, {
-  //   method: "POST",
-  //   headers: {
-  //     "Content-Type": "application/json",
-  //   },
-  //   body: JSON.stringify({
-  //     data: Array.from(content),
-  //   }),
-  // })
-  // console.log(response)
+  const weather = await getWeatherReport("amsterdam")
+  if (!weather.forecast?.length) return
+  const locationHeader = await drawLocationHeader(weather.location!)
+
+  // Create weather cards
+  const weatherCards = await Promise.all(
+    weather.forecast.map((forecast) => drawWeatherCard(forecast))
+  )
+
+  const spacing = 10
+  const totalHeight =
+    locationHeader.canvas.height + weatherCards.length * (weatherCards[0].canvas.height + spacing)
+
+  const combinedCanvas = createCanvas(PRINTER_WIDTH, totalHeight)
+  const combinedCtx = combinedCanvas.getContext("2d")
+  if (!combinedCtx) return
+
+  // Draw location header first
+  combinedCtx.drawImage(locationHeader.canvas, 0, 0)
+
+  // Draw weather cards
+  let currentY = locationHeader.canvas.height + spacing
+  weatherCards.forEach((card) => {
+    combinedCtx.drawImage(card.canvas, 0, currentY)
+    currentY += card.canvas.height + spacing
+  })
+
+  // Convert to printer bytes
+  const content = await weatherCardBytes({
+    canvas: combinedCanvas,
+    context: combinedCtx,
+  })
+
+  const response = await fetch(`https://${sub.printerId}.toasttexter.com/print`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      data: Array.from(content),
+    }),
+  })
+  console.log(response)
 }
 
 type WeatherCondition = {

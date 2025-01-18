@@ -1,10 +1,11 @@
 import type { PeriodWeather, weatherLocation } from "@/lib/queries/subscriptions/weather"
-import { baseCanvas, loadImage } from "../createImagesToPrint"
+import { baseCanvas } from "../createImagesToPrint"
 import ReceiptPrinterEncoder from "@point-of-sale/receipt-printer-encoder"
-import type { imageCanvas } from "./toastBanner"
+import type { imageCanvas, imageCanvas2 } from "./toastBanner"
 import { PRINTER_WIDTH } from "@/lib/constants"
+import { createCanvas, loadImage } from "canvas"
 
-export const weatherCardBytes = async (imageCanvas: imageCanvas) => {
+export const weatherCardBytes = async (imageCanvas: imageCanvas2) => {
   const encoder = new ReceiptPrinterEncoder({
     printerModel: "pos-8360",
     columns: 32,
@@ -31,12 +32,11 @@ export const weatherCardBytes = async (imageCanvas: imageCanvas) => {
     .encode()
 }
 
-export const drawLocationHeader = async (location: weatherLocation): Promise<imageCanvas> => {
+export const drawLocationHeader = async (location: weatherLocation) => {
   // Create a canvas with a standard height for the header
-  const base = baseCanvas(80)
-  if (!base.context) return base
-
-  const ctx = base.context
+  const canvas = createCanvas(PRINTER_WIDTH, 80)
+  const ctx = canvas.getContext("2d")
+  if (!ctx) return { canvas, ctx }
 
   // Background fill
   //   ctx.fillStyle = "#4A90E2"
@@ -48,25 +48,25 @@ export const drawLocationHeader = async (location: weatherLocation): Promise<ima
 
   // Location name (main text)
   ctx.font = "bold 30px Courier New"
-  ctx.fillText(location.name, base.canvas.width / 2, 25)
+  ctx.fillText(location.name, canvas.width / 2, 25)
 
   // Smaller text for region and country
   ctx.font = "22px Courier New"
   const subLocationText = `${location.region}, ${location.country}`
-  ctx.fillText(subLocationText, base.canvas.width / 2, 60)
+  ctx.fillText(subLocationText, canvas.width / 2, 60)
 
-  return base
+  return { canvas, ctx }
 }
 
-export const drawWeatherCard = async (forcast: PeriodWeather): Promise<imageCanvas> => {
-  const base = baseCanvas(120)
+export const drawWeatherCard = async (forcast: PeriodWeather) => {
+  const canvas = createCanvas(PRINTER_WIDTH, 120)
+  const ctx = canvas.getContext("2d")
   const iconSize = 55
   const yCenterOffset = 10
-  if (!base.context) return base
+  if (!ctx) return { canvas, ctx }
 
-  const ctx = base.context
   ctx.fillStyle = "#E8E8E8"
-  ctx.fillRect(0, 0, base.canvas.width, base.canvas.height)
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
 
   // Period text at top
   ctx.fillStyle = "#000000"
@@ -74,16 +74,12 @@ export const drawWeatherCard = async (forcast: PeriodWeather): Promise<imageCanv
   ctx.fillText(forcast.period, 10, 25)
 
   // Weather icon with black filter
-  const weatherImg = await loadImage(forcast.condition.icon)
-  ctx.filter = "brightness(0)" // Make everything black
-  ctx.drawImage(
-    weatherImg,
-    5,
-    (base.canvas.height - iconSize) / 2 + yCenterOffset,
-    iconSize,
-    iconSize
-  )
-  ctx.filter = "none"
+  loadImage(forcast.condition.icon).then((image) => {
+    ctx.drawImage(image, 5, (canvas.height - iconSize) / 2 + yCenterOffset, iconSize, iconSize)
+  })
+  // ctx.filter = "brightness(0)" // Make everything black
+
+  // ctx.filter = "none"
 
   // Temperature
   const tempNum = `${formatNumber(forcast.temp_c)}`
@@ -94,8 +90,7 @@ export const drawWeatherCard = async (forcast: PeriodWeather): Promise<imageCanv
   const fontHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent
   const tempWidth = metrics.width
   const tempX = iconSize + 35 + (120 - (iconSize + 35)) / 2 - tempWidth / 2
-  const tempY =
-    (base.canvas.height + fontHeight) / 2 - metrics.actualBoundingBoxDescent + yCenterOffset
+  const tempY = (canvas.height + fontHeight) / 2 - metrics.actualBoundingBoxDescent + yCenterOffset
   ctx.fillText(tempNum, tempX, tempY)
 
   // °C superscript
@@ -109,7 +104,7 @@ export const drawWeatherCard = async (forcast: PeriodWeather): Promise<imageCanv
   ctx.fillText(`Wind: ${forcast.wind_kph} km/h`, infoX, 65)
   ctx.fillText(`Feels Like: ${forcast.feelslike_c}°C`, infoX, 90)
 
-  return base
+  return { canvas, ctx }
 }
 
 const formatNumber = (c: number, totalLength: number = 5): string => {

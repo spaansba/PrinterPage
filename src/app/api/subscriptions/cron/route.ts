@@ -30,7 +30,6 @@ export async function GET() {
     }
 
     for (const sub of subscriptions.subscriptions) {
-      console.log(sub)
       switch (sub.type) {
         case "weather":
           await sendWeatherReport(sub)

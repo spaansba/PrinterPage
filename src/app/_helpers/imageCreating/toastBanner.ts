@@ -1,8 +1,14 @@
+import type { Canvas, CanvasRenderingContext2D as NodeCanvasContext } from "canvas"
 import { baseCanvas, drawCircularImage } from "../createImagesToPrint"
 
 export type imageCanvas = {
   canvas: HTMLCanvasElement
   context: CanvasRenderingContext2D | null
+}
+
+export type imageCanvas2 = {
+  canvas: Canvas
+  context: NodeCanvasContext
 }
 
 export async function createBannerSection(bannerImage: HTMLImageElement): Promise<ImageData> {
