@@ -6,7 +6,11 @@ import AppWindow from "./AppWindow"
 import NotSignedInPage from "./NotSignedInPage"
 import { getWeatherReport } from "@/lib/queries/subscriptions/weather"
 import { PRINTER_WIDTH } from "@/lib/constants"
-import { drawWeatherCard, weatherCardBytes } from "../_helpers/imageCreating/weatherCard"
+import {
+  drawLocationHeader,
+  drawWeatherCard,
+  weatherCardBytes,
+} from "../_helpers/imageCreating/weatherCard"
 
 export type SendStatus = {
   friend: string
@@ -39,48 +43,53 @@ function MainWrapper() {
   }
 
   const handleOnClick = async () => {
-    const weather = await getWeatherReport("bergschenhoek")
+    const weather = await getWeatherReport("Sri Lanka")
     if (!weather.forecast?.length) return
-    console.log(weather)
-    // Create weather cards and combine them
-    const firstCard = await drawWeatherCard(weather.location!, weather.forecast[0])
-    if (!firstCard) return
-
-    // Create a new canvas with the total height needed
-    const combinedCanvas = document.createElement("canvas")
-    const combinedCtx = combinedCanvas.getContext("2d")
-    if (!combinedCtx) return
-
-    const cardHeight = firstCard.canvas.height
-    const spacing = 10
-    const totalHeight = weather.forecast.length * (cardHeight + spacing)
-
-    combinedCanvas.width = PRINTER_WIDTH
-    combinedCanvas.height = totalHeight
-
-    // Draw first card
-    combinedCtx.drawImage(firstCard.canvas, 0, 0)
-
-    // Draw remaining cards
-    let currentY = cardHeight + spacing
-    for (let i = 1; i < weather.forecast.length; i++) {
-      const card = await drawWeatherCard(weather.location!, weather.forecast[i])
-      if (!card) continue
-      combinedCtx.drawImage(card.canvas, 0, currentY)
-      currentY += cardHeight + spacing
-    }
-
-    // Display on page
-    const displayCanvas = canvasRef.current
-    if (!displayCanvas) return
-    const displayCtx = displayCanvas.getContext("2d")
-    if (!displayCtx) return
-
-    displayCanvas.width = combinedCanvas.width
-    displayCanvas.height = combinedCanvas.height
-    displayCtx.drawImage(combinedCanvas, 0, 0)
 
     try {
+      // Create location header
+      const locationHeader = await drawLocationHeader(weather.location!)
+
+      // Create weather cards
+      const weatherCards = await Promise.all(
+        weather.forecast.map((forecast) => drawWeatherCard(forecast))
+      )
+
+      // Create a new canvas with the total height needed
+      const combinedCanvas = document.createElement("canvas")
+      const combinedCtx = combinedCanvas.getContext("2d")
+      if (!combinedCtx) return
+
+      const cardHeight = locationHeader.canvas.height + weatherCards[0].canvas.height
+      const spacing = 10
+      const totalHeight =
+        locationHeader.canvas.height +
+        weatherCards.length * (weatherCards[0].canvas.height + spacing)
+
+      combinedCanvas.width = PRINTER_WIDTH
+      combinedCanvas.height = totalHeight
+
+      // Draw location header first
+      combinedCtx.drawImage(locationHeader.canvas, 0, 0)
+
+      // Draw weather cards
+      let currentY = locationHeader.canvas.height + spacing
+      weatherCards.forEach((card) => {
+        combinedCtx.drawImage(card.canvas, 0, currentY)
+        currentY += card.canvas.height + spacing
+      })
+
+      // Display on page
+      const displayCanvas = canvasRef.current
+      if (!displayCanvas) return
+      const displayCtx = displayCanvas.getContext("2d")
+      if (!displayCtx) return
+
+      displayCanvas.width = combinedCanvas.width
+      displayCanvas.height = combinedCanvas.height
+      displayCtx.drawImage(combinedCanvas, 0, 0)
+
+      // Convert to printer bytes
       const content = await weatherCardBytes({
         canvas: combinedCanvas,
         context: combinedCtx,
@@ -96,7 +105,7 @@ function MainWrapper() {
         }),
       })
     } catch (error) {
-      console.error("Error sending to printer:", error)
+      console.error("Error creating weather cards:", error)
     }
   }
 
