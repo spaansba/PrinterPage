@@ -18,34 +18,16 @@ function ToasterSubscriptions({ toaster }: ToasterSubscriptionsProps) {
       </div>
       {toaster.subscriptions.map((sub, index) => (
         <SubscriptionTemplate
-          key={index}
-          title=""
-          description="Daily weather forecasts"
-          isEnabled={true}
-          settings={[
-            {
-              label: "Location",
-              component: <input type="text" className="border rounded px-2 py-1" />,
-            },
-            {
-              label: "Send Each Day At",
-              component: (
-                <TimeSelector
-                  value="08:00" // Optional initial value
-                  onChange={(time) => console.log("New time:", time)}
-                />
-              ),
-            },
-            {
-              label: "Temperature Unit",
-              component: (
-                <select className="border rounded px-2 py-1">
-                  <option value="c">Celsius</option>
-                  <option value="f">Fahrenheit</option>
-                </select>
-              ),
-            },
-          ]}
+          key={sub.description + index}
+          title={sub.title}
+          description={sub.description}
+          isEnabled={sub.status == "active"}
+          settings={Object.entries(sub.settings).map(([key, setting]) => ({
+            label: setting.label,
+            component: setting.component,
+            default: setting.default,
+            select_options: setting.select_options,
+          }))}
         />
       ))}
     </div>

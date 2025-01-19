@@ -1,16 +1,13 @@
 import React from "react"
 import { Calendar } from "lucide-react"
-
-type Setting = {
-  label: string
-  component: React.ReactNode
-}
+import type { SettingDefinition } from "@/app/types/printer"
+import TimeSelector from "./TimeSelector"
 
 type SubscriptionTemplateProps = {
   title: string
   description: string
   isEnabled: boolean
-  settings?: Setting[]
+  settings: SettingDefinition[]
   icon?: React.ReactNode
   iconBgColor?: string
   iconColor?: string
@@ -20,7 +17,7 @@ const SubscriptionTemplate = ({
   title,
   description,
   isEnabled,
-  settings = [],
+  settings,
   icon = <Calendar className="size-6" />,
   iconBgColor = "bg-blue-100",
   iconColor = "text-blue-700",
@@ -56,16 +53,63 @@ const SubscriptionTemplate = ({
         />
       </div>
 
-      {settings.length > 0 && (
-        <div className="flex flex-col gap-2 mt-2">
-          {settings.map((setting, index) => (
-            <div key={index} className="text-sm text-gray-600">
-              <span className="">{setting.label}:</span>
-              <div className="mt-1">{setting.component}</div>
-            </div>
-          ))}
+      {settings.map((setting, index) => (
+        <div key={index} className="text-sm text-gray-600 gap-2">
+          <span className="min-w-32">{setting.label}:</span>
+          <div className="mt-1 mb-2">
+            {(() => {
+              switch (setting.component) {
+                case "string":
+                  return (
+                    <input
+                      type="text"
+                      defaultValue={setting.default}
+                      className="border rounded-sm px-2 py-1 text-gray-900"
+                    />
+                  )
+                case "number":
+                  return (
+                    <input
+                      type="number"
+                      defaultValue={setting.default}
+                      className="border rounded-sm px-2 py-1 text-gray-900"
+                    />
+                  )
+                case "boolean":
+                  return (
+                    <input
+                      type="checkbox"
+                      defaultChecked={setting.default === "true"}
+                      className="size-4 accent-gray-600 cursor-pointer"
+                    />
+                  )
+                case "select":
+                  return (
+                    <select
+                      defaultValue={setting.default}
+                      className="border rounded-sm px-2 py-1 text-gray-900"
+                    >
+                      {setting.select_options?.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                  )
+                case "time":
+                  return (
+                    <TimeSelector
+                      value="08:00"
+                      onChange={(time) => console.log("New time:", time)}
+                    />
+                  )
+                default:
+                  return null
+              }
+            })()}
+          </div>
         </div>
-      )}
+      ))}
     </div>
   )
 }

@@ -9,7 +9,7 @@ const tempUnitValues = ["Celsius", "Fahrenheit"] as const
 export const TempUnitType = pgEnum("temp_unit", tempUnitValues)
 export const StatusType = pgEnum("status", ["active", "paused"])
 export type SubscriptionStatus = "active" | "paused"
-export const SettingInputType = z.enum(["string", "number", "boolean", "select"])
+export const SettingInputType = z.enum(["string", "number", "boolean", "select", "time"])
 export type SettingInputType = z.infer<typeof SettingInputType>
 
 export const printerBroadcasters = pgTable("printer_broadcasters", {

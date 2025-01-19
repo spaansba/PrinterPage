@@ -9,8 +9,15 @@ export type Toaster = {
   subscriptions: ToasterSubscription[]
 }
 
+export type SettingDefinition = {
+  label: string
+  default: string
+  component: "string" | "number" | "boolean" | "select" | "time"
+  select_options: string[] | null
+}
+
 type ToasterSubscription = {
-  settings: Record<string, any>
+  settings: Record<string, SettingDefinition>
   settingsValues: Record<string, any>
   sendTime: string | null
   status: SubscriptionStatus
