@@ -8,6 +8,7 @@ type ToasterSubscriptionsProps = {
 }
 
 function WeatherSubscription({ toaster }: ToasterSubscriptionsProps) {
+  console.log(toaster.subscriptions)
   function setWeatherEnabled() {}
   return (
     <SubscriptionTemplate

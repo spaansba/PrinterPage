@@ -41,7 +41,6 @@ export function ToasterUserProvider({
   const [friendList, setFriendList] = useState<Friend[]>(initialFriendList)
   const [pairedToasters, setPairedToasters] = useState<Toaster[]>(initialPairedToasters)
   const [currentUser, setCurrentUser] = useState<ToasterUser>(initialUser)
-
   //const alterPairedToasters
 
   const alterUsername = (userId: string, newName: string) => {

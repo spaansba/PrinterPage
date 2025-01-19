@@ -1,14 +1,5 @@
 import { sql } from "drizzle-orm"
-import {
-  pgTable,
-  varchar,
-  timestamp,
-  serial,
-  pgEnum,
-  integer,
-  json,
-  time,
-} from "drizzle-orm/pg-core"
+import { pgTable, varchar, timestamp, pgEnum, json, time } from "drizzle-orm/pg-core"
 import { printers, users } from "../schema"
 import { createInsertSchema } from "drizzle-zod"
 import { z } from "zod"
@@ -17,7 +8,7 @@ export type TempUnit = "Celsius" | "Fahrenheit"
 const tempUnitValues = ["Celsius", "Fahrenheit"] as const
 export const TempUnitType = pgEnum("temp_unit", tempUnitValues)
 export const StatusType = pgEnum("status", ["active", "paused"])
-
+export type SubscriptionStatus = "active" | "paused"
 export const SettingInputType = z.enum(["string", "number", "boolean", "select"])
 export type SettingInputType = z.infer<typeof SettingInputType>
 
@@ -26,7 +17,8 @@ export const printerBroadcasters = pgTable("printer_broadcasters", {
   creatorId: varchar("creator_id", { length: 256 })
     .notNull()
     .references(() => users.id, { onDelete: "set null" }),
-  name: varchar("name", { length: 20 }).notNull(),
+  name: varchar("name", { length: 200 }).notNull(),
+  description: varchar("description", { length: 20 }).notNull().default(""),
   settings: json("settings").notNull(),
   createdAt: timestamp("created_at", { mode: "string" })
     .default(sql`CURRENT_TIMESTAMP`)

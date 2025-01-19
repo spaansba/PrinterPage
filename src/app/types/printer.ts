@@ -1,4 +1,4 @@
-import type { PrinterSubscription } from "@/lib/schema/subscriptions"
+import type { PrinterSubscription, SubscriptionStatus } from "@/lib/schema/subscriptions"
 
 export type Toaster = {
   id: string
@@ -6,7 +6,16 @@ export type Toaster = {
   profilePicture: string | null
   toastsReceived: number
   pairedAccounts?: ToasterUser[]
-  subscriptions: PrinterSubscription[]
+  subscriptions: ToasterSubscription[]
+}
+
+type ToasterSubscription = {
+  settings: Record<string, any>
+  settingsValues: Record<string, any>
+  sendTime: string | null
+  status: SubscriptionStatus
+  title: string
+  description: string
 }
 
 export type tempUnit = "Celsius" | "Fahrenheit"

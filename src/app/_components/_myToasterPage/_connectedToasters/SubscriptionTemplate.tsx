@@ -10,7 +10,6 @@ type SubscriptionTemplateProps = {
   title: string
   description: string
   isEnabled: boolean
-  onToggle: (enabled: boolean) => void
   settings?: Setting[]
   icon?: React.ReactNode
   iconBgColor?: string
@@ -21,12 +20,12 @@ const SubscriptionTemplate = ({
   title,
   description,
   isEnabled,
-  onToggle,
   settings = [],
   icon = <Calendar className="size-6" />,
   iconBgColor = "bg-blue-100",
   iconColor = "text-blue-700",
 }: SubscriptionTemplateProps) => {
+  const onToggle = () => {}
   return (
     <div className="mt-3 bg-toastWhite border border-gray-300 rounded-sm p-3">
       {/* Title row with icon and enable checkbox */}
@@ -52,7 +51,7 @@ const SubscriptionTemplate = ({
         <input
           type="checkbox"
           checked={isEnabled}
-          onChange={(e) => onToggle(e.target.checked)}
+          onChange={(e) => onToggle()}
           className="size-4 accent-gray-600 cursor-pointer mt-1"
         />
       </div>

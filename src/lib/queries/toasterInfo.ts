@@ -2,8 +2,14 @@
 import type { Toaster } from "@/app/types/printer"
 import { db } from ".."
 import { printers, printerUserPairing, users } from "../schema"
-import { and, eq, sql } from "drizzle-orm"
-import { printerBroadcastSubscriptions, type PrinterSubscription } from "../schema/subscriptions"
+import { and, eq, sql, type SQL } from "drizzle-orm"
+import {
+  printerBroadcasters,
+  printerBroadcastSubscriptions,
+  type PrinterSubscription,
+  type SubscriptionStatus,
+} from "../schema/subscriptions"
+import { title } from "process"
 
 type UpdateToasterData = {
   name?: string
@@ -47,6 +53,99 @@ export const updateToasterInformation = async (toasterId: string, data: UpdateTo
   }
 }
 
+const fetchToasters = async (where: SQL<unknown>) => {
+  const results = await db
+    .select({
+      id: printers.id,
+      name: printers.name,
+      profilePicture: printers.profilePicture,
+      toastsReceived: printers.toastsReceived,
+      subscriptions: {
+        id: printerBroadcastSubscriptions.id,
+        settings: printerBroadcasters.settings,
+        title: printerBroadcasters.name,
+        description: printerBroadcasters.description,
+        settingsValues: printerBroadcastSubscriptions.settingsValues,
+        sendTime: printerBroadcastSubscriptions.sendTime,
+        status: printerBroadcastSubscriptions.status,
+      },
+      pairedUser: {
+        id: users.id,
+        username: users.username,
+        toastsSend: users.toastsSend,
+      },
+    })
+    .from(printers)
+    .leftJoin(
+      printerBroadcastSubscriptions,
+      eq(printers.id, printerBroadcastSubscriptions.printerId)
+    )
+    .leftJoin(
+      printerBroadcasters,
+      eq(printerBroadcastSubscriptions.broadcastId, printerBroadcasters.id)
+    )
+    .leftJoin(printerUserPairing, eq(printers.id, printerUserPairing.printerId))
+    .leftJoin(users, eq(printerUserPairing.userId, users.id))
+    .where(where)
+
+  // Group results by printer and transform into Toaster type
+  const toasterMap = new Map<string, Toaster>()
+
+  results.forEach((row) => {
+    if (!toasterMap.has(row.id)) {
+      // Initialize base toaster without subscriptions or paired accounts
+      const toaster: Toaster = {
+        id: row.id,
+        name: row.name,
+        profilePicture: row.profilePicture,
+        toastsReceived: row.toastsReceived,
+        subscriptions: [],
+        pairedAccounts: row.pairedUser ? [row.pairedUser] : [],
+      }
+
+      // If this row has a subscription, add it
+      if (row.subscriptions.id) {
+        toaster.subscriptions = [
+          {
+            settings: row.subscriptions.settings as Record<string, any>,
+            settingsValues: row.subscriptions.settingsValues as Record<string, any>,
+            sendTime: row.subscriptions.sendTime,
+            status: row.subscriptions.status as SubscriptionStatus,
+            description: row.subscriptions.description!,
+            title: row.subscriptions.title!,
+          },
+        ]
+      }
+
+      toasterMap.set(row.id, toaster)
+    } else {
+      const toaster = toasterMap.get(row.id)!
+
+      // Add subscription if it exists and isn't already added
+      if (
+        row.subscriptions.id &&
+        !toaster.subscriptions.some((s) => s.settings === row.subscriptions.settings)
+      ) {
+        toaster.subscriptions.push({
+          settings: row.subscriptions.settings as Record<string, any>,
+          settingsValues: row.subscriptions.settingsValues as Record<string, any>,
+          sendTime: row.subscriptions.sendTime,
+          status: row.subscriptions.status as SubscriptionStatus,
+          description: row.subscriptions.description!,
+          title: row.subscriptions.title!,
+        })
+      }
+
+      // Add paired user if it exists and isn't already added
+      if (row.pairedUser && !toaster.pairedAccounts?.some((u) => u.id === row.pairedUser?.id)) {
+        toaster.pairedAccounts!.push(row.pairedUser)
+      }
+    }
+  })
+
+  return Array.from(toasterMap.values())
+}
+
 export const getToaster = async (
   printerId: string
 ): Promise<{
@@ -55,49 +154,19 @@ export const getToaster = async (
   data?: Toaster
 }> => {
   try {
-    const results = await db
-      .select({
-        id: printers.id,
-        name: printers.name,
-        profilePicture: printers.profilePicture,
-        toastsReceived: printers.toastsReceived,
-        subscriptions: printerBroadcastSubscriptions,
-      })
-      .from(printers)
-      .leftJoin(
-        printerBroadcastSubscriptions,
-        eq(printers.id, printerBroadcastSubscriptions.printerId)
-      )
-      .where(eq(printers.id, printerId))
+    const toasters = await fetchToasters(eq(printers.id, printerId))
 
-    if (results.length === 0) {
+    if (toasters.length === 0) {
       return {
         success: false,
         message: "Toaster not found",
       }
     }
 
-    // Transform the flattened results into the Toaster type
-    const toaster: Toaster = {
-      id: results[0].id,
-      name: results[0].name,
-      profilePicture: results[0].profilePicture,
-      toastsReceived: results[0].toastsReceived,
-      subscriptions: results
-        .filter(
-          (
-            row
-          ): row is (typeof results)[0] & {
-            subscriptions: NonNullable<(typeof results)[0]["subscriptions"]>
-          } => row.subscriptions !== null
-        )
-        .map((row) => row.subscriptions),
-    }
-
     return {
       success: true,
       message: "Toaster found successfully",
-      data: toaster,
+      data: toasters[0],
     }
   } catch (error) {
     console.error("Error fetching toaster:", error)
@@ -108,13 +177,6 @@ export const getToaster = async (
   }
 }
 
-/**
- * Retrieves all printers (toasters) that have user pairings, including their basic information and paired user accounts.
- * Each printer can have multiple users paired to it.
- *
- * @param userId - The ID of the user to get paired printers for
- * @returns An array of Toaster objects, each containing the printer info and an array of paired user accounts
- */
 export const getPairedToasters = async (
   userId: string
 ): Promise<{
@@ -123,29 +185,9 @@ export const getPairedToasters = async (
   data: Toaster[]
 }> => {
   try {
-    const results = await db
-      .select({
-        id: printers.id,
-        name: printers.name,
-        profilePicture: printers.profilePicture,
-        toastsReceived: printers.toastsReceived,
-        subscriptions: printerBroadcastSubscriptions,
-        pairedUser: {
-          id: users.id,
-          username: users.username,
-          toastsSend: users.toastsSend,
-        },
-      })
-      .from(printerUserPairing)
-      .innerJoin(printers, eq(printerUserPairing.printerId, printers.id))
-      .leftJoin(
-        printerBroadcastSubscriptions,
-        eq(printers.id, printerBroadcastSubscriptions.printerId)
-      )
-      .leftJoin(users, eq(printerUserPairing.userId, users.id))
-      .where(eq(printerUserPairing.userId, userId))
+    const toasters = await fetchToasters(eq(printerUserPairing.userId, userId))
 
-    if (results.length === 0) {
+    if (toasters.length === 0) {
       return {
         success: false,
         message: "No paired toasters found",
@@ -153,42 +195,10 @@ export const getPairedToasters = async (
       }
     }
 
-    // Group results by printer and transform into Toaster type
-    const toasterMap = new Map<string, Toaster>()
-
-    results.forEach((row) => {
-      if (!toasterMap.has(row.id)) {
-        toasterMap.set(row.id, {
-          id: row.id,
-          name: row.name,
-          profilePicture: row.profilePicture,
-          toastsReceived: row.toastsReceived,
-          subscriptions: [],
-          pairedAccounts: [],
-        })
-      }
-
-      const toaster = toasterMap.get(row.id)!
-
-      // Add subscription if it exists and isn't already added
-      if (row.subscriptions && !toaster.subscriptions.some((s) => s.id === row.subscriptions!.id)) {
-        toaster.subscriptions.push(row.subscriptions)
-      }
-
-      // Add paired user if it exists and isn't already added
-      if (row.pairedUser?.id && !toaster.pairedAccounts?.some((u) => u.id === row.pairedUser?.id)) {
-        toaster.pairedAccounts!.push({
-          id: row.pairedUser.id,
-          username: row.pairedUser.username,
-          toastsSend: row.pairedUser.toastsSend,
-        })
-      }
-    })
-
     return {
       success: true,
       message: "Paired toasters found successfully",
-      data: Array.from(toasterMap.values()),
+      data: toasters,
     }
   } catch (error) {
     console.error("Error fetching paired toasters:", error)
