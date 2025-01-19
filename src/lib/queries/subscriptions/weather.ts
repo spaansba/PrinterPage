@@ -125,6 +125,14 @@ export type weatherLocation = {
   localTimeEpoch: number
 }
 
+export type weatherAstro = {
+  sunrise: string
+  sunset: string
+  moonrise: string
+  moonset: string
+  moonPhase: string
+}
+
 type weather = {
   success: boolean
   message: string
@@ -132,7 +140,7 @@ type weather = {
   periods: PeriodWeather[]
 }
 
-const processWeatherData = (hourlyData: any[]) => {
+const getForecastInPeriods = (hourlyData: any[]) => {
   return PERIOD_CONFIGS.map((period) => {
     const periodData = period.hours.map((hour) => hourlyData[hour]).filter(Boolean)
 
@@ -205,13 +213,21 @@ export const getWeatherReport = async (userLocation: string) => {
     const forecastData = await forecast.json()
     const currentData = await current.json()
 
-    const processedData = processWeatherData(forecastData.forecast.forecastday[0].hour)
-    console.log(processedData)
+    const forecastInPeriods = getForecastInPeriods(forecastData.forecast.forecastday[0].hour)
+
     const weatherLocation: weatherLocation = {
       name: forecastData.location.name,
       country: forecastData.location.country,
       region: forecastData.location.region,
       localTimeEpoch: forecastData.location.localtime_epoch,
+    }
+
+    const astroData: weatherAstro = {
+      sunrise: forecastData.forecast.forecastday[0].astro.sunrise,
+      sunset: forecastData.forecast.forecastday[0].astro.sunset,
+      moonrise: forecastData.forecast.forecastday[0].astro.moonrise,
+      moonset: forecastData.forecast.forecastday[0].astro.moonset,
+      moonPhase: forecastData.forecast.forecastday[0].astro.moon_phase,
     }
 
     return {
@@ -222,7 +238,8 @@ export const getWeatherReport = async (userLocation: string) => {
         humidity: currentData.current.humidity,
         wind_kph: currentData.current.wind_kph,
       },
-      forecast: processedData,
+      astro: astroData,
+      forecast: forecastInPeriods,
       extra: forecastData,
       location: weatherLocation,
     }
@@ -232,6 +249,7 @@ export const getWeatherReport = async (userLocation: string) => {
       success: false,
       current: null,
       forecast: null,
+      astro: null,
     }
   }
 }

@@ -7,6 +7,7 @@ import NotSignedInPage from "./NotSignedInPage"
 import { getWeatherReport } from "@/lib/queries/subscriptions/weather"
 import { PRINTER_WIDTH } from "@/lib/constants"
 import {
+  drawAstroCard,
   drawLocationHeader,
   drawWeatherCard,
   weatherCardBytes,
@@ -44,21 +45,23 @@ function MainWrapper() {
   }
 
   const handleOnClick = async () => {
-    const weather = await getWeatherReport("sri lanka")
+    const weather = await getWeatherReport("amsterdam")
     if (!weather.forecast?.length) return
     console.log(weather)
     try {
       // Create location header
       const locationHeader = await drawLocationHeader(weather.location!)
-
+      const astroCard = await drawAstroCard(weather.astro)
+      console.log(astroCard.canvas.height)
       // Create weather cards
       const weatherCards = await Promise.all(
         weather.forecast.map((forecast) => drawWeatherCard(forecast))
       )
 
-      const spacing = 10
+      const spacing = 8
       const totalHeight =
         locationHeader.canvas.height +
+        astroCard.canvas.height +
         weatherCards.length * (weatherCards[0].canvas.height + spacing)
 
       const combinedCanvas = createCanvas(PRINTER_WIDTH, totalHeight)
@@ -67,8 +70,9 @@ function MainWrapper() {
       // Draw location header first
       combinedCtx.drawImage(locationHeader.canvas, 0, 0)
 
-      // Draw weather cards
       let currentY = locationHeader.canvas.height + spacing
+      combinedCtx.drawImage(astroCard.canvas, 0, currentY)
+      currentY = currentY + astroCard.canvas.height + spacing
       weatherCards.forEach((card) => {
         combinedCtx.drawImage(card.canvas, 0, currentY)
         currentY += card.canvas.height + spacing

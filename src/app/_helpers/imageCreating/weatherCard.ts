@@ -1,7 +1,16 @@
-import type { PeriodWeather, weatherLocation } from "@/lib/queries/subscriptions/weather"
+import type {
+  PeriodWeather,
+  weatherAstro,
+  weatherLocation,
+} from "@/lib/queries/subscriptions/weather"
 import ReceiptPrinterEncoder from "@point-of-sale/receipt-printer-encoder"
 import { PRINTER_WIDTH } from "@/lib/constants"
-import { createCanvas, loadImage, CanvasRenderingContext2D as CanvasRender } from "canvas"
+import {
+  createCanvas,
+  loadImage,
+  CanvasRenderingContext2D as CanvasRender,
+  type Canvas,
+} from "canvas"
 import { imageCanvas } from "./toastBanner"
 
 export const weatherCardBytes = async (imageCanvas: imageCanvas) => {
@@ -19,6 +28,7 @@ export const weatherCardBytes = async (imageCanvas: imageCanvas) => {
     imageCanvas.canvas.width,
     imageCanvas.canvas.height
   )
+  console.log(imageCanvas.canvas.height)
   return encoder
     .initialize()
     .raw([0x1b, 0x40])
@@ -33,7 +43,7 @@ export const weatherCardBytes = async (imageCanvas: imageCanvas) => {
 
 export const drawLocationHeader = async (location: weatherLocation) => {
   // Create a canvas with a standard height for the header
-  const canvas = createCanvas(PRINTER_WIDTH, 96) // Increased height to accommodate date
+  const canvas = createCanvas(PRINTER_WIDTH, 112)
   const ctx = canvas.getContext("2d")
   if (!ctx) return { canvas, ctx }
   ctx.fillStyle = "#ffffff"
@@ -51,7 +61,7 @@ export const drawLocationHeader = async (location: weatherLocation) => {
   })
 
   // Add date below location name
-  ctx.font = "18px Courier New"
+  ctx.font = "bold 18px Courier New"
   ctx.fillText(dateString, canvas.width / 2, 15)
 
   // Location name (main text)
@@ -61,13 +71,62 @@ export const drawLocationHeader = async (location: weatherLocation) => {
   // Smaller text for region and country
   const regionAndCountry = `${location.region}, ${location.country}`
   if (regionAndCountry.length > 26) {
-    ctx.font = "18px Courier New"
+    ctx.font = "bold 18px Courier New"
   } else {
-    ctx.font = "24px Courier New"
+    ctx.font = "bold 24px Courier New"
   }
   const subLocationText = regionAndCountry
   ctx.fillText(subLocationText, canvas.width / 2, 90)
+  addStroke(ctx, canvas)
+  return { canvas, ctx }
+}
 
+export const drawAstroCard = async (astro: weatherAstro) => {
+  const canvas = createCanvas(PRINTER_WIDTH, 144)
+  const ctx = canvas.getContext("2d")
+  if (!ctx) return { canvas, ctx }
+
+  // Set background
+  ctx.fillStyle = "#ffffff"
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+  ctx.fillStyle = "#000000"
+
+  // Title
+  // ctx.font = "bold 24px Courier New"
+  // ctx.textAlign = "center"
+  // ctx.fillText("Astronomics", canvas.width / 2, 25)
+
+  // Create two columns for sun and moon data
+  const leftColX = 30
+  const rightColX = canvas.width / 2 + 30
+  const startY = 20
+  const lineHeight = 25
+
+  // Sun information (left column)
+  ctx.textAlign = "left"
+  ctx.font = "bold 24px Courier New"
+  ctx.fillText("Sun", leftColX, startY)
+
+  ctx.font = "bold 20px Courier New"
+  ctx.fillText(`▲ ${astro.sunrise}`, leftColX, startY + lineHeight)
+  ctx.fillText(`▼ ${astro.sunset}`, leftColX, startY + lineHeight * 2)
+
+  // Moon information (right column)
+  ctx.font = "bold 24px Courier New"
+  ctx.fillText("Moon", rightColX, startY)
+
+  ctx.font = "bold 20px Courier New"
+  ctx.fillText(`▲ ${astro.moonrise}`, rightColX, startY + lineHeight)
+  ctx.fillText(`▼ ${astro.moonset}`, rightColX, startY + lineHeight * 2)
+
+  // Moon phase centered at bottom
+  ctx.font = "bold 24px Courier New"
+  ctx.textAlign = "center"
+  ctx.fillText("Moon Phase", canvas.width / 2, startY + lineHeight * 3 + 10)
+
+  ctx.font = "bold 20px Courier New"
+  ctx.fillText(astro.moonPhase, canvas.width / 2, startY + lineHeight * 4 + 4)
+  addStroke(ctx, canvas)
   return { canvas, ctx }
 }
 
@@ -113,8 +172,8 @@ export const drawWeatherCard = async (forcast: PeriodWeather) => {
 
   // Info column
   const infoX = iconSize + 145
-  ctx.font = "16px Courier New"
-  ctx.fillText(`Chance of rain: ${forcast.chance_of_rain}%`, infoX, 40)
+  ctx.font = "bold 18px Courier New"
+  ctx.fillText(`Chance of Rain: ${forcast.chance_of_rain}%`, infoX, 40)
   ctx.fillText(`Wind: ${forcast.wind_kph} km/h`, infoX, 65)
   ctx.fillText(`Feels Like: ${forcast.feelslike_c}°C`, infoX, 90)
 
@@ -128,7 +187,6 @@ export const applyBlackFilter = (
   width: number,
   height: number
 ) => {
-  // Get the image data from the canvas
   const imageData = ctx.getImageData(x, y, width, height)
   const data = imageData.data
 
@@ -142,27 +200,38 @@ export const applyBlackFilter = (
     // Skip fully transparent pixels
     if (alpha === 0) continue
 
-    // Calculate brightness using luminosity method
-    // Weights based on human perception: R: 0.299, G: 0.587, B: 0.114
-    const brightness = (0.299 * red + 0.587 * green + 0.114 * blue) / 255
+    // Check if the pixel is white (all values close to 255)
+    const isWhite = red > 250 && green > 250 && blue > 250
 
-    // Invert brightness to get darkness (1 = black, 0 = white)
-    const darkness = 1 - brightness
+    if (!isWhite) {
+      // Calculate brightness using luminosity method
+      const brightness = (0.299 * red + 0.587 * green + 0.114 * blue) / 255
 
-    // Apply darkness level while preserving alpha
-    data[i] = data[i + 1] = data[i + 2] = Math.round(255 * (1 - darkness))
-    // Keep original alpha value
-    // data[i + 3] = alpha
+      // Make non-white pixels darker by reducing brightness more aggressively
+      const darkness = Math.min(1, (1 - brightness) * 1.5)
+
+      // Apply darkened values while preserving alpha
+      data[i] = data[i + 1] = data[i + 2] = Math.round(255 * (1 - darkness))
+    }
+    // White pixels remain unchanged
   }
 
   // Put the modified image data back on the canvas
   ctx.putImageData(imageData, x, y)
 }
-
 const formatNumber = (c: number, totalLength: number = 5): string => {
   // Convert to string with one decimal place
   const formattedNum = c.toFixed(1)
 
   // Pad or trim to ensure consistent length
   return formattedNum.padStart(totalLength, " ")
+}
+
+const addStroke = (ctx: CanvasRender, canvas: Canvas, thickness = 3): CanvasRender => {
+  ctx.lineWidth = thickness
+  ctx.beginPath()
+  ctx.moveTo(0, canvas.height - thickness)
+  ctx.lineTo(canvas.width, canvas.height - thickness)
+  ctx.stroke()
+  return ctx
 }
