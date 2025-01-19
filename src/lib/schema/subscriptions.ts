@@ -2,13 +2,16 @@ import { sql } from "drizzle-orm"
 import { pgTable, varchar, timestamp, serial, pgEnum, integer, json } from "drizzle-orm/pg-core"
 import { printers, users } from "../schema"
 import { createInsertSchema } from "drizzle-zod"
+import { z } from "zod"
 
 // subscriptions
 export type TempUnit = "Celsius" | "Fahrenheit"
 const tempUnitValues = ["Celsius", "Fahrenheit"] as const
 export const TempUnitType = pgEnum("temp_unit", tempUnitValues)
-
 export const StatusType = pgEnum("status", ["active", "paused"])
+
+export const SettingInputType = z.enum(["string", "number", "boolean", "select"])
+export type SettingInputType = z.infer<typeof SettingInputType>
 
 export const printerBroadcasters = pgTable("printer_broadcasters", {
   id: varchar("id", { length: 10 }).primaryKey(),
