@@ -44,7 +44,7 @@ function MainWrapper() {
   }
 
   const handleOnClick = async () => {
-    const weather = await getWeatherReport("amsterdam")
+    const weather = await getWeatherReport("sri lanka")
     if (!weather.forecast?.length) return
     console.log(weather)
     try {

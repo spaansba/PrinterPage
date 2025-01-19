@@ -1,7 +1,7 @@
 import type { PeriodWeather, weatherLocation } from "@/lib/queries/subscriptions/weather"
 import ReceiptPrinterEncoder from "@point-of-sale/receipt-printer-encoder"
 import { PRINTER_WIDTH } from "@/lib/constants"
-import { createCanvas, loadImage } from "canvas"
+import { createCanvas, loadImage, CanvasRenderingContext2D as CanvasRender } from "canvas"
 import { imageCanvas } from "./toastBanner"
 
 export const weatherCardBytes = async (imageCanvas: imageCanvas) => {
@@ -36,7 +36,8 @@ export const drawLocationHeader = async (location: weatherLocation) => {
   const canvas = createCanvas(PRINTER_WIDTH, 96) // Increased height to accommodate date
   const ctx = canvas.getContext("2d")
   if (!ctx) return { canvas, ctx }
-
+  ctx.fillStyle = "#ffffff"
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
   ctx.fillStyle = "#000000"
   ctx.textAlign = "center"
 
@@ -77,23 +78,22 @@ export const drawWeatherCard = async (forcast: PeriodWeather) => {
   const yCenterOffset = 10
   if (!ctx) return { canvas, ctx }
 
-  ctx.fillStyle = "#E8E8E8"
+  ctx.fillStyle = "#ffffff"
   ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-  // Period text at top
   ctx.fillStyle = "#000000"
+  // Period text at top
   ctx.font = "bold 24px Courier New"
   ctx.fillText(forcast.period, 10, 25)
 
   // Weather icon with black filter
 
-  loadImage(`https:${forcast.condition.icon}`).then((image) => {
-    ctx.drawImage(image, 5, (canvas.height - iconSize) / 2 + yCenterOffset, iconSize, iconSize)
-  })
+  const iconX = 5
+  const iconY = (canvas.height - iconSize) / 2 + yCenterOffset
 
+  const image = await loadImage(`https:${forcast.condition.icon}`, { crossOrigin: "anonymous" })
+  ctx.drawImage(image, iconX, iconY, iconSize, iconSize)
+  applyBlackFilter(ctx, iconX, iconY, iconSize, iconSize)
   // ctx.filter = "brightness(0)" // Make everything black
-
-  // ctx.filter = "none"
 
   // Temperature
   const tempNum = `${formatNumber(forcast.temp_c)}`
@@ -119,6 +119,44 @@ export const drawWeatherCard = async (forcast: PeriodWeather) => {
   ctx.fillText(`Feels Like: ${forcast.feelslike_c}°C`, infoX, 90)
 
   return { canvas, ctx }
+}
+
+export const applyBlackFilter = (
+  ctx: CanvasRender,
+  x: number,
+  y: number,
+  width: number,
+  height: number
+) => {
+  // Get the image data from the canvas
+  const imageData = ctx.getImageData(x, y, width, height)
+  const data = imageData.data
+
+  // Iterate through each pixel
+  for (let i = 0; i < data.length; i += 4) {
+    const red = data[i]
+    const green = data[i + 1]
+    const blue = data[i + 2]
+    const alpha = data[i + 3]
+
+    // Skip fully transparent pixels
+    if (alpha === 0) continue
+
+    // Calculate brightness using luminosity method
+    // Weights based on human perception: R: 0.299, G: 0.587, B: 0.114
+    const brightness = (0.299 * red + 0.587 * green + 0.114 * blue) / 255
+
+    // Invert brightness to get darkness (1 = black, 0 = white)
+    const darkness = 1 - brightness
+
+    // Apply darkness level while preserving alpha
+    data[i] = data[i + 1] = data[i + 2] = Math.round(255 * (1 - darkness))
+    // Keep original alpha value
+    // data[i + 3] = alpha
+  }
+
+  // Put the modified image data back on the canvas
+  ctx.putImageData(imageData, x, y)
 }
 
 const formatNumber = (c: number, totalLength: number = 5): string => {
