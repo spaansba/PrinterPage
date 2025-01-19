@@ -1,15 +1,13 @@
 "use server"
-import type { Toaster } from "@/app/types/printer"
+import type { SettingDefinition, Toaster } from "@/app/types/printer"
 import { db } from ".."
 import { printers, printerUserPairing, users } from "../schema"
-import { and, eq, sql, type SQL } from "drizzle-orm"
+import { and, eq, type SQL } from "drizzle-orm"
 import {
   printerBroadcasters,
   printerBroadcastSubscriptions,
-  type PrinterSubscription,
   type SubscriptionStatus,
 } from "../schema/subscriptions"
-import { title } from "process"
 
 type UpdateToasterData = {
   name?: string
@@ -105,10 +103,25 @@ const fetchToasters = async (where: SQL<unknown>) => {
 
       // If this row has a subscription, add it
       if (row.subscriptions.id) {
+        const settingDefinitions = row.subscriptions.settings as Record<string, SettingDefinition>
+        const userValues = row.subscriptions.settingsValues as Record<string, string>
+
+        const mergedSettings: Record<string, SettingDefinition> = {}
+
+        // Merge setting definitions with user values
+        Object.entries(settingDefinitions).forEach(([key, definition]) => {
+          console.log(key)
+          console.log(userValues)
+          const userValue = userValues[key] || null
+          mergedSettings[key] = {
+            ...definition,
+            userValue,
+          }
+        })
+
         toaster.subscriptions = [
           {
-            settings: row.subscriptions.settings as Record<string, any>,
-            settingsValues: row.subscriptions.settingsValues as Record<string, any>,
+            settings: mergedSettings,
             sendTime: row.subscriptions.sendTime,
             status: row.subscriptions.status as SubscriptionStatus,
             description: row.subscriptions.description!,
@@ -126,9 +139,22 @@ const fetchToasters = async (where: SQL<unknown>) => {
         row.subscriptions.id &&
         !toaster.subscriptions.some((s) => s.settings === row.subscriptions.settings)
       ) {
+        const settingDefinitions = row.subscriptions.settings as Record<string, SettingDefinition>
+        const userValues = row.subscriptions.settingsValues as Record<string, { value: string }>
+
+        const mergedSettings: Record<string, SettingDefinition> = {}
+
+        // Merge setting definitions with user values
+        Object.entries(settingDefinitions).forEach(([key, definition]) => {
+          const userValue = userValues[key]?.value || null
+          mergedSettings[key] = {
+            ...definition,
+            userValue,
+          }
+        })
+
         toaster.subscriptions.push({
-          settings: row.subscriptions.settings as Record<string, any>,
-          settingsValues: row.subscriptions.settingsValues as Record<string, any>,
+          settings: mergedSettings,
           sendTime: row.subscriptions.sendTime,
           status: row.subscriptions.status as SubscriptionStatus,
           description: row.subscriptions.description!,

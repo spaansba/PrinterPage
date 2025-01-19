@@ -63,7 +63,7 @@ const SubscriptionTemplate = ({
                   return (
                     <input
                       type="text"
-                      defaultValue={setting.default}
+                      defaultValue={setting.userValue ? setting.userValue : setting.default}
                       className="border rounded-sm px-2 py-1 text-gray-900"
                     />
                   )
@@ -71,7 +71,7 @@ const SubscriptionTemplate = ({
                   return (
                     <input
                       type="number"
-                      defaultValue={setting.default}
+                      defaultValue={setting.userValue ? setting.userValue : setting.default}
                       className="border rounded-sm px-2 py-1 text-gray-900"
                     />
                   )
@@ -86,10 +86,10 @@ const SubscriptionTemplate = ({
                 case "select":
                   return (
                     <select
-                      defaultValue={setting.default}
+                      defaultValue={setting.userValue ? setting.userValue : setting.default}
                       className="border rounded-sm px-2 py-1 text-gray-900"
                     >
-                      {setting.select_options?.map((option) => (
+                      {setting.selectOptions?.map((option) => (
                         <option key={option} value={option}>
                           {option}
                         </option>

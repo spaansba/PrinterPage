@@ -26,7 +26,8 @@ function ToasterSubscriptions({ toaster }: ToasterSubscriptionsProps) {
             label: setting.label,
             component: setting.component,
             default: setting.default,
-            select_options: setting.select_options,
+            selectOptions: setting.selectOptions,
+            userValue: setting.userValue,
           }))}
         />
       ))}
