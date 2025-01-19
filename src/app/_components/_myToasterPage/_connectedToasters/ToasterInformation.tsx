@@ -110,7 +110,7 @@ function ToasterInformation({ toaster }: ToasterInformationProps) {
     setPairedToasters((prev) => prev.filter((t) => t.id !== printerId))
   }
   return (
-    <div className="flex items-start gap-4 pb-4">
+    <div className="flex items-start gap-4">
       <div className="pt-1">
         <div className="relative size-14 flex-shrink-0 group">
           <ProfilePicture
