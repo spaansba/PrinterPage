@@ -1,8 +1,10 @@
 "use server"
 import { db } from ".."
 import { printers, printerUserPairing, users } from "../schema"
-import { and, eq } from "drizzle-orm"
-import type { Toaster } from "@/app/types/printer"
+import { and, eq, sql } from "drizzle-orm"
+import type { Toaster, ToasterSubscriptions, WeatherSubOptions } from "@/app/types/printer"
+import { subscribe } from "diagnostics_channel"
+import { printerSubscriptions, printerWeatherSubscriptionOptions } from "../schema/subscriptions"
 
 type UpdateToasterData = {
   name?: string
@@ -46,7 +48,7 @@ export const updateToasterInformation = async (toasterId: string, data: UpdateTo
   }
 }
 
-export const getToaster = async (printerId: string) => {
+export const getToaster = async (printerId: string): Toaster => {
   try {
     const toaster = await db
       .select({
@@ -58,6 +60,9 @@ export const getToaster = async (printerId: string) => {
       .from(printers)
       .where(eq(printers.id, printerId))
 
+    const toasterSubs = await db.select({
+      subscriptions: {},
+    })
     if (toaster.length === 0) {
       return {
         success: false,
@@ -90,18 +95,39 @@ export const getToaster = async (printerId: string) => {
  * @returns An array of Toaster objects, each containing the printer info and an array of paired user accounts
  */
 export const getPairedToasters = async (userId: string): Promise<Toaster[]> => {
-  const printerResults: Toaster[] = await db
+  const printerResults = (await db
     .select({
       id: printers.id,
       name: printers.name,
       profilePicture: printers.profilePicture,
       toastsReceived: printers.toastsReceived,
+      subscriptions: sql<ToasterSubscriptions>`json_build_object(
+        'Weather', json_build_object(
+          'active', ${printerSubscriptions.active},
+          'sendTime', ${printerSubscriptions.sendTime},
+          'location', ${printerWeatherSubscriptionOptions.location},
+          'tempUnit', ${printerWeatherSubscriptionOptions.tempUnit}
+        )
+      )`,
     })
     .from(printerUserPairing)
     .innerJoin(printers, eq(printerUserPairing.printerId, printers.id))
-    .where(eq(printerUserPairing.userId, userId))
+    .leftJoin(
+      printerSubscriptions,
+      and(eq(printers.id, printerSubscriptions.printerId), eq(printerSubscriptions.type, "weather"))
+    )
+    .leftJoin(
+      printerWeatherSubscriptionOptions,
+      eq(printerSubscriptions.id, printerWeatherSubscriptionOptions.subscriptionId)
+    )
+    .where(eq(printerUserPairing.userId, userId))) as {
+    id: string
+    name: string
+    profilePicture: string | null
+    toastsReceived: number
+    subscriptions: ToasterSubscriptions
+  }[]
 
-  // For each printer, get its paired users from the users table
   const toasters = await Promise.all(
     printerResults.map(async (printer) => {
       const pairedUsers = await db
@@ -119,14 +145,14 @@ export const getPairedToasters = async (userId: string): Promise<Toaster[]> => {
         name: printer.name,
         profilePicture: printer.profilePicture,
         toastsReceived: printer.toastsReceived,
+        subscriptions: printer.subscriptions,
         pairedAccounts: pairedUsers,
-      }
+      } satisfies Toaster
     })
   )
 
   return toasters
 }
-
 export const checkIfAlreadyPaired = async (printerId: string, userId: string) => {
   return await db
     .select()

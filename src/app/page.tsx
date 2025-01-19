@@ -34,7 +34,7 @@ export default async function Home() {
 
   // Get paired toaster information from server
   let serverPairedToasters: Toaster[] = await getPairedToasters(user.id)
-
+  console.log(serverPairedToasters)
   serverPairedToasters = await getProfilePicFromUsers(serverPairedToasters)
 
   return (

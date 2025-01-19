@@ -1,5 +1,5 @@
 {
-  "id": "99730e1c-35a6-461d-af36-cd4f7d2b255e",
+  "id": "9e93383b-070e-4bef-9744-330d9e80c21b",
   "prevId": "f0a37971-c7ae-48cf-aabd-60916ed8c670",
   "version": "7",
   "dialect": "postgresql",
@@ -398,13 +398,13 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.printer_subscriptions": {
-      "name": "printer_subscriptions",
+    "public.printer_broadcast_subscriptions": {
+      "name": "printer_broadcast_subscriptions",
       "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "varchar(10)",
           "primaryKey": true,
           "notNull": true
         },
@@ -414,46 +414,46 @@
           "primaryKey": false,
           "notNull": true
         },
-        "type": {
-          "name": "type",
-          "type": "subscription_type",
+        "template_id": {
+          "name": "template_id",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "settings_values": {
+          "name": "settings_values",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "status",
           "typeSchema": "public",
           "primaryKey": false,
-          "notNull": true
-        },
-        "send_time": {
-          "name": "send_time",
-          "type": "time",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "active": {
-          "name": "active",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "default": true
+          "notNull": true,
+          "default": "'active'"
         },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "(NOW() AT TIME ZONE 'UTC')"
+          "default": "CURRENT_TIMESTAMP"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "(NOW() AT TIME ZONE 'UTC')"
+          "default": "CURRENT_TIMESTAMP"
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "printer_subscriptions_printer_id_printer_printers_id_fk": {
-          "name": "printer_subscriptions_printer_id_printer_printers_id_fk",
-          "tableFrom": "printer_subscriptions",
+        "printer_broadcast_subscriptions_printer_id_printer_printers_id_fk": {
+          "name": "printer_broadcast_subscriptions_printer_id_printer_printers_id_fk",
+          "tableFrom": "printer_broadcast_subscriptions",
           "tableTo": "printer_printers",
           "columnsFrom": [
             "printer_id"
@@ -461,7 +461,20 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "printer_broadcast_subscriptions_template_id_printer_broadcasters_id_fk": {
+          "name": "printer_broadcast_subscriptions_template_id_printer_broadcasters_id_fk",
+          "tableFrom": "printer_broadcast_subscriptions",
+          "tableTo": "printer_broadcasters",
+          "columnsFrom": [
+            "template_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -471,64 +484,62 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.printer_weather_subscription_options": {
-      "name": "printer_weather_subscription_options",
+    "public.printer_broadcasters": {
+      "name": "printer_broadcasters",
       "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "varchar(10)",
           "primaryKey": true,
           "notNull": true
         },
-        "subscription_id": {
-          "name": "subscription_id",
-          "type": "integer",
+        "creator_id": {
+          "name": "creator_id",
+          "type": "varchar(256)",
           "primaryKey": false,
           "notNull": true
         },
-        "location": {
-          "name": "location",
-          "type": "varchar",
+        "name": {
+          "name": "name",
+          "type": "varchar(20)",
           "primaryKey": false,
           "notNull": true
         },
-        "temp_unit": {
-          "name": "temp_unit",
-          "type": "temp_unit",
-          "typeSchema": "public",
+        "settings": {
+          "name": "settings",
+          "type": "json",
           "primaryKey": false,
-          "notNull": true,
-          "default": "'Celsius'"
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "(NOW() AT TIME ZONE 'UTC')"
+          "default": "CURRENT_TIMESTAMP"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "(NOW() AT TIME ZONE 'UTC')"
+          "default": "CURRENT_TIMESTAMP"
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "printer_weather_subscription_options_subscription_id_printer_subscriptions_id_fk": {
-          "name": "printer_weather_subscription_options_subscription_id_printer_subscriptions_id_fk",
-          "tableFrom": "printer_weather_subscription_options",
-          "tableTo": "printer_subscriptions",
+        "printer_broadcasters_creator_id_printer_users_id_fk": {
+          "name": "printer_broadcasters_creator_id_printer_users_id_fk",
+          "tableFrom": "printer_broadcasters",
+          "tableTo": "printer_users",
           "columnsFrom": [
-            "subscription_id"
+            "creator_id"
           ],
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "set null",
           "onUpdate": "no action"
         }
       },
@@ -540,12 +551,12 @@
     }
   },
   "enums": {
-    "public.subscription_type": {
-      "name": "subscription_type",
+    "public.status": {
+      "name": "status",
       "schema": "public",
       "values": [
-        "weather",
-        "news"
+        "active",
+        "paused"
       ]
     },
     "public.temp_unit": {

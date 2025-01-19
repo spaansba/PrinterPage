@@ -10,10 +10,11 @@ export type Toaster = {
 }
 
 export type ToasterSubscriptions = {
-  Weahter: WeatherSubOptions
+  Weather: WeatherSubOptions
 }
 
 export type WeatherSubOptions = {
+  active: boolean
   sendTime: string
   location: string
   tempUnit: TempUnit

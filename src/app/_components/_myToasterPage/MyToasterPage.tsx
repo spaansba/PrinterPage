@@ -73,8 +73,8 @@ function MyToasterPage() {
     <PageBorderDiv>
       {pairedToasters.length > 0 && (
         <div className="flex flex-col gap-[0.3rem]">
-          {pairedToasters.map((toaster) => (
-            <PairedToasterContainer key={toaster.id} toaster={toaster} />
+          {pairedToasters.map((toaster, index) => (
+            <PairedToasterContainer key={index} toaster={toaster} />
           ))}
         </div>
       )}
