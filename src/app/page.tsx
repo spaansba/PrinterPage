@@ -33,15 +33,15 @@ export default async function Home() {
   }
 
   // Get paired toaster information from server
-  let serverPairedToasters: Toaster[] = await getPairedToasters(user.id)
-  console.log(serverPairedToasters)
-  serverPairedToasters = await getProfilePicFromUsers(serverPairedToasters)
+  const pairedToasters = await getPairedToasters(user.id)
+
+  const pairedToastersWithProfilePictures = await getProfilePicFromUsers(pairedToasters.data)
 
   return (
     <div className="flex flex-col items-center justify-center p-2 gap-6 font-mono text-black bg-toastPrimary">
       <ToasterUserProvider
         initialFriendList={fullServerFriendsList}
-        initialPairedToasters={serverPairedToasters}
+        initialPairedToasters={pairedToastersWithProfilePictures}
         initialUser={toasterUser}
       >
         <MainWrapper />

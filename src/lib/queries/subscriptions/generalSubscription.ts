@@ -1,23 +1,21 @@
 "use server"
 
 import { db } from "@/lib"
-import { printerSubscriptions, type printerSubscription } from "@/lib/schema/subscriptions"
-import { and, eq } from "drizzle-orm"
+import { printerBroadcastSubscriptions, type PrinterSubscription } from "@/lib/schema/subscriptions"
+import { eq } from "drizzle-orm"
 
 export type GetSubscriptions = {
   success: boolean
   message: string
-  subscriptions: printerSubscription[]
+  subscriptions: PrinterSubscription[]
 }
 
 export async function getSubscriptionsToRun(timeSend: string): Promise<GetSubscriptions> {
   try {
     const subscriptionsToRun = await db
       .select()
-      .from(printerSubscriptions)
-      .where(
-        and(eq(printerSubscriptions.active, true), eq(printerSubscriptions.sendTime, timeSend))
-      )
+      .from(printerBroadcastSubscriptions)
+      .where(eq(printerBroadcastSubscriptions.sendTime, timeSend))
 
     if (subscriptionsToRun.length == 0) {
       return {

@@ -1,0 +1,1 @@
+ALTER TABLE "printer_broadcast_subscriptions" ADD COLUMN "send_time" time;

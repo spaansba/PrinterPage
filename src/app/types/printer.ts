@@ -1,4 +1,4 @@
-import type { TempUnit } from "@/lib/schema/subscriptions"
+import type { PrinterSubscription } from "@/lib/schema/subscriptions"
 
 export type Toaster = {
   id: string
@@ -6,18 +6,7 @@ export type Toaster = {
   profilePicture: string | null
   toastsReceived: number
   pairedAccounts?: ToasterUser[]
-  subscriptions: ToasterSubscriptions
-}
-
-export type ToasterSubscriptions = {
-  Weather: WeatherSubOptions
-}
-
-export type WeatherSubOptions = {
-  active: boolean
-  sendTime: string
-  location: string
-  tempUnit: TempUnit
+  subscriptions: PrinterSubscription[]
 }
 
 export type tempUnit = "Celsius" | "Fahrenheit"
