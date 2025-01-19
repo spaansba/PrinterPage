@@ -1,48 +1,9 @@
 {
-  "id": "8f74422f-3d37-4357-b6b7-14ca9547b4c4",
+  "id": "99730e1c-35a6-461d-af36-cd4f7d2b255e",
   "prevId": "f0a37971-c7ae-48cf-aabd-60916ed8c670",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.subscriptions": {
-      "name": "subscriptions",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "printer_id": {
-          "name": "printer_id",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "subscriptions_printer_id_printer_printers_id_fk": {
-          "name": "subscriptions_printer_id_printer_printers_id_fk",
-          "tableFrom": "subscriptions",
-          "tableTo": "printer_printers",
-          "columnsFrom": [
-            "printer_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.user_pairing": {
       "name": "user_pairing",
       "schema": "",
@@ -436,9 +397,166 @@
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
+    },
+    "public.printer_subscriptions": {
+      "name": "printer_subscriptions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "printer_id": {
+          "name": "printer_id",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "subscription_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "send_time": {
+          "name": "send_time",
+          "type": "time",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "active": {
+          "name": "active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "(NOW() AT TIME ZONE 'UTC')"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "(NOW() AT TIME ZONE 'UTC')"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "printer_subscriptions_printer_id_printer_printers_id_fk": {
+          "name": "printer_subscriptions_printer_id_printer_printers_id_fk",
+          "tableFrom": "printer_subscriptions",
+          "tableTo": "printer_printers",
+          "columnsFrom": [
+            "printer_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.printer_weather_subscription_options": {
+      "name": "printer_weather_subscription_options",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "subscription_id": {
+          "name": "subscription_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "location": {
+          "name": "location",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "temp_unit": {
+          "name": "temp_unit",
+          "type": "temp_unit",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'Celsius'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "(NOW() AT TIME ZONE 'UTC')"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "(NOW() AT TIME ZONE 'UTC')"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "printer_weather_subscription_options_subscription_id_printer_subscriptions_id_fk": {
+          "name": "printer_weather_subscription_options_subscription_id_printer_subscriptions_id_fk",
+          "tableFrom": "printer_weather_subscription_options",
+          "tableTo": "printer_subscriptions",
+          "columnsFrom": [
+            "subscription_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     }
   },
-  "enums": {},
+  "enums": {
+    "public.subscription_type": {
+      "name": "subscription_type",
+      "schema": "public",
+      "values": [
+        "weather",
+        "news"
+      ]
+    },
+    "public.temp_unit": {
+      "name": "temp_unit",
+      "schema": "public",
+      "values": [
+        "Celsius",
+        "Fahrenheit"
+      ]
+    }
+  },
   "schemas": {},
   "sequences": {},
   "roles": {},

@@ -131,22 +131,8 @@
     {
       "idx": 18,
       "version": "7",
-      "when": 1736010249164,
-      "tag": "0018_stale_cerebro",
-      "breakpoints": true
-    },
-    {
-      "idx": 19,
-      "version": "7",
-      "when": 1737100977835,
-      "tag": "0019_giant_lifeguard",
-      "breakpoints": true
-    },
-    {
-      "idx": 20,
-      "version": "7",
-      "when": 1737125959266,
-      "tag": "0020_careful_magneto",
+      "when": 1737286566950,
+      "tag": "0018_worthless_wendell_vaughn",
       "breakpoints": true
     }
   ]
