@@ -14,24 +14,66 @@ export type GetSubscriptions = {
   subscriptions: PrinterSubscription[]
 }
 
-export async function updateSubscriptionStatus(
+type UpdateSubscriptionParams = {
+  status?: SubscriptionStatus
+  sendTime?: string // Time in HH:mm format
+}
+
+export async function updatePrinterSubscription(
   printerId: string,
   subId: string,
-  status: SubscriptionStatus
+  updates: UpdateSubscriptionParams
 ) {
-  //TODO rate limiting etc
-  const updated = await db
-    .update(printerBroadcastSubscriptions)
-    .set({
-      status: status,
+  try {
+    // Early return if no updates provided
+    if (Object.keys(updates).length === 0) {
+      return {
+        success: false,
+        message: "No update parameters provided",
+      }
+    }
+
+    // Build the update object dynamically
+    const updateData: Record<string, unknown> = {
       updatedAt: new Date().toISOString(),
-    })
-    .where(
-      and(
-        eq(printerBroadcastSubscriptions.printerId, printerId),
-        eq(printerBroadcastSubscriptions.id, subId)
+    }
+
+    if (updates.status !== undefined) {
+      updateData.status = updates.status
+    }
+
+    if (updates.sendTime !== undefined) {
+      updateData.sendTime = updates.sendTime
+    }
+
+    const updated = await db
+      .update(printerBroadcastSubscriptions)
+      .set(updateData)
+      .where(
+        and(
+          eq(printerBroadcastSubscriptions.printerId, printerId),
+          eq(printerBroadcastSubscriptions.id, subId)
+        )
       )
-    )
+
+    // Check if any rows were affected
+    if (updated.rowCount === 0) {
+      return {
+        success: false,
+        message: "Subscription not found or no changes made",
+      }
+    }
+
+    return {
+      success: true,
+      message: "Subscription updated successfully",
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "An unknown error occurred",
+    }
+  }
 }
 
 export async function updateSubSettings(

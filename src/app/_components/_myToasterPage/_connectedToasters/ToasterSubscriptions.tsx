@@ -21,6 +21,7 @@ function ToasterSubscriptions({ toaster }: ToasterSubscriptionsProps) {
           description={sub.description}
           isEnabled={sub.status == "active"}
           subId={sub.subId}
+          sendTime={sub.sendTime}
           settings={Object.entries(sub.settings).map(([key, setting]) => ({
             label: setting.label,
             component: setting.component,

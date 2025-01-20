@@ -4,9 +4,10 @@ import type { SettingDefinition, Toaster } from "@/app/types/printer"
 import TimeSelector from "./TimeSelector"
 import { useToasterUser } from "@/app/context/userDataContext"
 import {
-  updateSubscriptionStatus,
+  updatePrinterSubscription,
   updateSubSettings,
 } from "@/lib/queries/subscriptions/generalSubscription"
+import RetroToggleButton from "../../_helperComponents/RetroToggleButton"
 
 type SubscriptionTemplateProps = {
   toaster: Toaster
@@ -15,6 +16,7 @@ type SubscriptionTemplateProps = {
   isEnabled: boolean
   subId: string
   settings: SettingDefinition[]
+  sendTime?: string | null
   icon?: React.ReactNode
   iconBgColor?: string
   iconColor?: string
@@ -27,12 +29,14 @@ const SubscriptionTemplate = ({
   subId,
   isEnabled: initialIsEnabled,
   settings: initialSettings,
+  sendTime: initialSendTime = null,
   icon = <Calendar className="size-6" />,
   iconBgColor = "bg-toastPrimary",
   iconColor = "text-gray-700",
 }: SubscriptionTemplateProps) => {
   const [isEnabled, setIsEnabled] = useState(initialIsEnabled)
   const [settings, setSettings] = useState(initialSettings)
+  const [sendTime, setSendTime] = useState<string | null>(initialSendTime)
   const [hasChanges, setHasChanges] = useState(false)
   const { setPairedToasters } = useToasterUser()
 
@@ -40,7 +44,9 @@ const SubscriptionTemplate = ({
   const onToggle = async () => {
     setIsEnabled(!isEnabled)
     setHasChanges(true)
-    await updateSubscriptionStatus(toaster.id, subId, !isEnabled ? "active" : "paused")
+    const result = await updatePrinterSubscription(toaster.id, subId, {
+      status: !isEnabled ? "active" : "paused",
+    })
   }
 
   const handleSave = async () => {
@@ -52,6 +58,14 @@ const SubscriptionTemplate = ({
     })
     const update = await updateSubSettings(toaster.id, subId, updatedSettings)
 
+    if (initialSendTime != sendTime && sendTime) {
+      const updateSendTime = await updatePrinterSubscription(toaster.id, subId, {
+        sendTime: sendTime,
+      })
+      if (!updateSendTime.success) {
+        return
+      }
+    }
     if (!update.success || !update.data) {
       return
     }
@@ -68,7 +82,6 @@ const SubscriptionTemplate = ({
             if (sub.subId !== subId) {
               return sub
             }
-
             // Create a settings map using the labels as keys
             const settingsMap = Object.fromEntries(
               settings.map((setting) => [setting.label, setting])
@@ -87,6 +100,7 @@ const SubscriptionTemplate = ({
 
             return {
               ...sub,
+              sendTime: sendTime,
               settings: newSettings,
             }
           }),
@@ -96,7 +110,7 @@ const SubscriptionTemplate = ({
     setHasChanges(false)
   }
 
-  const handleOnChange = (
+  const handleOnChangeGeneral = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
     settingKey: string
   ) => {
@@ -108,6 +122,11 @@ const SubscriptionTemplate = ({
         index.toString() === settingKey ? { ...setting, userValue: value } : setting
       )
     )
+  }
+
+  const handleOnChangeTime = (time: string) => {
+    setSendTime(time)
+    setHasChanges(true)
   }
   return (
     <div className="mt-3 bg-toastWhite border border-gray-300 rounded-sm p-3">
@@ -131,17 +150,18 @@ const SubscriptionTemplate = ({
         </div>
 
         {/* Checkbox */}
-        <input
-          type="checkbox"
-          checked={isEnabled}
-          onChange={onToggle}
-          className="size-4 accent-gray-600 cursor-pointer mt-1"
-        />
+        <RetroToggleButton checked={isEnabled} onChange={onToggle} />
       </div>
       {isEnabled && (
-        <div className="mt-3">
+        <div className="mt-3 text-sm text-gray-600">
+          {sendTime && (
+            <>
+              <span className="min-w-32">Send Time:</span>
+              <TimeSelector onChange={handleOnChangeTime} className="mt-1" value={sendTime} />
+            </>
+          )}
           {Object.entries(settings).map(([key, setting]) => (
-            <div key={`${key}-${setting.label}`} className="text-sm text-gray-600 gap-2">
+            <div key={`${key}-${setting.label}`} className="mt-3">
               <span className="min-w-32">{setting.label}:</span>
               <div className="mt-1 mb-2">
                 {(() => {
@@ -152,7 +172,7 @@ const SubscriptionTemplate = ({
                           type="text"
                           value={setting.userValue || setting.default}
                           className="border rounded-sm px-2 py-1 text-gray-900"
-                          onChange={(e) => handleOnChange(e, key)}
+                          onChange={(e) => handleOnChangeGeneral(e, key)}
                         />
                       )
                     case "number":
@@ -161,7 +181,7 @@ const SubscriptionTemplate = ({
                           type="number"
                           value={setting.userValue || setting.default}
                           className="border rounded-sm px-2 py-1 text-gray-900"
-                          onChange={(e) => handleOnChange(e, key)}
+                          onChange={(e) => handleOnChangeGeneral(e, key)}
                         />
                       )
                     case "boolean":
@@ -174,7 +194,7 @@ const SubscriptionTemplate = ({
                               : setting.default === "true"
                           }
                           className="size-4 accent-gray-600 cursor-pointer"
-                          onChange={(e) => handleOnChange(e, key)}
+                          onChange={(e) => handleOnChangeGeneral(e, key)}
                         />
                       )
                     case "select":
@@ -182,7 +202,7 @@ const SubscriptionTemplate = ({
                         <select
                           value={setting.userValue || setting.default}
                           className="border rounded-sm px-2 py-1 text-gray-900"
-                          onChange={(e) => handleOnChange(e, key)}
+                          onChange={(e) => handleOnChangeGeneral(e, key)}
                         >
                           {setting.selectOptions?.map((option) => (
                             <option key={option} value={option}>
