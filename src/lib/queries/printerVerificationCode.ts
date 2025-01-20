@@ -158,7 +158,6 @@ export const incrementVerificationAttempt = async (userId: string) => {
         .update(verificationAttempts)
         .set({
           countLastHour: updatedCount,
-          updatedAt: now.toISOString(),
         })
         .where(eq(verificationAttempts.id, currentAttempt[0].id))
       return {

@@ -15,7 +15,8 @@ export const printerUserPairing = pgTable("user_pairing", {
     .notNull(),
   updatedAt: timestamp("updated_at", { mode: "string" })
     .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
-    .notNull(),
+    .notNull()
+    .$onUpdate(() => new Date().toISOString()),
 })
 
 export const verificationAttempts = pgTable("verification_attempts", {
@@ -32,7 +33,8 @@ export const verificationAttempts = pgTable("verification_attempts", {
     .notNull(),
   updatedAt: timestamp("updated_at", { mode: "string" })
     .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
-    .notNull(),
+    .notNull()
+    .$onUpdate(() => new Date().toISOString()),
 })
 
 export const users = pgTable("printer_users", {
@@ -44,7 +46,8 @@ export const users = pgTable("printer_users", {
     .notNull(),
   updatedAt: timestamp("updated_at", { mode: "string" })
     .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
-    .notNull(),
+    .notNull()
+    .$onUpdate(() => new Date().toISOString()),
 })
 
 export const printers = pgTable("printer_printers", {
@@ -58,7 +61,8 @@ export const printers = pgTable("printer_printers", {
     .notNull(),
   updatedAt: timestamp("updated_at", { mode: "string" })
     .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
-    .notNull(),
+    .notNull()
+    .$onUpdate(() => new Date().toISOString()),
 })
 
 export const usersAssociatedPrinters = pgTable("printer_users_printer_association", {
@@ -76,7 +80,8 @@ export const usersAssociatedPrinters = pgTable("printer_users_printer_associatio
     .notNull(),
   updatedAt: timestamp("updated_at", { mode: "string" })
     .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
-    .notNull(),
+    .notNull()
+    .$onUpdate(() => new Date().toISOString()),
   lastSendMessage: timestamp("last_send_message", { mode: "string" })
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),

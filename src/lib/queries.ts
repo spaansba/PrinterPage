@@ -12,7 +12,7 @@ import { eq, and, desc, sql } from "drizzle-orm"
 export const updatedUserName = async (userId: string, newUsername: string) => {
   return await db
     .update(users)
-    .set({ username: newUsername, updatedAt: new Date().toISOString() })
+    .set({ username: newUsername })
     .where(eq(users.id, userId))
     .returning()
 }
@@ -55,7 +55,6 @@ export const incrementPrinterMessageStats = async (userId: string, associatedPri
     .set({
       lastSendMessage: new Date().toISOString(),
       toastsSendToAssociatedPrinter: sql`${usersAssociatedPrinters.toastsSendToAssociatedPrinter} + 1`,
-      updatedAt: new Date().toISOString(),
     })
     .where(
       and(

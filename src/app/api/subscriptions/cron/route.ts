@@ -5,6 +5,7 @@ import {
   getSubscriptionsToRun,
   type GetSubscriptions,
 } from "@/lib/queries/subscriptions/generalSubscription"
+import { registerFonts } from "@/lib/registerFonts"
 
 export async function GET() {
   const headersList = await headers()
@@ -13,6 +14,7 @@ export async function GET() {
   const dateSend = timeHeader ? new Date(Number(timeHeader) * 1000) : new Date()
   let timeSend = RoundToClosest5Minutes(dateSend)
   timeSend = "15:50"
+
   if (token !== process.env.CRON_ORG_SECRET) {
     return new NextResponse("Unauthorized", { status: 401 })
   }
@@ -28,6 +30,8 @@ export async function GET() {
     if (subscriptions.subscriptions.length == 0) {
       return NextResponse.json({ status: subscriptions.message }, { status: 200 })
     }
+
+    registerFonts()
 
     for (const sub of subscriptions.subscriptions) {
       await sendWeatherReport(sub)

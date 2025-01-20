@@ -25,7 +25,8 @@ export const printerBroadcasters = pgTable("printer_broadcasters", {
     .notNull(),
   updatedAt: timestamp("updated_at", { mode: "string" })
     .default(sql`CURRENT_TIMESTAMP`)
-    .notNull(),
+    .notNull()
+    .$onUpdate(() => new Date().toISOString()),
 })
 
 export const printerBroadcastSubscriptions = pgTable("printer_broadcast_subscriptions", {
@@ -44,7 +45,8 @@ export const printerBroadcastSubscriptions = pgTable("printer_broadcast_subscrip
     .notNull(),
   updatedAt: timestamp("updated_at", { mode: "string" })
     .default(sql`CURRENT_TIMESTAMP`)
-    .notNull(),
+    .notNull()
+    .$onUpdate(() => new Date().toISOString()),
 })
 
 export type PrinterSubscription = typeof printerBroadcastSubscriptions.$inferInsert

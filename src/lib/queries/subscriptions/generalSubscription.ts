@@ -34,9 +34,7 @@ export async function updatePrinterSubscription(
     }
 
     // Build the update object dynamically
-    const updateData: Record<string, unknown> = {
-      updatedAt: new Date().toISOString(),
-    }
+    const updateData: Record<string, unknown> = {}
 
     if (updates.status !== undefined) {
       updateData.status = updates.status
@@ -87,7 +85,6 @@ export async function updateSubSettings(
       .update(printerBroadcastSubscriptions)
       .set({
         settingsValues: newSettings,
-        updatedAt: new Date().toISOString(),
       })
       .where(
         and(
