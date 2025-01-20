@@ -12,8 +12,7 @@ export async function GET() {
   const token = headersList.get("x-cron-token")
   const timeHeader = headersList.get("x-time-send")
   const dateSend = timeHeader ? new Date(Number(timeHeader) * 1000) : new Date()
-  let timeSend = RoundToClosest5Minutes(dateSend)
-  timeSend = "15:50"
+  const timeSend = RoundToClosest5Minutes(dateSend)
 
   if (token !== process.env.CRON_ORG_SECRET) {
     return new NextResponse("Unauthorized", { status: 401 })

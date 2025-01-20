@@ -14,7 +14,6 @@ export const sendWeatherReport = async (sub: PrinterSubscription) => {
     Temperature: TempUnit
     Location: string
   }
-  console.log(settings.Location)
 
   //TODO this should not be in the sendWeatherReport but whatever
   const weather = await getWeatherReport(settings.Location)

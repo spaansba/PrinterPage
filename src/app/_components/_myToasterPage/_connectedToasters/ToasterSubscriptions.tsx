@@ -1,6 +1,7 @@
 import type { Toaster } from "@/app/types/printer"
 import React from "react"
 import SubscriptionTemplate from "./SubscriptionTemplate"
+import { CloudSun } from "lucide-react"
 
 type ToasterSubscriptionsProps = {
   toaster: Toaster
@@ -22,6 +23,7 @@ function ToasterSubscriptions({ toaster }: ToasterSubscriptionsProps) {
           isEnabled={sub.status == "active"}
           subId={sub.subId}
           sendTime={sub.sendTime}
+          icon={<CloudSun className="size-6" />}
           settings={Object.entries(sub.settings).map(([key, setting]) => ({
             label: setting.label,
             component: setting.component,
