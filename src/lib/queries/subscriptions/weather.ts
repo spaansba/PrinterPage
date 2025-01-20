@@ -5,11 +5,16 @@ import {
   weatherCardBytes,
 } from "@/app/_helpers/imageCreating/weatherCard"
 import { PRINTER_WIDTH } from "@/lib/constants"
-import type { printerSubscription } from "@/lib/schema/subscriptions"
+import type { PrinterSubscription } from "@/lib/schema/subscriptions"
 import { createCanvas } from "canvas"
 
-export const sendWeatherReport = async (sub: printerSubscription) => {
-  const weather = await getWeatherReport("amsterdam")
+export const sendWeatherReport = async (sub: PrinterSubscription) => {
+  const settings = sub.settingsValues as {
+    Temperature: string
+    Location: string
+  }
+  console.log(settings.Location)
+  const weather = await getWeatherReport(settings.Location)
   if (!weather.forecast?.length) return
   const locationHeader = await drawLocationHeader(weather.location!)
 
@@ -42,18 +47,15 @@ export const sendWeatherReport = async (sub: printerSubscription) => {
     context: combinedCtx,
   })
 
-  const dataUrl = combinedCanvas.toDataURL("image/png")
-  console.log("Canvas image URL:", dataUrl)
-
-  // const response = await fetch(`https://${sub.printerId}.toasttexter.com/print`, {
-  //   method: "POST",
-  //   headers: {
-  //     "Content-Type": "application/json",
-  //   },
-  //   body: JSON.stringify({
-  //     data: Array.from(content),
-  //   }),
-  // })
+  const response = await fetch(`https://${sub.printerId}.toasttexter.com/print`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      data: Array.from(content),
+    }),
+  })
 }
 
 type WeatherCondition = {
@@ -253,5 +255,3 @@ export const getWeatherReport = async (userLocation: string) => {
     }
   }
 }
-
-export const sendNewsReport = async (sub: printerSubscription) => {}

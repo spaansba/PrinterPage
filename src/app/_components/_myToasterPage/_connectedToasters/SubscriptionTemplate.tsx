@@ -33,7 +33,7 @@ const SubscriptionTemplate = ({
 }: SubscriptionTemplateProps) => {
   const [isEnabled, setIsEnabled] = useState(initialIsEnabled)
   const [settings, setSettings] = useState(initialSettings)
-  const [hasChanges, setHasChanges] = useState(true)
+  const [hasChanges, setHasChanges] = useState(false)
   const { setPairedToasters } = useToasterUser()
 
   // TODO zod
@@ -93,6 +93,7 @@ const SubscriptionTemplate = ({
         }
       })
     })
+    setHasChanges(false)
   }
 
   const handleOnChange = (

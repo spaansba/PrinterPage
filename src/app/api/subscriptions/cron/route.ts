@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { headers } from "next/headers"
-import { sendNewsReport, sendWeatherReport } from "@/lib/queries/subscriptions/weather"
+import { sendWeatherReport } from "@/lib/queries/subscriptions/weather"
 import {
   getSubscriptionsToRun,
   type GetSubscriptions,
@@ -13,7 +13,6 @@ export async function GET() {
   const dateSend = timeHeader ? new Date(Number(timeHeader) * 1000) : new Date()
   let timeSend = RoundToClosest5Minutes(dateSend)
   timeSend = "15:50"
-  console.log(timeSend)
   if (token !== process.env.CRON_ORG_SECRET) {
     return new NextResponse("Unauthorized", { status: 401 })
   }
@@ -30,16 +29,7 @@ export async function GET() {
     }
 
     for (const sub of subscriptions.subscriptions) {
-      switch (sub.type) {
-        case "weather":
-          await sendWeatherReport(sub)
-          break
-        case "news":
-          await sendNewsReport(sub)
-          break
-        default:
-          console.error("how?")
-      }
+      await sendWeatherReport(sub)
     }
 
     return NextResponse.json({ test: "endpoint hit" })
