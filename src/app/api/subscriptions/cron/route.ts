@@ -33,7 +33,10 @@ export async function GET() {
       await sendWeatherReport(sub)
     }
 
-    return NextResponse.json({ test: "endpoint hit" })
+    return NextResponse.json(
+      { status: `endpoint hit ${subscriptions.subscriptions.length} send` },
+      { status: 500 }
+    )
   } catch (error) {
     console.error("Cleanup failed:", error)
     return NextResponse.json({ status: "error" }, { status: 500 })

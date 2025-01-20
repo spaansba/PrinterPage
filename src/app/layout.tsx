@@ -2,12 +2,38 @@ import type { Metadata, Viewport } from "next"
 import { IBM_Plex_Mono } from "next/font/google"
 import "./globals.css"
 import { ClerkProvider } from "@clerk/nextjs"
+import { registerFont } from "canvas"
+import path from "path"
 
 const ibmPlexMono = IBM_Plex_Mono({
   subsets: ["latin"],
   weight: ["400", "700"],
   display: "swap",
   variable: "--font-ibm-plex-mono",
+})
+
+registerFont(path.join(process.cwd(), "fonts", "CourierPrime-Regular.ttf"), {
+  family: "Courier New",
+  style: "normal",
+  weight: "normal",
+})
+
+registerFont(path.join(process.cwd(), "fonts", "CourierPrime-Bold.ttf"), {
+  family: "Courier New",
+  style: "normal",
+  weight: "bold",
+})
+
+registerFont(path.join(process.cwd(), "fonts", "CourierPrime-Italic.ttf"), {
+  family: "Courier New",
+  style: "italic",
+  weight: "normal",
+})
+
+registerFont(path.join(process.cwd(), "fonts", "CourierPrime-BoldItalic.ttf"), {
+  family: "Courier New",
+  style: "italic",
+  weight: "bold",
 })
 
 export const metadata: Metadata = {

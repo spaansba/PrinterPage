@@ -14,6 +14,8 @@ export const sendWeatherReport = async (sub: PrinterSubscription) => {
     Location: string
   }
   console.log(settings.Location)
+
+  //TODO this should not be in the sendWeatherReport but whatever
   const weather = await getWeatherReport(settings.Location)
   if (!weather.forecast?.length) return
   const locationHeader = await drawLocationHeader(weather.location!)
