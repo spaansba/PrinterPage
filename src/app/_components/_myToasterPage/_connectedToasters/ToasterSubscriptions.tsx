@@ -1,8 +1,6 @@
 import type { Toaster } from "@/app/types/printer"
 import React from "react"
 import SubscriptionTemplate from "./SubscriptionTemplate"
-import TimeSelector from "./TimeSelector"
-import WeatherSubscription from "./WeatherSubscription"
 
 type ToasterSubscriptionsProps = {
   toaster: Toaster
@@ -19,6 +17,7 @@ function ToasterSubscriptions({ toaster }: ToasterSubscriptionsProps) {
       {toaster.subscriptions.map((sub, index) => (
         <SubscriptionTemplate
           key={sub.description + index}
+          toaster={toaster}
           title={sub.title}
           description={sub.description}
           isEnabled={sub.status == "active"}

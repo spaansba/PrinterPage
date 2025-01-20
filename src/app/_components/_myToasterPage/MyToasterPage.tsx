@@ -60,7 +60,8 @@ function MyToasterPage() {
     }
     setShowVerificationForm(false)
     setPairedToasters((prev) => {
-      const newToasters = [...prev, toaster.data]
+      const newToasters = toaster.data ? [...prev, toaster.data] : prev
+
       // update so it rerenders the page
       if (prev.length === 0) {
         setShowFullToasterIdForm(false)

@@ -110,8 +110,6 @@ const fetchToasters = async (where: SQL<unknown>) => {
 
         // Merge setting definitions with user values
         Object.entries(settingDefinitions).forEach(([key, definition]) => {
-          console.log(key)
-          console.log(userValues)
           const userValue = userValues[key] || null
           mergedSettings[key] = {
             ...definition,
@@ -177,7 +175,7 @@ export const getToaster = async (
 ): Promise<{
   success: boolean
   message: string
-  data?: Toaster
+  data: Toaster | null
 }> => {
   try {
     const toasters = await fetchToasters(eq(printers.id, printerId))
@@ -186,6 +184,7 @@ export const getToaster = async (
       return {
         success: false,
         message: "Toaster not found",
+        data: null,
       }
     }
 
@@ -199,6 +198,7 @@ export const getToaster = async (
     return {
       success: false,
       message: "Error fetching toaster",
+      data: null,
     }
   }
 }
