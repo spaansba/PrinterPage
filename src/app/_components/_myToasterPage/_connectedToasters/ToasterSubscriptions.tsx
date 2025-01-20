@@ -7,7 +7,6 @@ type ToasterSubscriptionsProps = {
 }
 
 function ToasterSubscriptions({ toaster }: ToasterSubscriptionsProps) {
-  console.log(toaster.subscriptions)
   return (
     <div>
       <div className="flex items-center gap-3 w-full">
@@ -21,6 +20,7 @@ function ToasterSubscriptions({ toaster }: ToasterSubscriptionsProps) {
           title={sub.title}
           description={sub.description}
           isEnabled={sub.status == "active"}
+          subId={sub.subId}
           settings={Object.entries(sub.settings).map(([key, setting]) => ({
             label: setting.label,
             component: setting.component,

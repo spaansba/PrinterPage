@@ -51,7 +51,7 @@ export const updateToasterInformation = async (toasterId: string, data: UpdateTo
   }
 }
 
-const fetchToasters = async (where: SQL<unknown>) => {
+const fetchToasters = async (where: SQL<unknown>): Promise<Toaster[]> => {
   const results = await db
     .select({
       id: printers.id,
@@ -119,6 +119,7 @@ const fetchToasters = async (where: SQL<unknown>) => {
 
         toaster.subscriptions = [
           {
+            subId: row.subscriptions.id,
             settings: mergedSettings,
             sendTime: row.subscriptions.sendTime,
             status: row.subscriptions.status as SubscriptionStatus,
@@ -152,6 +153,7 @@ const fetchToasters = async (where: SQL<unknown>) => {
         })
 
         toaster.subscriptions.push({
+          subId: row.subscriptions.id,
           settings: mergedSettings,
           sendTime: row.subscriptions.sendTime,
           status: row.subscriptions.status as SubscriptionStatus,
@@ -178,7 +180,7 @@ export const getToaster = async (
   data: Toaster | null
 }> => {
   try {
-    const toasters = await fetchToasters(eq(printers.id, printerId))
+    const toasters: Toaster[] = await fetchToasters(eq(printers.id, printerId))
 
     if (toasters.length === 0) {
       return {

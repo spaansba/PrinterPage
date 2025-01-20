@@ -18,6 +18,7 @@ export type SettingDefinition = {
 }
 
 type ToasterSubscription = {
+  subId: string
   settings: Record<string, SettingDefinition>
   sendTime: string | null
   status: SubscriptionStatus

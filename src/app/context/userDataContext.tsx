@@ -1,6 +1,7 @@
 "use client"
-import { createContext, useContext, useState, type ReactNode } from "react"
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
 import type { Friend, Toaster, ToasterUser } from "../types/printer"
+import { useEditor } from "@tiptap/react"
 
 type ToasterUserContextType = {
   friendList: Friend[]
@@ -50,6 +51,10 @@ export function ToasterUserProvider({
       toastsSend: prev.toastsSend,
       profileImageUrl: prev.profileImageUrl,
     }))
+
+    useEffect(() => {
+      console.log("paired toasters", pairedToasters)
+    }, [pairedToasters])
 
     setPairedToasters((prev) => {
       return prev.map((toaster) => ({
