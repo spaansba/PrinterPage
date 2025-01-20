@@ -55,7 +55,7 @@ function MainWrapper() {
       console.log(astroCard.canvas.height)
       // Create weather cards
       const weatherCards = await Promise.all(
-        weather.forecast.map((forecast) => drawWeatherCard(forecast))
+        weather.forecast.map((forecast) => drawWeatherCard(forecast, "Celsius"))
       )
 
       const spacing = 8
