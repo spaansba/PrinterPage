@@ -84,7 +84,12 @@ export async function getSubscriptionsToRun(timeSend: string): Promise<GetSubscr
     const subscriptionsToRun = await db
       .select()
       .from(printerBroadcastSubscriptions)
-      .where(eq(printerBroadcastSubscriptions.sendTime, timeSend))
+      .where(
+        and(
+          eq(printerBroadcastSubscriptions.sendTime, timeSend),
+          eq(printerBroadcastSubscriptions.status, "active")
+        )
+      )
 
     if (subscriptionsToRun.length == 0) {
       return {
