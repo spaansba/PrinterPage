@@ -173,8 +173,8 @@ export const drawWeatherCard = async (forcast: PeriodWeather, temperatureUnit: T
 
   // Info column
   const infoX = iconSize + 145
-  ctx.font = "bold 18px Courier New"
-  ctx.fillText(`Chance of Rain: ${forcast.chance_of_rain}%`, infoX, 40)
+  ctx.font = "bold 17px Courier New"
+  ctx.fillText(`Rain Chance: ${forcast.chance_of_rain}%`, infoX, 40)
   ctx.fillText(`Wind: ${forcast.wind_kph} km/h`, infoX, 65)
   ctx.fillText(
     `Feels Like: ${
