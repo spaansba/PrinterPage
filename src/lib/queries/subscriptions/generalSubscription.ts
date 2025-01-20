@@ -121,18 +121,19 @@ export async function updateSubSettings(
   }
 }
 
-export async function getSubscriptionsToRun(timeSend: string): Promise<GetSubscriptions> {
+export async function getSubscriptionsToRun(sendTime: string): Promise<GetSubscriptions> {
   try {
     const subscriptionsToRun = await db
       .select()
       .from(printerBroadcastSubscriptions)
       .where(
         and(
-          eq(printerBroadcastSubscriptions.sendTime, timeSend),
+          eq(printerBroadcastSubscriptions.sendTime, sendTime),
           eq(printerBroadcastSubscriptions.status, "active")
         )
       )
 
+    console.log(subscriptionsToRun)
     if (subscriptionsToRun.length == 0) {
       return {
         success: true,

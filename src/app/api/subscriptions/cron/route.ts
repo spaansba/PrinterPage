@@ -20,6 +20,7 @@ export async function GET() {
   try {
     // Get array of the subscriptions
     const subscriptions: GetSubscriptions = await getSubscriptionsToRun(timeSend)
+
     if (!subscriptions.success) {
       return NextResponse.json({ status: subscriptions.message }, { status: 406 })
     }
