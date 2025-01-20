@@ -28,14 +28,15 @@ const SubscriptionTemplate = ({
   isEnabled: initialIsEnabled,
   settings: initialSettings,
   icon = <Calendar className="size-6" />,
-  iconBgColor = "bg-blue-100",
-  iconColor = "text-blue-700",
+  iconBgColor = "bg-toastPrimary",
+  iconColor = "text-gray-700",
 }: SubscriptionTemplateProps) => {
   const [isEnabled, setIsEnabled] = useState(initialIsEnabled)
   const [settings, setSettings] = useState(initialSettings)
   const [hasChanges, setHasChanges] = useState(true)
   const { setPairedToasters } = useToasterUser()
 
+  // TODO zod
   const onToggle = async () => {
     setIsEnabled(!isEnabled)
     setHasChanges(true)
@@ -49,14 +50,12 @@ const SubscriptionTemplate = ({
     settings.forEach((setting) => {
       updatedSettings[setting.label] = setting.userValue || setting.default
     })
-    const json = makeJsonOutSettings(settings, updatedSettings)
-    const update = await updateSubSettings(toaster.id, subId, json)
+    const update = await updateSubSettings(toaster.id, subId, updatedSettings)
     console.log(update)
     if (!update.success || !update.data) {
       return
     }
 
-    //update in memory toasters
     setPairedToasters((prev) => {
       return prev.map((findToaster) => {
         if (findToaster.id !== toaster.id) {
@@ -96,19 +95,6 @@ const SubscriptionTemplate = ({
     })
   }
 
-  // Modified to use setting labels
-  const makeJsonOutSettings = (
-    settings: SettingDefinition[],
-    updatedValues: Record<string, string>
-  ) => {
-    const result: Record<string, string> = {}
-
-    settings.forEach((setting) => {
-      result[setting.label] = updatedValues[setting.label]
-    })
-
-    return result
-  }
   const handleOnChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
     settingKey: string
@@ -152,8 +138,7 @@ const SubscriptionTemplate = ({
         />
       </div>
       {isEnabled && (
-        <>
-          {" "}
+        <div className="mt-3">
           {Object.entries(settings).map(([key, setting]) => (
             <div key={`${key}-${setting.label}`} className="text-sm text-gray-600 gap-2">
               <span className="min-w-32">{setting.label}:</span>
@@ -227,7 +212,7 @@ const SubscriptionTemplate = ({
               </button>
             </div>
           )}
-        </>
+        </div>
       )}
     </div>
   )

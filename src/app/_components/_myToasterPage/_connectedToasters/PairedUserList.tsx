@@ -13,7 +13,7 @@ function PairedUserList({ toaster }: PairedUserListProps) {
       <div>
         {/*  dont remove div */}
         <div className="flex items-center gap-3 w-full">
-          <div className="text-sm font-medium text-gray-700">Users Paired to Toaster</div>
+          <div className="text-sm font-bold text-gray-700">Users Paired to Toaster</div>
           <div className="h-px  flex-grow" />
         </div>
         <div className="flex flex-wrap gap-4 mt-3">

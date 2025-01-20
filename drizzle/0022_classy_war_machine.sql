@@ -1,0 +1,1 @@
+ALTER TABLE "printer_broadcasters" ALTER COLUMN "description" SET DATA TYPE varchar(40);

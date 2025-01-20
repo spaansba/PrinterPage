@@ -18,7 +18,7 @@ export const printerBroadcasters = pgTable("printer_broadcasters", {
     .notNull()
     .references(() => users.id, { onDelete: "set null" }),
   name: varchar("name", { length: 200 }).notNull(),
-  description: varchar("description", { length: 20 }).notNull().default(""),
+  description: varchar("description", { length: 40 }).notNull().default(""),
   settings: json("settings").notNull(),
   createdAt: timestamp("created_at", { mode: "string" })
     .default(sql`CURRENT_TIMESTAMP`)
