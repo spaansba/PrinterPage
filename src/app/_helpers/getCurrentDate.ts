@@ -1,9 +1,9 @@
 export const testRelativeDate = () => {
-  console.log(formatDate(new Date(), true)) // "Today"
-  console.log(formatDate(new Date(Date.now() - 86400000), true)) // "Yesterday"
-  console.log(formatDate(new Date(Date.now() - 86400000 * 3), true)) // "3 days ago"
-  console.log(formatDate(new Date(Date.now() - 86400000 * 7), true)) // 1 week ago
-  console.log(formatDate(new Date(Date.now() - 86400000 * 8), true)) // regular date
+  // console.log(formatDate(new Date(), true)) // "Today"
+  // console.log(formatDate(new Date(Date.now() - 86400000), true)) // "Yesterday"
+  // console.log(formatDate(new Date(Date.now() - 86400000 * 3), true)) // "3 days ago"
+  // console.log(formatDate(new Date(Date.now() - 86400000 * 7), true)) // 1 week ago
+  // console.log(formatDate(new Date(Date.now() - 86400000 * 8), true)) // regular date
 }
 
 export const formatDate = (date: string | Date, relative: boolean) => {

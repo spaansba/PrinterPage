@@ -5,12 +5,12 @@ import {
   weatherCardBytes,
 } from "@/app/_helpers/imageCreating/weatherCard"
 import { PRINTER_WIDTH } from "@/lib/constants"
-import type { PrinterSubscription } from "@/lib/schema/subscriptions"
+import type { PrinterSubscription, TempUnit } from "@/lib/schema/subscriptions"
 import { createCanvas } from "canvas"
 
 export const sendWeatherReport = async (sub: PrinterSubscription) => {
   const settings = sub.settingsValues as {
-    Temperature: string
+    Temperature: TempUnit
     Location: string
   }
   console.log(settings.Location)
@@ -20,7 +20,7 @@ export const sendWeatherReport = async (sub: PrinterSubscription) => {
 
   // Create weather cards
   const weatherCards = await Promise.all(
-    weather.forecast.map((forecast) => drawWeatherCard(forecast))
+    weather.forecast.map((forecast) => drawWeatherCard(forecast, settings.Temperature))
   )
 
   const spacing = 10

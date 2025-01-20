@@ -36,7 +36,6 @@ function ToasterIdForm({ setShowVerificationForm, printerId, setPrinterId }: Toa
     }
     try {
       const printerIdExists = await checkIfPrinterExists(data.printerId)
-      console.log(printerIdExists)
       if (!printerIdExists) {
         setErrorNew("root", { message: "Toaster ID doesn't exist" })
         return

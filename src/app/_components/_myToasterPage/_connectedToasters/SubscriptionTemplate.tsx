@@ -51,7 +51,7 @@ const SubscriptionTemplate = ({
       updatedSettings[setting.label] = setting.userValue || setting.default
     })
     const update = await updateSubSettings(toaster.id, subId, updatedSettings)
-    console.log(update)
+
     if (!update.success || !update.data) {
       return
     }

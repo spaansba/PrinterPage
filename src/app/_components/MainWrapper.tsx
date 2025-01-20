@@ -47,7 +47,7 @@ function MainWrapper() {
   const handleOnClick = async () => {
     const weather = await getWeatherReport("amsterdam")
     if (!weather.forecast?.length) return
-    console.log(weather)
+
     try {
       // Create location header
       const locationHeader = await drawLocationHeader(weather.location!)

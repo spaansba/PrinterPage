@@ -33,7 +33,7 @@ function ToasterInformation({ toaster }: ToasterInformationProps) {
 
       const vercelBlobFolder = "ToasterProfilePicture"
       const { url } = await uploadToBlob(formData, vercelBlobFolder)
-      console.log(url)
+
       const result = await updateToasterInformation(toaster.id, {
         profilePicture: url,
       })

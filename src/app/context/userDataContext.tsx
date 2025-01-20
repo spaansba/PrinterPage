@@ -52,10 +52,6 @@ export function ToasterUserProvider({
       profileImageUrl: prev.profileImageUrl,
     }))
 
-    useEffect(() => {
-      console.log("paired toasters", pairedToasters)
-    }, [pairedToasters])
-
     setPairedToasters((prev) => {
       return prev.map((toaster) => ({
         ...toaster,

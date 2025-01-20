@@ -87,7 +87,6 @@ function ToasterSendButton({
       selectedFriends.map((friend) => sendToast(user.id, friend, content))
     )
 
-    console.log(printResults)
     setMessageStatus(() => ({ editorStatus: "", sendStatus: printResults }))
     const hasPartialFailed = printResults.some((result) => !result.success)
     if (!hasPartialFailed) {

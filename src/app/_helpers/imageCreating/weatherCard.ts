@@ -12,6 +12,7 @@ import {
   type Canvas,
 } from "canvas"
 import { imageCanvas } from "./toastBanner"
+import type { TempUnit } from "@/lib/schema/subscriptions"
 
 export const weatherCardBytes = async (imageCanvas: imageCanvas) => {
   const encoder = new ReceiptPrinterEncoder({
@@ -130,7 +131,7 @@ export const drawAstroCard = async (astro: weatherAstro) => {
   return { canvas, ctx }
 }
 
-export const drawWeatherCard = async (forcast: PeriodWeather) => {
+export const drawWeatherCard = async (forcast: PeriodWeather, temperatureUnit: TempUnit) => {
   const canvas = createCanvas(PRINTER_WIDTH, 120)
   const ctx = canvas.getContext("2d")
   const iconSize = 55
@@ -155,7 +156,7 @@ export const drawWeatherCard = async (forcast: PeriodWeather) => {
   // ctx.filter = "brightness(0)" // Make everything black
 
   // Temperature
-  const tempNum = `${formatNumber(forcast.temp_c)}`
+  const tempNum = `${formatNumber(temperatureUnit === "Celsius" ? forcast.temp_c : forcast.temp_f)}`
 
   // Main temperature number
   ctx.font = "bold 38px Courier New"
@@ -166,16 +167,22 @@ export const drawWeatherCard = async (forcast: PeriodWeather) => {
   const tempY = (canvas.height + fontHeight) / 2 - metrics.actualBoundingBoxDescent + yCenterOffset
   ctx.fillText(tempNum, tempX, tempY)
 
-  // °C superscript
   ctx.font = "bold 22px Courier New"
-  ctx.fillText("°C", tempX + tempWidth - 4, tempY - fontHeight + 3)
+  const tempUnitChar = temperatureUnit === "Celsius" ? "C" : "F"
+  ctx.fillText(`°${tempUnitChar}`, tempX + tempWidth - 4, tempY - fontHeight + 3)
 
   // Info column
   const infoX = iconSize + 145
   ctx.font = "bold 18px Courier New"
   ctx.fillText(`Chance of Rain: ${forcast.chance_of_rain}%`, infoX, 40)
   ctx.fillText(`Wind: ${forcast.wind_kph} km/h`, infoX, 65)
-  ctx.fillText(`Feels Like: ${forcast.feelslike_c}°C`, infoX, 90)
+  ctx.fillText(
+    `Feels Like: ${
+      temperatureUnit === "Celsius" ? forcast.feelslike_c : forcast.feelslike_f
+    }°${tempUnitChar}`,
+    infoX,
+    90
+  )
 
   return { canvas, ctx }
 }
