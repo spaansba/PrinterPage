@@ -132,7 +132,7 @@ export const drawAstroCard = async (astro: weatherAstro) => {
   ctx.fillText("Moon Phase", canvas.width / 2, startY + lineHeight * 3 + 10)
 
   ctx.font = "bold 20px Courier New"
-  ctx.fillText(astro.moonPhase, canvas.width / 2, startY + lineHeight * 4 + 4)
+  ctx.fillText(astro.moonPhase, canvas.width / 2, startY + lineHeight * 4 + 6)
 
   addStroke(ctx, canvas)
   return { canvas, ctx }
@@ -251,7 +251,7 @@ const addStroke = (ctx: CanvasRender, canvas: Canvas, thickness = 3): CanvasRend
 }
 
 const drawTriangle = (
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRender,
   x: number,
   y: number,
   isUpward: boolean,
