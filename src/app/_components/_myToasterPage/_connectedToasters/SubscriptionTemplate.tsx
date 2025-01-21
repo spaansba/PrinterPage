@@ -170,7 +170,11 @@ const SubscriptionTemplate = ({
                       return (
                         <input
                           type="text"
-                          value={setting.userValue || setting.default}
+                          value={
+                            setting.userValue !== undefined && setting.userValue !== null
+                              ? setting.userValue
+                              : setting.default
+                          }
                           className="border rounded-sm bg-white px-2 py-1 text-gray-900"
                           onChange={(e) => handleOnChangeGeneral(e, key)}
                         />
@@ -179,7 +183,11 @@ const SubscriptionTemplate = ({
                       return (
                         <input
                           type="number"
-                          value={setting.userValue || setting.default}
+                          value={
+                            setting.userValue !== undefined && setting.userValue !== null
+                              ? setting.userValue
+                              : setting.default
+                          }
                           className="border rounded-sm  bg-white px-2 py-1 text-gray-900"
                           onChange={(e) => handleOnChangeGeneral(e, key)}
                         />

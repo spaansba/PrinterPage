@@ -92,16 +92,12 @@ export const drawAstroCard = async (astro: weatherAstro) => {
   ctx.fillRect(0, 0, canvas.width, canvas.height)
   ctx.fillStyle = "#000000"
 
-  // Title
-  // ctx.font = "bold 24px Courier New"
-  // ctx.textAlign = "center"
-  // ctx.fillText("Astronomics", canvas.width / 2, 25)
-
   // Create two columns for sun and moon data
   const leftColX = 30
   const rightColX = canvas.width / 2 + 30
   const startY = 20
   const lineHeight = 25
+  const triangleOffset = 12 // Space between triangle and text
 
   // Sun information (left column)
   ctx.textAlign = "left"
@@ -109,16 +105,26 @@ export const drawAstroCard = async (astro: weatherAstro) => {
   ctx.fillText("Sun", leftColX, startY)
 
   ctx.font = "bold 20px Courier New"
-  ctx.fillText(`▲ ${astro.sunrise}`, leftColX, startY + lineHeight)
-  ctx.fillText(`▼ ${astro.sunset}`, leftColX, startY + lineHeight * 2)
+  // Draw sunrise triangle and text
+  drawTriangle(ctx, leftColX + 8, startY + lineHeight - 6, true)
+  ctx.fillText(astro.sunrise, leftColX + triangleOffset + 8, startY + lineHeight)
+
+  // Draw sunset triangle and text
+  drawTriangle(ctx, leftColX + 8, startY + lineHeight * 2 - 6, false)
+  ctx.fillText(astro.sunset, leftColX + triangleOffset + 8, startY + lineHeight * 2)
 
   // Moon information (right column)
   ctx.font = "bold 24px Courier New"
   ctx.fillText("Moon", rightColX, startY)
 
   ctx.font = "bold 20px Courier New"
-  ctx.fillText(`▲ ${astro.moonrise}`, rightColX, startY + lineHeight)
-  ctx.fillText(`▼ ${astro.moonset}`, rightColX, startY + lineHeight * 2)
+  // Draw moonrise triangle and text
+  drawTriangle(ctx, rightColX + 8, startY + lineHeight - 6, true)
+  ctx.fillText(astro.moonrise, rightColX + triangleOffset + 8, startY + lineHeight)
+
+  // Draw moonset triangle and text
+  drawTriangle(ctx, rightColX + 8, startY + lineHeight * 2 - 6, false)
+  ctx.fillText(astro.moonset, rightColX + triangleOffset + 8, startY + lineHeight * 2)
 
   // Moon phase centered at bottom
   ctx.font = "bold 24px Courier New"
@@ -127,6 +133,7 @@ export const drawAstroCard = async (astro: weatherAstro) => {
 
   ctx.font = "bold 20px Courier New"
   ctx.fillText(astro.moonPhase, canvas.width / 2, startY + lineHeight * 4 + 4)
+
   addStroke(ctx, canvas)
   return { canvas, ctx }
 }
@@ -241,4 +248,31 @@ const addStroke = (ctx: CanvasRender, canvas: Canvas, thickness = 3): CanvasRend
   ctx.lineTo(canvas.width, canvas.height - thickness)
   ctx.stroke()
   return ctx
+}
+
+const drawTriangle = (
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  isUpward: boolean,
+  size: number = 8
+) => {
+  ctx.save()
+  ctx.beginPath()
+
+  if (isUpward) {
+    // Upward pointing triangle
+    ctx.moveTo(x, y - size) // Top point
+    ctx.lineTo(x - size, y + size) // Bottom left
+    ctx.lineTo(x + size, y + size) // Bottom right
+  } else {
+    // Downward pointing triangle
+    ctx.moveTo(x, y + size) // Bottom point
+    ctx.lineTo(x - size, y - size) // Top left
+    ctx.lineTo(x + size, y - size) // Top right
+  }
+
+  ctx.closePath()
+  ctx.fill()
+  ctx.restore()
 }
