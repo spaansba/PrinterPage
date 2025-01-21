@@ -157,7 +157,7 @@ const SubscriptionTemplate = ({
           {sendTime && (
             <>
               <span className="min-w-32">Send Time:</span>
-              <TimeSelector onChange={handleOnChangeTime} className="mt-1" value={sendTime} />
+              <TimeSelector onChange={handleOnChangeTime} className="mt-1 " value={sendTime} />
             </>
           )}
           {Object.entries(settings).map(([key, setting]) => (
@@ -171,7 +171,7 @@ const SubscriptionTemplate = ({
                         <input
                           type="text"
                           value={setting.userValue || setting.default}
-                          className="border rounded-sm px-2 py-1 text-gray-900"
+                          className="border rounded-sm bg-white px-2 py-1 text-gray-900"
                           onChange={(e) => handleOnChangeGeneral(e, key)}
                         />
                       )
@@ -180,7 +180,7 @@ const SubscriptionTemplate = ({
                         <input
                           type="number"
                           value={setting.userValue || setting.default}
-                          className="border rounded-sm px-2 py-1 text-gray-900"
+                          className="border rounded-sm  bg-white px-2 py-1 text-gray-900"
                           onChange={(e) => handleOnChangeGeneral(e, key)}
                         />
                       )
@@ -193,7 +193,7 @@ const SubscriptionTemplate = ({
                               ? setting.userValue === "true"
                               : setting.default === "true"
                           }
-                          className="size-4 accent-gray-600 cursor-pointer"
+                          className="size-4  bg-white accent-gray-600 cursor-pointer"
                           onChange={(e) => handleOnChangeGeneral(e, key)}
                         />
                       )
@@ -201,7 +201,7 @@ const SubscriptionTemplate = ({
                       return (
                         <select
                           value={setting.userValue || setting.default}
-                          className="border rounded-sm px-2 py-1 text-gray-900"
+                          className="border  bg-white rounded-sm px-2 py-1 text-gray-900"
                           onChange={(e) => handleOnChangeGeneral(e, key)}
                         >
                           {setting.selectOptions?.map((option) => (
