@@ -77,11 +77,11 @@ function ToasterInformation({ toaster }: ToasterInformationProps) {
   }
 
   const menuOptions: MenuOption[] = [
-    {
-      label: "Edit Name",
-      icon: <Edit className="size-4" />,
-      onClick: () => {},
-    },
+    // {
+    //   label: "Edit Name",
+    //   icon: <Edit className="size-4" />,
+    //   onClick: () => {},
+    // },
     {
       label: "Edit Picture",
       icon: <ImageUp className="size-4" />,

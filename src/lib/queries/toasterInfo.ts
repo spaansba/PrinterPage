@@ -2,7 +2,7 @@
 import type { SettingDefinition, Toaster } from "@/app/types/printer"
 import { db } from ".."
 import { printers, printerUserPairing, users } from "../schema"
-import { and, eq, type SQL } from "drizzle-orm"
+import { and, eq, inArray, type SQL } from "drizzle-orm"
 import {
   printerBroadcasters,
   printerBroadcastSubscriptions,
@@ -52,6 +52,20 @@ export const updateToasterInformation = async (toasterId: string, data: UpdateTo
 }
 
 const fetchToasters = async (where: SQL<unknown>): Promise<Toaster[]> => {
+  // First, get the printer IDs that match our where clause
+  const printerIds = await db
+    .select({
+      id: printers.id,
+    })
+    .from(printers)
+    .leftJoin(printerUserPairing, eq(printers.id, printerUserPairing.printerId))
+    .where(where)
+
+  if (printerIds.length === 0) {
+    return []
+  }
+
+  // Then use these IDs to get the full toaster data
   const results = await db
     .select({
       id: printers.id,
@@ -84,9 +98,14 @@ const fetchToasters = async (where: SQL<unknown>): Promise<Toaster[]> => {
     )
     .leftJoin(printerUserPairing, eq(printers.id, printerUserPairing.printerId))
     .leftJoin(users, eq(printerUserPairing.userId, users.id))
-    .where(where)
+    .where(
+      inArray(
+        printers.id,
+        printerIds.map((p) => p.id)
+      )
+    )
 
-  // Group results by printer and transform into Toaster type
+  // Rest of the function remains the same with the grouping logic
   const toasterMap = new Map<string, Toaster>()
 
   results.forEach((row) => {
@@ -98,7 +117,11 @@ const fetchToasters = async (where: SQL<unknown>): Promise<Toaster[]> => {
         profilePicture: row.profilePicture,
         toastsReceived: row.toastsReceived,
         subscriptions: [],
-        pairedAccounts: row.pairedUser ? [row.pairedUser] : [],
+        pairedAccounts: [],
+      }
+
+      if (row.pairedUser) {
+        toaster.pairedAccounts.push(row.pairedUser)
       }
 
       // If this row has a subscription, add it
@@ -133,10 +156,15 @@ const fetchToasters = async (where: SQL<unknown>): Promise<Toaster[]> => {
     } else {
       const toaster = toasterMap.get(row.id)!
 
+      // Add paired user if it exists and isn't already added
+      if (row.pairedUser && !toaster.pairedAccounts?.some((u) => u.id === row.pairedUser?.id)) {
+        toaster.pairedAccounts!.push(row.pairedUser)
+      }
+
       // Add subscription if it exists and isn't already added
       if (
         row.subscriptions.id &&
-        !toaster.subscriptions.some((s) => s.settings === row.subscriptions.settings)
+        !toaster.subscriptions.some((s) => s.subId === row.subscriptions.id)
       ) {
         const settingDefinitions = row.subscriptions.settings as Record<string, SettingDefinition>
         const userValues = row.subscriptions.settingsValues as Record<string, { value: string }>
@@ -160,11 +188,6 @@ const fetchToasters = async (where: SQL<unknown>): Promise<Toaster[]> => {
           description: row.subscriptions.description!,
           title: row.subscriptions.title!,
         })
-      }
-
-      // Add paired user if it exists and isn't already added
-      if (row.pairedUser && !toaster.pairedAccounts?.some((u) => u.id === row.pairedUser?.id)) {
-        toaster.pairedAccounts!.push(row.pairedUser)
       }
     }
   })

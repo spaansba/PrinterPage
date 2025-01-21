@@ -20,11 +20,10 @@ export default async function Home() {
       </div>
     )
   }
-  // Get user's friendlist from server
-  const fullServerFriendsList: Friend[] = await getAssociatedPrintersById(user.id)
 
+  const fullServerFriendsList: Friend[] = await getAssociatedPrintersById(user.id)
   const dbUserInfo = await getUserInformation(user.id)
-  // Get user information
+
   const toasterUser: ToasterUser = {
     id: user.id,
     username: dbUserInfo[0].username,
@@ -32,11 +31,10 @@ export default async function Home() {
     profileImageUrl: user.imageUrl,
   }
 
-  // Get paired toaster information from server
   const pairedToasters = await getPairedToasters(user.id)
 
   const pairedToastersWithProfilePictures = await getProfilePicFromUsers(pairedToasters.data)
-
+  console.log(pairedToastersWithProfilePictures)
   return (
     <div className="flex flex-col items-center justify-center p-2 gap-6 font-mono text-black bg-toastPrimary">
       <ToasterUserProvider
@@ -91,7 +89,6 @@ const getProfilePicFromUsers = async (toasters: Toaster[]) => {
     return updatedToasters
   } catch (error) {
     console.error("Failed to process toasters:", error)
-    // Return original toasters if overall process fails
     return toasters
   }
 }
