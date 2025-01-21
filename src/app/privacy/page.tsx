@@ -118,7 +118,7 @@ const PrivacyPolicy = () => {
 
         <section className="mb-8">
           <h2 className="text-2xl font-semibold mb-4">Changes</h2>
-          <p>We'll update this page when our practices change.</p>
+          <p>We&apos;ll update this page when our practices change.</p>
         </section>
 
         <section className="mb-8">
