@@ -19,6 +19,7 @@ function AccountInformation({ setIsEditProfileModalOpen }: AccountInformationPro
   const [isEditingUsername, setIsEditingUsername] = useState(false)
   const { signOut } = useClerk()
   if (!user) return
+
   const handleNewProfilePicture = async (blob: Blob) => {
     try {
       const file = new File([blob], "profile.jpg", { type: blob.type })
@@ -34,10 +35,11 @@ function AccountInformation({ setIsEditProfileModalOpen }: AccountInformationPro
       })
       return { success: true, message: "" }
     } catch (error) {
-      console.error("Error uploading image:", error)
-      return { success: false, message: "Error uploading image" }
+      console.error("Error uploading image: ", error)
+      return { success: false, message: "Error uploading image ", error }
     }
   }
+
   const menuOptions: MenuOption[] = [
     {
       label: "Edit Username",

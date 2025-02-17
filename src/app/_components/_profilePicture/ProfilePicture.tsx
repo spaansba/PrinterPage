@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react"
+import React, { useState, useRef, useEffect } from "react"
 import Image from "next/image"
 import { Camera } from "lucide-react"
 import "react-image-crop/dist/ReactCrop.css"
@@ -22,6 +22,13 @@ function ProfilePicture({
 }: ProfilePictureProps) {
   const [showCropDialog, setShowCropDialog] = useState(false)
   const [imgSrc, setImgSrc] = useState("")
+
+  // When you open a file, close it and open the exact same file the fileInput onChange doesnt fire. This makes sure it does
+  useEffect(() => {
+    if (!showCropDialog && fileInputRef.current) {
+      fileInputRef.current.value = ""
+    }
+  }, [showCropDialog, fileInputRef])
 
   const handleProfilePictureChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
