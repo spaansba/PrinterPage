@@ -23,10 +23,11 @@ const RetroToggle: React.FC<RetroToggleProps> = ({
   }
 
   return (
-    <button
-      onClick={handleClick}
-      className={`
-        relative h-6 w-12
+    <div className="w-10">
+      <button
+        onClick={handleClick}
+        className={`
+        relative h-6 w-10
         ${checked ? "bg-gray-100" : "bg-gray-200"}
         border border-gray-300
         flex items-center justify-center
@@ -35,15 +36,16 @@ const RetroToggle: React.FC<RetroToggleProps> = ({
         ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
         ${className}
       `}
-      type="button"
-      disabled={disabled}
-      aria-pressed={checked}
-      aria-label={ariaLabel}
-    >
-      <span className={`${checked ? "text-gray-700" : "text-gray-500"}`}>
-        {checked ? "ON" : "OFF"}
-      </span>
-    </button>
+        type="button"
+        disabled={disabled}
+        aria-pressed={checked}
+        aria-label={ariaLabel}
+      >
+        <span className={`${checked ? "text-gray-700" : "text-gray-500"}`}>
+          {checked ? "ON" : "OFF"}
+        </span>
+      </button>
+    </div>
   )
 }
 

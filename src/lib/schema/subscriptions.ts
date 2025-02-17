@@ -19,7 +19,7 @@ export const printerBroadcasters = pgTable("printer_broadcasters", {
     .references(() => users.id, { onDelete: "set null" }),
   name: varchar("name", { length: 200 }).notNull(),
   description: varchar("description", { length: 40 }).notNull().default(""),
-  settings: json("settings").notNull(),
+  settings: json("settings").notNull().default("{}"),
   createdAt: timestamp("created_at", { mode: "string" })
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
@@ -38,7 +38,7 @@ export const printerBroadcastSubscriptions = pgTable("printer_broadcast_subscrip
     .notNull()
     .references(() => printerBroadcasters.id, { onDelete: "cascade" }),
   sendTime: time("send_time"),
-  settingsValues: json("settings_values").notNull(),
+  settingsValues: json("settings_values").notNull().default("{}"),
   status: StatusType("status").notNull().default("active"),
   createdAt: timestamp("created_at", { mode: "string" })
     .default(sql`CURRENT_TIMESTAMP`)

@@ -14,7 +14,7 @@ import {
 import { imageCanvas } from "./toastBanner"
 import type { TempUnit } from "@/lib/schema/subscriptions"
 
-export const weatherCardBytes = async (imageCanvas: imageCanvas) => {
+export const weatherCardBytes = async (imageCanvas: imageCanvas): Promise<Uint8Array> => {
   const encoder = new ReceiptPrinterEncoder({
     printerModel: "pos-8360",
     columns: 32,
@@ -39,7 +39,7 @@ export const weatherCardBytes = async (imageCanvas: imageCanvas) => {
     .rule()
     .newline(2)
     .align("left")
-    .encode()
+    .encode() as Uint8Array
 }
 
 export const drawLocationHeader = async (location: weatherLocation) => {

@@ -1,18 +1,31 @@
 import type { Toaster } from "@/app/types/printer"
 import React from "react"
 import SubscriptionTemplate from "./SubscriptionTemplate"
-import { CloudSun } from "lucide-react"
+import { CloudSun, Home, Smile } from "lucide-react"
 
 type ToasterSubscriptionsProps = {
   toaster: Toaster
 }
 
 function ToasterSubscriptions({ toaster }: ToasterSubscriptionsProps) {
+  //TODO set icons in database
+  const getIcon = (subTitle: string) => {
+    console.log(subTitle)
+    switch (subTitle) {
+      case "Weather":
+        return <CloudSun className="size-6" />
+      case "Dad Jokes":
+        return <Smile className="size-6" />
+      default:
+        return <Home className="size-6" />
+    }
+  }
+
   return (
     <div>
       <div className="flex items-center gap-3 w-full">
         <div className="text-sm font-bold text-gray-700">Toaster Subscriptions</div>
-        <div className="h-px  flex-grow" />
+        <div className="h-px flex-grow" />
       </div>
       {toaster.subscriptions.map((sub, index) => (
         <SubscriptionTemplate
@@ -23,7 +36,7 @@ function ToasterSubscriptions({ toaster }: ToasterSubscriptionsProps) {
           isEnabled={sub.status == "active"}
           subId={sub.subId}
           sendTime={sub.sendTime}
-          icon={<CloudSun className="size-6" />}
+          icon={getIcon(sub.title)}
           settings={Object.entries(sub.settings).map(([key, setting]) => ({
             label: setting.label,
             component: setting.component,

@@ -19,6 +19,21 @@ type UpdateSubscriptionParams = {
   sendTime?: string // Time in HH:mm format
 }
 
+export async function sendSubscription(content: Uint8Array, printerId: string) {
+  const response = await fetch(`https://${printerId}.toasttexter.com/print`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      data: Array.from(content),
+    }),
+  })
+  if (!response.ok) {
+    console.error("error sending subscription to ", printerId)
+  }
+}
+
 export async function updatePrinterSubscription(
   printerId: string,
   subId: string,
@@ -130,7 +145,6 @@ export async function getSubscriptionsToRun(sendTime: string): Promise<GetSubscr
         )
       )
 
-    console.log(subscriptionsToRun)
     if (subscriptionsToRun.length == 0) {
       return {
         success: true,

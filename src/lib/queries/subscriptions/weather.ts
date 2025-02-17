@@ -8,6 +8,7 @@ import {
 import { PRINTER_WIDTH } from "@/lib/constants"
 import type { PrinterSubscription, TempUnit } from "@/lib/schema/subscriptions"
 import { createCanvas } from "canvas"
+import { sendSubscription } from "./generalSubscription"
 
 export const sendWeatherReport = async (sub: PrinterSubscription) => {
   const settings = sub.settingsValues as {
@@ -15,8 +16,9 @@ export const sendWeatherReport = async (sub: PrinterSubscription) => {
     Location: string
   }
 
-  //TODO this should not be in the sendWeatherReport but whatever
+  //TODO this should not be in the sendWeatherReport
   const weather = await getWeatherReport(settings.Location)
+
   if (!weather.forecast?.length) return
   // Create location header
   const locationHeader = await drawLocationHeader(weather.location!)
@@ -53,15 +55,7 @@ export const sendWeatherReport = async (sub: PrinterSubscription) => {
     context: combinedCtx,
   })
 
-  const response = await fetch(`https://${sub.printerId}.toasttexter.com/print`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      data: Array.from(content),
-    }),
-  })
+  const send = sendSubscription(content, sub.printerId)
 }
 
 type WeatherCondition = {

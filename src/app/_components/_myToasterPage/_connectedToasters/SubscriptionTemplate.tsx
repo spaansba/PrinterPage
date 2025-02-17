@@ -39,7 +39,7 @@ const SubscriptionTemplate = ({
   const [sendTime, setSendTime] = useState<string | null>(initialSendTime)
   const [hasChanges, setHasChanges] = useState(false)
   const { setPairedToasters } = useToasterUser()
-
+  console.log(initialSettings)
   // TODO zod
   const onToggle = async () => {
     setIsEnabled(!isEnabled)
@@ -132,7 +132,7 @@ const SubscriptionTemplate = ({
     <div className="mt-3 bg-toastWhite border border-gray-300 rounded-sm p-3">
       {/* Title row with icon and enable checkbox */}
       <div className="flex items-start justify-between">
-        <div className="flex items-start gap-4">
+        <div className="flex items-start gap-3">
           {/* Icon */}
           <div className="pt-1">
             <div
