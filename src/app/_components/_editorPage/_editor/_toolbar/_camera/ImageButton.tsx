@@ -1,15 +1,11 @@
 import { ImageIcon } from "lucide-react"
-import React, { useRef, useState } from "react"
+import React, { useState } from "react"
 import CameraModal from "./CameraModal"
 import { useEditorContext } from "@/app/context/editorContext"
-import CameraTitle from "./CameraTitle"
-import CameraPreview from "./CameraPreview"
-import CameraButtons from "./CameraButtons"
 
 function ImageButton() {
   const { editor } = useEditorContext()
   const [showCamera, setShowCamera] = useState(false)
-  const camera = useRef(null)
 
   function triggerImageUpload() {
     // Shows the camera modal, if no camera model is found and on pc it opens the users directory
@@ -20,6 +16,7 @@ function ImageButton() {
     editor!
       .chain()
       .focus()
+      // .insertContent("<p> </p>") // possibility to add an space before every picture
       .setImage({ src: photoData, alt: "[Camera photo]" })
       .setTextSelection(pos + 3)
       .run()

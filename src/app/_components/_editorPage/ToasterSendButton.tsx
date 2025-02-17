@@ -3,10 +3,10 @@ import React, { useState, type Dispatch, type SetStateAction } from "react"
 import { useEditorContext } from "../../context/editorContext"
 import { getVisualLinesFromHTML, type Lines } from "../../_helpers/getVisualLines"
 import { incrementPrinterMessageStats } from "@/lib/queries"
-import { PrepareTextToSend } from "../../_helpers/StringToBytes"
 import type { messageStatus } from "../MainWrapper"
 import type { Friend } from "@/app/types/printer"
 import { useToasterUser } from "@/app/context/userDataContext"
+import { PrepareTextToSend } from "@/app/_helpers/PrepareTextToSend"
 
 type ToasterSendButtonProps = {
   setMessageStatus: Dispatch<SetStateAction<messageStatus>>

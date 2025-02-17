@@ -11,6 +11,7 @@ export const PrepareTextToSend = async (
   imageURL: string
 ): Promise<Uint8Array> => {
   const replaceImgTagsWithSrc = processImgTags(text)
+  console.log(text)
   let utf8Encode = new TextEncoder()
   const userMessage = await HtmlEncoder(
     utf8Encode.encode(replaceImgTagsWithSrc.text),
@@ -26,7 +27,7 @@ function processImgTags(rawText: string): { text: string; images: string[] } {
   const images: string[] = []
   const text = rawText.replaceAll(/<img[^>]*src=["']([^"']+)["'][^>]*>/g, (_, srcUrl: string) => {
     images.push(srcUrl)
-    return `|&^%image:${images.length - 1}`
+    return `|&^%image:`
   })
 
   return { text, images }
