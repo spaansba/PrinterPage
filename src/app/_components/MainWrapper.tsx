@@ -117,8 +117,8 @@ function MainWrapper() {
             hTMLContent={hTMLContent}
           />
         </CustomEditorProvider>
-        <button
-          className="my-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        {/* <button
+          className="my-4  px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           onClick={async () => {
             await sendDadJoke("fcs2ean4kg")
           }}
@@ -128,7 +128,7 @@ function MainWrapper() {
           onClick={handleOnClick}
         >
           Get Weather Cards
-        </button>
+        </button> */}
         <canvas ref={canvasRef} className="border border-gray-300 rounded" />
       </div>
     )
