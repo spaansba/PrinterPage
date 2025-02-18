@@ -14,10 +14,10 @@ export async function GET() {
   const timeHeader = headersList.get("x-time-send")
   const devHeader = headersList.get("x-enable-dev-mode")
 
-  if (devHeader) {
-    await sendSubsToDevDevice()
-    return NextResponse.json({ status: "dev successful" }, { status: 200 })
-  }
+  // if (devHeader) {
+  //   await sendSubsToDevDevice()
+  //   return NextResponse.json({ status: "dev successful" }, { status: 200 })
+  // }
 
   const dateSend = timeHeader ? new Date(Number(timeHeader) * 1000) : new Date()
   const timeSend = RoundToClosest5Minutes(dateSend)
@@ -48,18 +48,18 @@ export async function GET() {
       try {
         switch (sub.broadcastId) {
           case "1":
-            const dadJokeResult = await sendDadJoke(sub.printerId)
-            if (!dadJokeResult.success) {
-              const errorMessage = dadJokeResult.error || "Unknown error sending dad joke"
-              console.error(`Error sending dad joke to ${sub.printerId}: ${errorMessage}`)
-              errors.push({ subscriptionId: sub.id, error: errorMessage })
-            }
-            break
-          case "2":
             const weatherReport = await sendWeatherReport(sub)
             if (!weatherReport.success) {
               const errorMessage = weatherReport.error || "Unknown error sending weather report"
               console.error(`Error sending weather report to ${sub.printerId}: ${errorMessage}`)
+              errors.push({ subscriptionId: sub.id, error: errorMessage })
+            }
+            break
+          case "2":
+            const dadJokeResult = await sendDadJoke(sub.printerId)
+            if (!dadJokeResult.success) {
+              const errorMessage = dadJokeResult.error || "Unknown error sending dad joke"
+              console.error(`Error sending dad joke to ${sub.printerId}: ${errorMessage}`)
               errors.push({ subscriptionId: sub.id, error: errorMessage })
             }
             break
@@ -82,6 +82,7 @@ export async function GET() {
         successCount: subscriptions.subscriptions.length - errors.length,
         errorCount: errors.length,
         errors: errors.length > 0 ? errors : undefined,
+        subscriptions: subscriptions,
       },
       { status: errors.length > 0 ? 207 : 200 }
     )
