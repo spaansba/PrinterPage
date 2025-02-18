@@ -13,10 +13,12 @@ export async function GET() {
   const token = headersList.get("x-cron-token")
   const timeHeader = headersList.get("x-time-send")
   const devHeader = headersList.get("x-enable-dev-mode")
+
   if (devHeader) {
-    sendSubsToDevDevice()
-    return NextResponse.json({ status: "dev succesfull" }, { status: 200 })
+    await sendSubsToDevDevice()
+    return NextResponse.json({ status: "dev successful" }, { status: 200 })
   }
+
   const dateSend = timeHeader ? new Date(Number(timeHeader) * 1000) : new Date()
   const timeSend = RoundToClosest5Minutes(dateSend)
 
@@ -32,37 +34,61 @@ export async function GET() {
       return NextResponse.json({ status: subscriptions.message }, { status: 406 })
     }
 
-    if (subscriptions.subscriptions.length == 0) {
+    if (subscriptions.subscriptions.length === 0) {
       return NextResponse.json({ status: subscriptions.message }, { status: 200 })
     }
 
     registerFonts()
 
+    // Array to collect all errors during processing
+    const errors: Array<{ subscriptionId: string; error: string }> = []
+
+    // Process all subscriptions
     for (const sub of subscriptions.subscriptions) {
-      switch (sub.broadcastId) {
-        case "1":
-          await sendDadJoke(sub.printerId)
-          return
-        case "2":
-          await sendWeatherReport(sub)
-          return
-        default:
-          console.error("cron job coudnt find sub broadcast ID")
-          return
+      try {
+        switch (sub.broadcastId) {
+          case "1":
+            await sendDadJoke(sub.printerId)
+            break
+          case "2":
+            await sendWeatherReport(sub)
+            break
+          default:
+            const errorMessage = `Unknown broadcast ID: ${sub.broadcastId}`
+            console.error(errorMessage)
+            errors.push({ subscriptionId: sub.id, error: errorMessage })
+            break
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        console.error(`Error processing subscription ${sub.id}:`, errorMessage)
+        errors.push({ subscriptionId: sub.id, error: errorMessage })
       }
     }
 
     return NextResponse.json(
-      { status: `endpoint hit ${subscriptions.subscriptions.length} send` },
-      { status: 500 }
+      {
+        status: `Processed ${subscriptions.subscriptions.length} subscriptions`,
+        successCount: subscriptions.subscriptions.length - errors.length,
+        errorCount: errors.length,
+        errors: errors.length > 0 ? errors : undefined,
+      },
+      { status: errors.length > 0 ? 207 : 200 }
     )
   } catch (error) {
-    console.error("Cleanup failed:", error)
-    return NextResponse.json({ status: "error" }, { status: 500 })
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    console.error("Subscription processing failed:", errorMessage)
+    return NextResponse.json(
+      {
+        status: "error",
+        error: errorMessage,
+      },
+      { status: 500 }
+    )
   }
 }
 
-// TODO ofcourse remove this in full release
+// Development testing function
 const sendSubsToDevDevice = async () => {
   await sendDadJoke("fcs2ean4kg")
   await sendWeatherReport({
