@@ -10,52 +10,93 @@ import type { PrinterSubscription, TempUnit } from "@/lib/schema/subscriptions"
 import { createCanvas } from "canvas"
 import { sendSubscription } from "./generalSubscription"
 
-export const sendWeatherReport = async (sub: PrinterSubscription) => {
-  const settings = sub.settingsValues as {
-    Temperature: TempUnit
-    Location: string
+export const sendWeatherReport = async (
+  sub: PrinterSubscription
+): Promise<{ success: boolean; error?: string }> => {
+  try {
+    const settings = sub.settingsValues as {
+      Temperature: TempUnit
+      Location: string
+    }
+
+    // Get weather report
+    const weather = await getWeatherReport(settings.Location)
+
+    if (!weather.forecast?.length) {
+      return {
+        success: false,
+        error: `No forecast data available for location: ${settings.Location}`,
+      }
+    }
+
+    if (!weather.location) {
+      return {
+        success: false,
+        error: `Location data missing for: ${settings.Location}`,
+      }
+    }
+
+    try {
+      // Create location header
+      const locationHeader = await drawLocationHeader(weather.location)
+      const astroCard = await drawAstroCard(weather.astro)
+
+      // Create weather cards
+      const weatherCards = await Promise.all(
+        weather.forecast.map((forecast) => drawWeatherCard(forecast, settings.Temperature))
+      )
+
+      const spacing = 8
+      const totalHeight =
+        locationHeader.canvas.height +
+        astroCard.canvas.height +
+        weatherCards.length * (weatherCards[0].canvas.height + spacing)
+
+      const combinedCanvas = createCanvas(PRINTER_WIDTH, totalHeight)
+      const combinedCtx = combinedCanvas.getContext("2d")
+
+      // Draw location header first
+      combinedCtx.drawImage(locationHeader.canvas, 0, 0)
+
+      let currentY = locationHeader.canvas.height + spacing
+      combinedCtx.drawImage(astroCard.canvas, 0, currentY)
+      currentY = currentY + astroCard.canvas.height + spacing
+
+      weatherCards.forEach((card) => {
+        combinedCtx.drawImage(card.canvas, 0, currentY)
+        currentY += card.canvas.height + spacing
+      })
+
+      // Convert to printer bytes
+      const content = await weatherCardBytes({
+        canvas: combinedCanvas,
+        context: combinedCtx,
+      })
+
+      // Send to printer
+      const sendResult = await sendSubscription(content, sub.printerId)
+      if (!sendResult.success) {
+        return {
+          success: false,
+          error: sendResult.error || "Failed to send weather report to printer",
+        }
+      }
+
+      return { success: true }
+    } catch (renderError) {
+      const errorMessage = renderError instanceof Error ? renderError.message : String(renderError)
+      return {
+        success: false,
+        error: `Error rendering weather report: ${errorMessage}`,
+      }
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    return {
+      success: false,
+      error: `Failed to generate weather report: ${errorMessage}`,
+    }
   }
-
-  //TODO this should not be in the sendWeatherReport
-  const weather = await getWeatherReport(settings.Location)
-
-  if (!weather.forecast?.length) return
-  // Create location header
-  const locationHeader = await drawLocationHeader(weather.location!)
-  const astroCard = await drawAstroCard(weather.astro)
-  console.log(astroCard.canvas.height)
-  // Create weather cards
-  const weatherCards = await Promise.all(
-    weather.forecast.map((forecast) => drawWeatherCard(forecast, "Celsius"))
-  )
-
-  const spacing = 8
-  const totalHeight =
-    locationHeader.canvas.height +
-    astroCard.canvas.height +
-    weatherCards.length * (weatherCards[0].canvas.height + spacing)
-
-  const combinedCanvas = createCanvas(PRINTER_WIDTH, totalHeight)
-  const combinedCtx = combinedCanvas.getContext("2d")
-
-  // Draw location header first
-  combinedCtx.drawImage(locationHeader.canvas, 0, 0)
-
-  let currentY = locationHeader.canvas.height + spacing
-  combinedCtx.drawImage(astroCard.canvas, 0, currentY)
-  currentY = currentY + astroCard.canvas.height + spacing
-  weatherCards.forEach((card) => {
-    combinedCtx.drawImage(card.canvas, 0, currentY)
-    currentY += card.canvas.height + spacing
-  })
-
-  // Convert to printer bytes
-  const content = await weatherCardBytes({
-    canvas: combinedCanvas,
-    context: combinedCtx,
-  })
-
-  const send = sendSubscription(content, sub.printerId)
 }
 
 type WeatherCondition = {

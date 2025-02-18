@@ -8,10 +8,23 @@ type DadJokeResponse = {
   status: number
 }
 
-export const sendDadJoke = async (printerId: string) => {
-  const dadJoke: DadJokeResponse = await getDadJoke()
-  const content = await dadJokeCardBytes(dadJoke.joke)
-  const send = sendSubscription(content, printerId)
+export const sendDadJoke = async (
+  printerId: string
+): Promise<{ success: boolean; error?: string }> => {
+  try {
+    const dadJoke: DadJokeResponse = await getDadJoke()
+    const content = await dadJokeCardBytes(dadJoke.joke)
+    const send = await sendSubscription(content, printerId)
+
+    if (!send.success) {
+      return { success: false, error: send.error }
+    }
+
+    return { success: true }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    return { success: false, error: errorMessage }
+  }
 }
 
 export const getDadJoke = async (): Promise<DadJokeResponse> => {

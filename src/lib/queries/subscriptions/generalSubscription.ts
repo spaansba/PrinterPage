@@ -19,18 +19,39 @@ type UpdateSubscriptionParams = {
   sendTime?: string // Time in HH:mm format
 }
 
-export async function sendSubscription(content: Uint8Array, printerId: string) {
-  const response = await fetch(`https://${printerId}.toasttexter.com/print`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      data: Array.from(content),
-    }),
-  })
-  if (!response.ok) {
-    console.error("error sending subscription to ", printerId)
+export async function sendSubscription(
+  content: Uint8Array,
+  printerId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const response = await fetch(`https://${printerId}.toasttexter.com/print`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        data: Array.from(content),
+      }),
+    })
+
+    if (!response.ok) {
+      let errorMessage: string
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.message || `HTTP error ${response.status}: ${response.statusText}`
+      } catch {
+        errorMessage = `HTTP error ${response.status}: ${response.statusText}`
+      }
+
+      console.error(`Error sending subscription to ${printerId}: ${errorMessage}`)
+      return { success: false, error: errorMessage }
+    }
+
+    return { success: true }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    console.error(`Failed to send subscription to ${printerId}: ${errorMessage}`)
+    return { success: false, error: errorMessage }
   }
 }
 

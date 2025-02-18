@@ -48,10 +48,20 @@ export async function GET() {
       try {
         switch (sub.broadcastId) {
           case "1":
-            await sendDadJoke(sub.printerId)
+            const dadJokeResult = await sendDadJoke(sub.printerId)
+            if (!dadJokeResult.success) {
+              const errorMessage = dadJokeResult.error || "Unknown error sending dad joke"
+              console.error(`Error sending dad joke to ${sub.printerId}: ${errorMessage}`)
+              errors.push({ subscriptionId: sub.id, error: errorMessage })
+            }
             break
           case "2":
-            await sendWeatherReport(sub)
+            const weatherReport = await sendWeatherReport(sub)
+            if (!weatherReport.success) {
+              const errorMessage = weatherReport.error || "Unknown error sending weather report"
+              console.error(`Error sending weather report to ${sub.printerId}: ${errorMessage}`)
+              errors.push({ subscriptionId: sub.id, error: errorMessage })
+            }
             break
           default:
             const errorMessage = `Unknown broadcast ID: ${sub.broadcastId}`
