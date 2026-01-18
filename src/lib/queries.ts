@@ -209,9 +209,9 @@ export const removeAssociatedPrinters = async (
           eq(usersAssociatedPrinters.associatedPrinterId, printerId),
         ),
       );
-  } catch {
+  } catch (error) {
     return {
-      successs: false,
+      success: false,
       data: null,
       error: {
         message:
