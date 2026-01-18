@@ -19,20 +19,21 @@ function ToasterIdForm({
   setPrinterId,
 }: ToasterIdFormProps) {
   const { user } = useUser();
+  const printerIdOnlySchema = z.object({
+    printerId: printerIdSchema.shape.printerId,
+  });
+
   const {
     register: registerNew,
     handleSubmit: handleSubmitNew,
     formState: { errors: errorsNew },
     setError: setErrorNew,
-  } = useForm<z.infer<typeof printerIdSchema>>({
-    resolver: zodResolver(
-      // Extract just the printerId part of the schema
-      z.object({ printerId: printerIdSchema.shape.printerId }),
-    ),
+  } = useForm<z.infer<typeof printerIdOnlySchema>>({
+    resolver: zodResolver(printerIdOnlySchema),
     mode: "onSubmit",
   });
 
-  async function handleFormSubmit(data: z.infer<typeof printerIdSchema>) {
+  async function handleFormSubmit(data: z.infer<typeof printerIdOnlySchema>) {
     if (!user) {
       setErrorNew("root", { message: "User Doesnt Exist" });
       return;
