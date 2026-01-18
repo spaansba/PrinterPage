@@ -1,8 +1,7 @@
-import { clerkMiddleware } from "@clerk/nextjs/server"
-import { NextResponse, type NextRequest } from "next/server"
+import { clerkMiddleware } from "@clerk/nextjs/server";
 
 // Make sure that the `/api/webhooks/(.*)` route is not protected here
-export default clerkMiddleware()
+export default clerkMiddleware();
 
 export const config = {
   matcher: [
@@ -11,7 +10,7 @@ export const config = {
     // Always run for API routes
     "/(api|trpc)(.*)",
   ],
-}
+};
 
 // export function middleware(request: NextRequest) {
 //   console.log({

@@ -1,32 +1,34 @@
-import { useState } from "react"
-import ToasterIdForm from "./ToasterIdForm"
-import VerificationForm from "./VerificationForm"
+import { useState } from "react";
+import ToasterIdForm from "./ToasterIdForm";
+import VerificationForm from "./VerificationForm";
 import {
   checkVerificationCode,
   createValidatedUserEntry,
   incrementVerificationAttempt,
-} from "@/lib/queries/printerVerificationCode"
-import { type UseFormSetError } from "react-hook-form"
-import PairedToasterContainer from "./_connectedToasters/PairedToasterContainer"
-import { useToasterUser } from "@/app/context/userDataContext"
-import { Plus } from "lucide-react"
-import { getToaster } from "@/lib/queries/toasterInfo"
-import PageBorderDiv from "../_helperComponents/PageBorderDiv"
+} from "@/lib/queries/printerVerificationCode";
+import { type UseFormSetError } from "react-hook-form";
+import PairedToasterContainer from "./_connectedToasters/PairedToasterContainer";
+import { useToasterUser } from "@/app/context/userDataContext";
+import { Plus } from "lucide-react";
+import { getToaster } from "@/lib/queries/toasterInfo";
+import PageBorderDiv from "../_helperComponents/PageBorderDiv";
 
 function MyToasterPage() {
-  const { pairedToasters, setPairedToasters } = useToasterUser()
-  const [showVerificationForm, setShowVerificationForm] = useState(false)
-  const [printerId, setPrinterId] = useState("")
-  const [showFullToasterIdForm, setShowFullToasterIdForm] = useState(pairedToasters.length === 0)
+  const { pairedToasters, setPairedToasters } = useToasterUser();
+  const [showVerificationForm, setShowVerificationForm] = useState(false);
+  const [printerId, setPrinterId] = useState("");
+  const [showFullToasterIdForm, setShowFullToasterIdForm] = useState(
+    pairedToasters.length === 0,
+  );
 
   const handleVerificationSubmit = async (
     code: string,
     userId: string,
     setError: UseFormSetError<{
-      code: string
-    }>
+      code: string;
+    }>,
   ) => {
-    const attemptStatus = await incrementVerificationAttempt(userId)
+    const attemptStatus = await incrementVerificationAttempt(userId);
     if (attemptStatus.blocked) {
       setError("root", {
         message: `Too many attempts. Please try again after ${attemptStatus.expiresAt.toLocaleString(
@@ -35,40 +37,40 @@ function MyToasterPage() {
             hour: "numeric",
             minute: "numeric",
             hour12: false,
-          }
+          },
         )}`,
-      })
-      return
+      });
+      return;
     }
-    const result = await checkVerificationCode(printerId, code)
+    const result = await checkVerificationCode(printerId, code);
     if (!result.verified) {
       setError("root", {
         message: `${result.message} ${attemptStatus.attemptsRemaining} attempts remaining`,
-      })
-      return
+      });
+      return;
     }
-    const pairingResult = await createValidatedUserEntry(printerId, userId)
+    const pairingResult = await createValidatedUserEntry(printerId, userId);
     if (!pairingResult.success) {
-      setError("root", { message: pairingResult.message })
-      return
+      setError("root", { message: pairingResult.message });
+      return;
     }
 
-    const toaster = await getToaster(printerId)
+    const toaster = await getToaster(printerId);
     if (!toaster.success || !toaster.data) {
-      setError("root", { message: toaster.message })
-      return
+      setError("root", { message: toaster.message });
+      return;
     }
-    setShowVerificationForm(false)
+    setShowVerificationForm(false);
     setPairedToasters((prev) => {
-      const newToasters = toaster.data ? [...prev, toaster.data] : prev
+      const newToasters = toaster.data ? [...prev, toaster.data] : prev;
 
       // update so it rerenders the page
       if (prev.length === 0) {
-        setShowFullToasterIdForm(false)
+        setShowFullToasterIdForm(false);
       }
-      return newToasters
-    })
-  }
+      return newToasters;
+    });
+  };
 
   return (
     <PageBorderDiv>
@@ -85,7 +87,8 @@ function MyToasterPage() {
             <div className="mb-6">
               <h1 className="text-lg font-normal mb-4">Pair Your Toaster</h1>
               <p className="text-sm mb-4">
-                Enter your toaster&apos;s unique ID to connect it to your account.
+                Enter your toaster&apos;s unique ID to connect it to your
+                account.
               </p>
             </div>
 
@@ -117,7 +120,7 @@ function MyToasterPage() {
         </div>
       )}
     </PageBorderDiv>
-  )
+  );
 }
 
-export default MyToasterPage
+export default MyToasterPage;

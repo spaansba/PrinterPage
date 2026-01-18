@@ -1,17 +1,17 @@
-import { Plus } from "lucide-react"
-import React from "react"
-import AddNewFriendForm from "../AddNewFriendForm"
-import { useAddFriend } from "@/app/_customHooks/useAddFriend"
-import type { FriendListHook } from "../../AppWindow"
+import { Plus } from "lucide-react";
+import React from "react";
+import AddNewFriendForm from "../AddNewFriendForm";
+import { useAddFriend } from "@/app/_customHooks/useAddFriend";
+import type { FriendListHook } from "../../AppWindow";
 
 type AddNewFriendProps = {
-  friendsHook: FriendListHook
-}
+  friendsHook: FriendListHook;
+};
 
 function AddNewFriend({ friendsHook }: AddNewFriendProps) {
-  const { isAddingFriend, setIsAddingFriend, addFriendRef } = useAddFriend()
+  const { isAddingFriend, setIsAddingFriend, addFriendRef } = useAddFriend();
   function handleNewFriendClick() {
-    setIsAddingFriend(true)
+    setIsAddingFriend(true);
     // Give inputbox automatic focus for UX
     // setTimeout(() => {
     //   setNewFocus("printerId")
@@ -38,7 +38,7 @@ function AddNewFriend({ friendsHook }: AddNewFriendProps) {
         </button>
       )}
     </div>
-  )
+  );
 }
 
-export default AddNewFriend
+export default AddNewFriend;

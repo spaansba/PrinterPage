@@ -1,22 +1,26 @@
-import React, { useRef, useEffect } from "react"
-import { MoreVertical } from "lucide-react"
+import React, { useRef, useEffect } from "react";
+import { MoreVertical } from "lucide-react";
 
 export type MenuOption = {
-  label: string
-  icon: React.ReactNode
-  onClick: () => void
-  className?: string
-}
+  label: string;
+  icon: React.ReactNode;
+  onClick: () => void;
+  className?: string;
+};
 
 type MenuModalProps = {
-  isOpen: boolean
-  setIsOpen: (isOpen: boolean) => void
-  options: MenuOption[]
-}
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+  options: MenuOption[];
+};
 
-export const MenuModal: React.FC<MenuModalProps> = ({ isOpen, setIsOpen, options }) => {
-  const menuRef = useRef<HTMLDivElement>(null)
-  const buttonRef = useRef<HTMLButtonElement>(null)
+export const MenuModal: React.FC<MenuModalProps> = ({
+  isOpen,
+  setIsOpen,
+  options,
+}) => {
+  const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -26,13 +30,13 @@ export const MenuModal: React.FC<MenuModalProps> = ({ isOpen, setIsOpen, options
         !menuRef.current.contains(event.target as Node) &&
         !buttonRef.current.contains(event.target as Node)
       ) {
-        setIsOpen(false)
+        setIsOpen(false);
       }
-    }
+    };
 
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [setIsOpen])
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [setIsOpen]);
 
   return (
     <div className="relative ">
@@ -41,7 +45,10 @@ export const MenuModal: React.FC<MenuModalProps> = ({ isOpen, setIsOpen, options
       </button>
 
       {isOpen && (
-        <div ref={menuRef} className="absolute right-0 w-48 mt-1 bg-toastWhite shadow-lg z-50">
+        <div
+          ref={menuRef}
+          className="absolute right-0 w-48 mt-1 bg-toastWhite shadow-lg z-50"
+        >
           <div className="border border-gray-500 ">
             {options.map((option) => (
               <button
@@ -50,11 +57,13 @@ export const MenuModal: React.FC<MenuModalProps> = ({ isOpen, setIsOpen, options
                   option.className || ""
                 }`}
                 onClick={() => {
-                  option.onClick()
-                  setIsOpen(false)
+                  option.onClick();
+                  setIsOpen(false);
                 }}
               >
-                <div className="flex items-center justify-center">{option.icon}</div>
+                <div className="flex items-center justify-center">
+                  {option.icon}
+                </div>
                 {option.label}
               </button>
             ))}
@@ -62,7 +71,7 @@ export const MenuModal: React.FC<MenuModalProps> = ({ isOpen, setIsOpen, options
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default MenuModal
+export default MenuModal;

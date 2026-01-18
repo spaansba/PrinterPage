@@ -1,21 +1,24 @@
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { printerIdSchema } from "../_editorPage/AddNewFriendForm"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { checkIfPrinterExists } from "@/lib/queries"
-import { sendVerificationCode } from "@/lib/queries/printerVerificationCode"
-import { useUser } from "@clerk/nextjs"
-import type { Dispatch, SetStateAction } from "react"
-import { checkIfAlreadyPaired } from "@/lib/queries/toasterInfo"
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { printerIdSchema } from "../_editorPage/AddNewFriendForm";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { checkIfPrinterExists } from "@/lib/queries";
+import { sendVerificationCode } from "@/lib/queries/printerVerificationCode";
+import { useUser } from "@clerk/nextjs";
+import type { Dispatch, SetStateAction } from "react";
+import { checkIfAlreadyPaired } from "@/lib/queries/toasterInfo";
 
 type ToasterIdFormProps = {
-  setShowVerificationForm: Dispatch<SetStateAction<boolean>>
-  printerId: string
-  setPrinterId: Dispatch<SetStateAction<string>>
-}
+  setShowVerificationForm: Dispatch<SetStateAction<boolean>>;
+  printerId: string;
+  setPrinterId: Dispatch<SetStateAction<string>>;
+};
 
-function ToasterIdForm({ setShowVerificationForm, printerId, setPrinterId }: ToasterIdFormProps) {
-  const { user } = useUser()
+function ToasterIdForm({
+  setShowVerificationForm,
+  setPrinterId,
+}: ToasterIdFormProps) {
+  const { user } = useUser();
   const {
     register: registerNew,
     handleSubmit: handleSubmitNew,
@@ -24,25 +27,25 @@ function ToasterIdForm({ setShowVerificationForm, printerId, setPrinterId }: Toa
   } = useForm<z.infer<typeof printerIdSchema>>({
     resolver: zodResolver(
       // Extract just the printerId part of the schema
-      z.object({ printerId: printerIdSchema.shape.printerId })
+      z.object({ printerId: printerIdSchema.shape.printerId }),
     ),
     mode: "onSubmit",
-  })
+  });
 
   async function handleFormSubmit(data: z.infer<typeof printerIdSchema>) {
     if (!user) {
-      setErrorNew("root", { message: "User Doesnt Exist" })
-      return
+      setErrorNew("root", { message: "User Doesnt Exist" });
+      return;
     }
     try {
-      const printerIdExists = await checkIfPrinterExists(data.printerId)
+      const printerIdExists = await checkIfPrinterExists(data.printerId);
       if (!printerIdExists) {
-        setErrorNew("root", { message: "Toaster ID doesn't exist" })
-        return
+        setErrorNew("root", { message: "Toaster ID doesn't exist" });
+        return;
       }
-      const pairedStatus = await checkIfAlreadyPaired(data.printerId, user.id)
+      const pairedStatus = await checkIfAlreadyPaired(data.printerId, user.id);
       if (pairedStatus.length > 0) {
-        const date = new Date(pairedStatus[0].createdAt)
+        const date = new Date(pairedStatus[0].createdAt);
         const formattedDate = date.toLocaleString("en-US", {
           year: "numeric",
           month: "2-digit",
@@ -50,27 +53,27 @@ function ToasterIdForm({ setShowVerificationForm, printerId, setPrinterId }: Toa
           hour: "2-digit",
           minute: "2-digit",
           hour12: false,
-        })
+        });
 
         setErrorNew("root", {
           message: `Toaster was already paired to your account on ${formattedDate}`,
-        })
-        return
+        });
+        return;
       }
-      const verficiationCode = await sendVerificationCode(data.printerId)
+      const verficiationCode = await sendVerificationCode(data.printerId);
 
       if (!verficiationCode.success) {
         setErrorNew("root", {
           message: verficiationCode.message,
-        })
-        return
+        });
+        return;
       }
-      setShowVerificationForm(true)
+      setShowVerificationForm(true);
     } catch (error) {
       setErrorNew("root", {
         message: "Failed to add toaster. Please try again.",
-      })
-      console.error(error)
+      });
+      console.error(error);
     }
   }
   return (
@@ -81,9 +84,9 @@ function ToasterIdForm({ setShowVerificationForm, printerId, setPrinterId }: Toa
           <input
             {...registerNew("printerId", {
               onChange: (e) => {
-                const value = e.target.value.toLowerCase()
-                e.target.value = value
-                setPrinterId(value) // Update printerId state on change
+                const value = e.target.value.toLowerCase();
+                e.target.value = value;
+                setPrinterId(value); // Update printerId state on change
               },
             })}
             id="printerId"
@@ -91,7 +94,9 @@ function ToasterIdForm({ setShowVerificationForm, printerId, setPrinterId }: Toa
             placeholder="xxxxxxxxxx"
           />
           <div className="text-toastError pt-1">
-            {errorsNew.printerId?.message && <p>{errorsNew.printerId.message}</p>}
+            {errorsNew.printerId?.message && (
+              <p>{errorsNew.printerId.message}</p>
+            )}
             {errorsNew.root?.message && <p>{errorsNew.root?.message}</p>}
           </div>
         </div>
@@ -106,7 +111,7 @@ function ToasterIdForm({ setShowVerificationForm, printerId, setPrinterId }: Toa
         </div>
       </form>
     </>
-  )
+  );
 }
 
-export default ToasterIdForm
+export default ToasterIdForm;

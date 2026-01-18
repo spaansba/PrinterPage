@@ -1,20 +1,20 @@
-"use client"
-import { type Dispatch, type SetStateAction } from "react"
-import { EditorContent } from "@tiptap/react"
-import { useEditorContext } from "@/app/context/editorContext"
-import { Toolbar } from "./_editor/_toolbar/Toolbar"
-import ToasterStatusBar from "./StatusBar"
-import ToasterSendButton from "./ToasterSendButton"
-import type { FriendListHook } from "../AppWindow"
-import type { messageStatus } from "../MainWrapper"
-import FriendSelector from "./_friendSelector/FriendSelector"
+"use client";
+import { type Dispatch, type SetStateAction } from "react";
+import { EditorContent } from "@tiptap/react";
+import { useEditorContext } from "@/app/context/editorContext";
+import { Toolbar } from "./_editor/_toolbar/Toolbar";
+import ToasterStatusBar from "./StatusBar";
+import ToasterSendButton from "./ToasterSendButton";
+import type { FriendListHook } from "../AppWindow";
+import type { messageStatus } from "../MainWrapper";
+import FriendSelector from "./_friendSelector/FriendSelector";
 
 type EditorPageProps = {
-  hTMLContent: string
-  messageStatus: messageStatus
-  setMessageStatus: Dispatch<SetStateAction<messageStatus>>
-  friendsHook: FriendListHook
-}
+  hTMLContent: string;
+  messageStatus: messageStatus;
+  setMessageStatus: Dispatch<SetStateAction<messageStatus>>;
+  friendsHook: FriendListHook;
+};
 
 function EditorPage({
   setMessageStatus,
@@ -22,18 +22,18 @@ function EditorPage({
   hTMLContent,
   friendsHook,
 }: EditorPageProps) {
-  const { editor, editorForm } = useEditorContext()
+  const { editor, editorForm } = useEditorContext();
 
   // Get the first form error message if any exist
   const getFirstFormError = () => {
     if (editorForm.formState.errors.recipients) {
-      return editorForm.formState.errors.recipients.message
+      return editorForm.formState.errors.recipients.message;
     }
     if (editorForm.formState.errors.textEditorInput) {
-      return editorForm.formState.errors.textEditorInput.message
+      return editorForm.formState.errors.textEditorInput.message;
     }
-    return null
-  }
+    return null;
+  };
 
   return (
     <>
@@ -51,7 +51,9 @@ function EditorPage({
               />
               {getFirstFormError() && (
                 <div className="bg-toastPrimary border-t border-[#808080] px-2 py-1">
-                  <span className="text-toastError text-xs">{getFirstFormError()}</span>
+                  <span className="text-toastError text-xs">
+                    {getFirstFormError()}
+                  </span>
                 </div>
               )}
             </div>
@@ -65,7 +67,7 @@ function EditorPage({
         selectedFriends={friendsHook.selectedFriends}
       />
     </>
-  )
+  );
 }
 
-export default EditorPage
+export default EditorPage;

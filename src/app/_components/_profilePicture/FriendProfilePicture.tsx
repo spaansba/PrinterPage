@@ -1,12 +1,16 @@
-import Image from "next/image"
+import Image from "next/image";
 
 type FriendProfilePictureProps = {
-  pictureUrl: string | null
-  altName: string
-  pictureSizeInPX: number
-}
+  pictureUrl: string | null;
+  altName: string;
+  pictureSizeInPX: number;
+};
 
-function FriendProfilePicture({ pictureUrl, altName, pictureSizeInPX }: FriendProfilePictureProps) {
+function FriendProfilePicture({
+  pictureUrl,
+  altName,
+  pictureSizeInPX,
+}: FriendProfilePictureProps) {
   return (
     <div
       className="overflow-hidden rounded-full"
@@ -21,7 +25,7 @@ function FriendProfilePicture({ pictureUrl, altName, pictureSizeInPX }: FriendPr
         className="object-cover w-full h-full"
       />
     </div>
-  )
+  );
 }
 
-export default FriendProfilePicture
+export default FriendProfilePicture;

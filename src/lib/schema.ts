@@ -1,6 +1,12 @@
-import { sql } from "drizzle-orm"
-import { pgTable, varchar, timestamp, serial, integer } from "drizzle-orm/pg-core"
-import { createInsertSchema } from "drizzle-zod"
+import { sql } from "drizzle-orm";
+import {
+  pgTable,
+  varchar,
+  timestamp,
+  serial,
+  integer,
+} from "drizzle-orm/pg-core";
+import { createInsertSchema } from "drizzle-zod";
 
 export const printerUserPairing = pgTable("user_pairing", {
   id: serial("id").primaryKey(),
@@ -17,7 +23,7 @@ export const printerUserPairing = pgTable("user_pairing", {
     .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
     .notNull()
     .$onUpdate(() => new Date().toISOString()),
-})
+});
 
 export const verificationAttempts = pgTable("verification_attempts", {
   id: serial("id").primaryKey(),
@@ -35,7 +41,7 @@ export const verificationAttempts = pgTable("verification_attempts", {
     .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
     .notNull()
     .$onUpdate(() => new Date().toISOString()),
-})
+});
 
 export const users = pgTable("printer_users", {
   id: varchar("id", { length: 256 }).primaryKey(),
@@ -48,7 +54,7 @@ export const users = pgTable("printer_users", {
     .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
     .notNull()
     .$onUpdate(() => new Date().toISOString()),
-})
+});
 
 export const printers = pgTable("printer_printers", {
   id: varchar("id", { length: 10 }).primaryKey(),
@@ -63,29 +69,34 @@ export const printers = pgTable("printer_printers", {
     .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
     .notNull()
     .$onUpdate(() => new Date().toISOString()),
-})
+});
 
-export const usersAssociatedPrinters = pgTable("printer_users_printer_association", {
-  id: serial("id").primaryKey(),
-  userId: varchar("user_id", { length: 256 })
-    .notNull()
-    .references(() => users.id),
-  associatedPrinterId: varchar("associated_printer_id", { length: 10 })
-    .notNull()
-    .references(() => printers.id),
-  toastsSendToAssociatedPrinter: integer("toasts_send_to_associated_printer").default(0).notNull(),
-  name: varchar("name", { length: 50 }).notNull(),
-  createdAt: timestamp("created_at", { mode: "string" })
-    .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
-    .notNull(),
-  updatedAt: timestamp("updated_at", { mode: "string" })
-    .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
-    .notNull()
-    .$onUpdate(() => new Date().toISOString()),
-  lastSendMessage: timestamp("last_send_message", { mode: "string" })
-    .default(sql`CURRENT_TIMESTAMP`)
-    .notNull(),
-})
+export const usersAssociatedPrinters = pgTable(
+  "printer_users_printer_association",
+  {
+    id: serial("id").primaryKey(),
+    userId: varchar("user_id", { length: 256 })
+      .notNull()
+      .references(() => users.id),
+    associatedPrinterId: varchar("associated_printer_id", { length: 10 })
+      .notNull()
+      .references(() => printers.id),
+    toastsSendToAssociatedPrinter: integer("toasts_send_to_associated_printer")
+      .default(0)
+      .notNull(),
+    name: varchar("name", { length: 50 }).notNull(),
+    createdAt: timestamp("created_at", { mode: "string" })
+      .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
+      .notNull(),
+    updatedAt: timestamp("updated_at", { mode: "string" })
+      .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
+      .notNull()
+      .$onUpdate(() => new Date().toISOString()),
+    lastSendMessage: timestamp("last_send_message", { mode: "string" })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  },
+);
 
 export const verificationCodes = pgTable("verification_codes", {
   id: serial("id").primaryKey(),
@@ -99,16 +110,20 @@ export const verificationCodes = pgTable("verification_codes", {
   expiresAt: timestamp("expires_at", { mode: "string" })
     .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC' + INTERVAL '5 minutes'`)
     .notNull(),
-})
+});
 
-export type newVerificationAttempts = typeof verificationAttempts.$inferInsert
-export const InsertVerificationAttempts = createInsertSchema(verificationAttempts)
+export type newVerificationAttempts = typeof verificationAttempts.$inferInsert;
+export const InsertVerificationAttempts =
+  createInsertSchema(verificationAttempts);
 
-export type newPrinterUserPairing = typeof printerUserPairing.$inferInsert
-export const InsertPrinterUserPairing = createInsertSchema(printerUserPairing)
+export type newPrinterUserPairing = typeof printerUserPairing.$inferInsert;
+export const InsertPrinterUserPairing = createInsertSchema(printerUserPairing);
 
-export type newUserAssociatedPrinter = typeof usersAssociatedPrinters.$inferInsert
-export const InsertUsersAssociatedPrinters = createInsertSchema(usersAssociatedPrinters)
+export type newUserAssociatedPrinter =
+  typeof usersAssociatedPrinters.$inferInsert;
+export const InsertUsersAssociatedPrinters = createInsertSchema(
+  usersAssociatedPrinters,
+);
 
-export type newVerificationCode = typeof verificationCodes.$inferInsert
-export const InsertVerificationCode = createInsertSchema(verificationCodes)
+export type newVerificationCode = typeof verificationCodes.$inferInsert;
+export const InsertVerificationCode = createInsertSchema(verificationCodes);

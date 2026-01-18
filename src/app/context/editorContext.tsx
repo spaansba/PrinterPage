@@ -1,36 +1,41 @@
-"use client"
-import { Editor, useEditor } from "@tiptap/react"
-import React, { createContext, useContext } from "react"
-import StarterKit from "@tiptap/starter-kit"
-import Underline from "@tiptap/extension-underline"
-import Highlight from "@tiptap/extension-highlight"
-import TextStyle from "@tiptap/extension-text-style"
-import { CustomMark } from "../_components/_editorPage/_editor/CustomSpan"
-import Image from "@tiptap/extension-image"
-import { useForm, UseFormReturn } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
-import { getVisualLinesFromHTML } from "../_helpers/getVisualLines"
-import type { Friend } from "../types/printer"
+"use client";
+import { Editor, useEditor } from "@tiptap/react";
+import React, { createContext, useContext } from "react";
+import StarterKit from "@tiptap/starter-kit";
+import Underline from "@tiptap/extension-underline";
+import Highlight from "@tiptap/extension-highlight";
+import TextStyle from "@tiptap/extension-text-style";
+import { CustomMark } from "../_components/_editorPage/_editor/CustomSpan";
+import Image from "@tiptap/extension-image";
+import { useForm, UseFormReturn } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { getVisualLinesFromHTML } from "../_helpers/getVisualLines";
+import type { Friend } from "../types/printer";
 
 type EditorFormData = {
-  textEditorInput: string
-  recipients: Friend[] | null
-}
+  textEditorInput: string;
+  recipients: Friend[] | null;
+};
 
 type EditorContextProps = {
-  editor: Editor | null
-  editorForm: UseFormReturn<EditorFormData>
-}
+  editor: Editor | null;
+  editorForm: UseFormReturn<EditorFormData>;
+};
 
 type CustomEditorProviderProps = {
-  children: React.ReactNode
-  handleTextChange: (inputText: string, inputHTML: string) => void
-}
+  children: React.ReactNode;
+  handleTextChange: (inputText: string, inputHTML: string) => void;
+};
 
-export const EditorContext = createContext<EditorContextProps | undefined>(undefined)
+export const EditorContext = createContext<EditorContextProps | undefined>(
+  undefined,
+);
 
-export function CustomEditorProvider({ children, handleTextChange }: CustomEditorProviderProps) {
+export function CustomEditorProvider({
+  children,
+  handleTextChange,
+}: CustomEditorProviderProps) {
   const editor = useEditor({
     immediatelyRender: false,
     content: "",
@@ -56,7 +61,10 @@ export function CustomEditorProvider({ children, handleTextChange }: CustomEdito
       }),
 
       Underline,
-      Highlight.configure({ multicolor: true, HTMLAttributes: { class: "color-white" } }),
+      Highlight.configure({
+        multicolor: true,
+        HTMLAttributes: { class: "color-white" },
+      }),
       TextStyle,
       CustomMark,
       Image.configure({ HTMLAttributes: { class: "thermal-print-effect" } }), // Dont change the name since we remove it in the qr code function
@@ -69,92 +77,96 @@ export function CustomEditorProvider({ children, handleTextChange }: CustomEdito
       handleKeyDown: (view, event) => {
         // Handle all Enter/Return key presses the same way
         if (event.key === "Enter") {
-          const { from } = view.state.selection
+          const { from } = view.state.selection;
 
           // Get the character right before the cursor
-          const text = view.state.doc.textBetween(from - 1, from)
+          const text = view.state.doc.textBetween(from - 1, from);
 
           // Mobile keyboards often send "space + return" for newlines
           // This removes that extra space to match PC behavior
           if (text === " ") {
-            const tr = view.state.tr.delete(from - 1, from)
-            view.dispatch(tr)
+            const tr = view.state.tr.delete(from - 1, from);
+            view.dispatch(tr);
           }
 
           // Force a paragraph split regardless of modifier keys
-          view.dispatch(view.state.tr.split(from))
-          return true // Prevent default Enter handling
+          view.dispatch(view.state.tr.split(from));
+          return true; // Prevent default Enter handling
         }
 
         // Handle Backspace key presses
         if (event.key === "Backspace") {
-          const { from, to } = view.state.selection
+          const { from, to } = view.state.selection;
           if (from === to) {
-            const tr = view.state.tr.delete(from - 1, from)
-            view.dispatch(tr)
-            return true
+            const tr = view.state.tr.delete(from - 1, from);
+            view.dispatch(tr);
+            return true;
           }
         }
-        return false
+        return false;
       },
       // Turn dropped in text to plain text without formatting
       handleDrop: (view, event) => {
-        const dt = event.dataTransfer
-        if (!dt) return true
+        const dt = event.dataTransfer;
+        if (!dt) return true;
 
         // If user is dragging an image aroun, actually accept the drop (not from outside the editor, only inside to inside)
-        const html = dt.getData("text/html")
+        const html = dt.getData("text/html");
         if (html && (html.includes("<img") || html.includes("data:image"))) {
-          return false
+          return false;
         }
 
-        const text = dt.getData("text/plain")
+        const text = dt.getData("text/plain");
         if (text) {
-          const pos = view.posAtCoords({ left: event.clientX, top: event.clientY })
+          const pos = view.posAtCoords({
+            left: event.clientX,
+            top: event.clientY,
+          });
           if (pos) {
-            view.dispatch(view.state.tr.insertText(text, pos.pos))
+            view.dispatch(view.state.tr.insertText(text, pos.pos));
           }
         }
-        return true
+        return true;
       },
       handlePaste: (view, event) => {
         if (event?.clipboardData) {
-          const text = event.clipboardData.getData("text/plain")
-          view.dispatch(view.state.tr.insertText(text))
-          return true
+          const text = event.clipboardData.getData("text/plain");
+          view.dispatch(view.state.tr.insertText(text));
+          return true;
         }
-        return false
+        return false;
       },
       handleClick: (view, pos, event) => {
-        const isTouchDevice = "ontouchstart" in window || navigator.maxTouchPoints > 0
+        const isTouchDevice =
+          "ontouchstart" in window || navigator.maxTouchPoints > 0;
         if (isTouchDevice) {
-          return false
+          return false;
         }
 
         // Remove selected image class on all images not clicked
         view.state.doc.descendants((_, position) => {
-          const element = view.nodeDOM(position) as Element
+          const element = view.nodeDOM(position) as Element;
           if (element instanceof HTMLImageElement) {
-            element.classList.remove("selected-image")
+            element.classList.remove("selected-image");
           }
-        })
+        });
 
         // Add selected image class on the clicked image
-        const clickedNode = event.target as Element
+        const clickedNode = event.target as Element;
         if (clickedNode instanceof HTMLImageElement) {
-          clickedNode.classList.toggle("selected-image")
+          clickedNode.classList.toggle("selected-image");
         }
       },
     },
     onUpdate: ({ editor }) => {
-      const text = editor.getText()
-      handleTextChange(text, editor.view.dom.innerHTML)
-      editorForm.setValue("textEditorInput", text)
+      const text = editor.getText();
+      handleTextChange(text, editor.view.dom.innerHTML);
+      editorForm.setValue("textEditorInput", text);
     },
     onCreate: ({ editor }) => {
-      editor.commands.focus("start")
+      editor.commands.focus("start");
     },
-  })
+  });
 
   // Create the schema with access to the editor instance
   const editorFormSchema = () => {
@@ -164,26 +176,26 @@ export function CustomEditorProvider({ children, handleTextChange }: CustomEdito
         .min(0, { message: "Message is a bit on the short side" }) //TODO set to 1 and make pictures count as 1
         .refine(
           () => {
-            const editorElement = editor?.view?.dom as HTMLElement
-            if (!editorElement) return true
-            const lines = getVisualLinesFromHTML(editorElement)
-            return lines.length <= 40
+            const editorElement = editor?.view?.dom as HTMLElement;
+            if (!editorElement) return true;
+            const lines = getVisualLinesFromHTML(editorElement);
+            return lines.length <= 40;
           },
-          { message: "Message cannot exceed 40 lines" }
+          { message: "Message cannot exceed 40 lines" },
         ),
       recipients: z
         .array(
           z.object({
             printerId: z.string(),
             name: z.string(),
-          })
+          }),
         )
         .nullable()
         .refine((val) => val !== null, {
           message: "Please select a recipient",
         }),
-    })
-  }
+    });
+  };
 
   // Initialize form with the dynamic schema
   const editorForm = useForm<EditorFormData>({
@@ -193,24 +205,28 @@ export function CustomEditorProvider({ children, handleTextChange }: CustomEdito
       textEditorInput: "",
       recipients: null,
     },
-  })
+  });
 
   if (!editor) {
-    return null // Or loading state
+    return null; // Or loading state
   }
 
   const contextValue = {
     editor,
     editorForm,
-  }
+  };
 
-  return <EditorContext.Provider value={contextValue}>{children}</EditorContext.Provider>
+  return (
+    <EditorContext.Provider value={contextValue}>
+      {children}
+    </EditorContext.Provider>
+  );
 }
 
 export function useEditorContext() {
-  const context = useContext(EditorContext)
+  const context = useContext(EditorContext);
   if (context === undefined) {
-    throw new Error("useEditorContext must be used within an EditorProvider")
+    throw new Error("useEditorContext must be used within an EditorProvider");
   }
-  return context
+  return context;
 }

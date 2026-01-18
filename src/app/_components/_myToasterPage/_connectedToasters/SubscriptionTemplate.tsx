@@ -1,26 +1,26 @@
-import React, { useState } from "react"
-import { Calendar } from "lucide-react"
-import type { SettingDefinition, Toaster } from "@/app/types/printer"
-import TimeSelector from "./TimeSelector"
-import { useToasterUser } from "@/app/context/userDataContext"
+import React, { useState } from "react";
+import { Calendar } from "lucide-react";
+import type { SettingDefinition, Toaster } from "@/app/types/printer";
+import TimeSelector from "./TimeSelector";
+import { useToasterUser } from "@/app/context/userDataContext";
 import {
   updatePrinterSubscription,
   updateSubSettings,
-} from "@/lib/queries/subscriptions/generalSubscription"
-import RetroToggleButton from "../../_helperComponents/RetroToggleButton"
+} from "@/lib/queries/subscriptions/generalSubscription";
+import RetroToggleButton from "../../_helperComponents/RetroToggleButton";
 
 type SubscriptionTemplateProps = {
-  toaster: Toaster
-  title: string
-  description: string
-  isEnabled: boolean
-  subId: string
-  settings: SettingDefinition[]
-  sendTime?: string | null
-  icon?: React.ReactNode
-  iconBgColor?: string
-  iconColor?: string
-}
+  toaster: Toaster;
+  title: string;
+  description: string;
+  isEnabled: boolean;
+  subId: string;
+  settings: SettingDefinition[];
+  sendTime?: string | null;
+  icon?: React.ReactNode;
+  iconBgColor?: string;
+  iconColor?: string;
+};
 
 const SubscriptionTemplate = ({
   toaster,
@@ -34,67 +34,71 @@ const SubscriptionTemplate = ({
   iconBgColor = "bg-toastPrimary",
   iconColor = "text-gray-700",
 }: SubscriptionTemplateProps) => {
-  const [isEnabled, setIsEnabled] = useState(initialIsEnabled)
-  const [settings, setSettings] = useState(initialSettings)
-  const [sendTime, setSendTime] = useState<string | null>(initialSendTime)
-  const [hasChanges, setHasChanges] = useState(false)
-  const { setPairedToasters } = useToasterUser()
-  console.log(initialSettings)
+  const [isEnabled, setIsEnabled] = useState(initialIsEnabled);
+  const [settings, setSettings] = useState(initialSettings);
+  const [sendTime, setSendTime] = useState<string | null>(initialSendTime);
+  const [hasChanges, setHasChanges] = useState(false);
+  const { setPairedToasters } = useToasterUser();
+  console.log(initialSettings);
   // TODO zod
   const onToggle = async () => {
-    setIsEnabled(!isEnabled)
-    setHasChanges(true)
-    const result = await updatePrinterSubscription(toaster.id, subId, {
+    setIsEnabled(!isEnabled);
+    setHasChanges(true);
+    await updatePrinterSubscription(toaster.id, subId, {
       status: !isEnabled ? "active" : "paused",
-    })
-  }
+    });
+  };
 
   const handleSave = async () => {
-    const updatedSettings: Record<string, string> = {}
+    const updatedSettings: Record<string, string> = {};
 
     // Collect all the current values from initialSettings
     settings.forEach((setting) => {
-      updatedSettings[setting.label] = setting.userValue || setting.default
-    })
-    const update = await updateSubSettings(toaster.id, subId, updatedSettings)
+      updatedSettings[setting.label] = setting.userValue || setting.default;
+    });
+    const update = await updateSubSettings(toaster.id, subId, updatedSettings);
 
     if (initialSendTime != sendTime && sendTime) {
-      const updateSendTime = await updatePrinterSubscription(toaster.id, subId, {
-        sendTime: sendTime,
-      })
+      const updateSendTime = await updatePrinterSubscription(
+        toaster.id,
+        subId,
+        {
+          sendTime: sendTime,
+        },
+      );
       if (!updateSendTime.success) {
-        return
+        return;
       }
     }
     if (!update.success || !update.data) {
-      return
+      return;
     }
 
     setPairedToasters((prev) => {
       return prev.map((findToaster) => {
         if (findToaster.id !== toaster.id) {
-          return findToaster
+          return findToaster;
         }
 
         return {
           ...findToaster,
           subscriptions: findToaster.subscriptions.map((sub) => {
             if (sub.subId !== subId) {
-              return sub
+              return sub;
             }
             // Create a settings map using the labels as keys
             const settingsMap = Object.fromEntries(
-              settings.map((setting) => [setting.label, setting])
-            )
+              settings.map((setting) => [setting.label, setting]),
+            );
 
             // Update the subscription settings
-            const newSettings = { ...sub.settings }
+            const newSettings = { ...sub.settings };
             for (const [key, setting] of Object.entries(settingsMap)) {
               if (newSettings[key]) {
                 newSettings[key] = {
                   ...newSettings[key],
                   userValue: setting.userValue || setting.default,
-                }
+                };
               }
             }
 
@@ -102,32 +106,37 @@ const SubscriptionTemplate = ({
               ...sub,
               sendTime: sendTime,
               settings: newSettings,
-            }
+            };
           }),
-        }
-      })
-    })
-    setHasChanges(false)
-  }
+        };
+      });
+    });
+    setHasChanges(false);
+  };
 
   const handleOnChangeGeneral = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-    settingKey: string
+    settingKey: string,
   ) => {
-    const value = e.target.type === "checkbox" ? e.target.checked.toString() : e.target.value
-    setHasChanges(true)
+    const value =
+      e.target.type === "checkbox"
+        ? e.target.checked.toString()
+        : e.target.value;
+    setHasChanges(true);
 
     setSettings((prev) =>
       prev.map((setting, index) =>
-        index.toString() === settingKey ? { ...setting, userValue: value } : setting
-      )
-    )
-  }
+        index.toString() === settingKey
+          ? { ...setting, userValue: value }
+          : setting,
+      ),
+    );
+  };
 
   const handleOnChangeTime = (time: string) => {
-    setSendTime(time)
-    setHasChanges(true)
-  }
+    setSendTime(time);
+    setHasChanges(true);
+  };
   return (
     <div className="mt-3 bg-toastWhite border border-gray-300 rounded-sm p-3">
       {/* Title row with icon and enable checkbox */}
@@ -157,7 +166,11 @@ const SubscriptionTemplate = ({
           {sendTime && (
             <>
               <span className="min-w-32">Send Time:</span>
-              <TimeSelector onChange={handleOnChangeTime} className="mt-1 " value={sendTime} />
+              <TimeSelector
+                onChange={handleOnChangeTime}
+                className="mt-1 "
+                value={sendTime}
+              />
             </>
           )}
           {Object.entries(settings).map(([key, setting]) => (
@@ -171,27 +184,29 @@ const SubscriptionTemplate = ({
                         <input
                           type="text"
                           value={
-                            setting.userValue !== undefined && setting.userValue !== null
+                            setting.userValue !== undefined &&
+                            setting.userValue !== null
                               ? setting.userValue
                               : setting.default
                           }
                           className="border rounded-sm bg-white px-2 py-1 text-gray-900"
                           onChange={(e) => handleOnChangeGeneral(e, key)}
                         />
-                      )
+                      );
                     case "number":
                       return (
                         <input
                           type="number"
                           value={
-                            setting.userValue !== undefined && setting.userValue !== null
+                            setting.userValue !== undefined &&
+                            setting.userValue !== null
                               ? setting.userValue
                               : setting.default
                           }
                           className="border rounded-sm  bg-white px-2 py-1 text-gray-900"
                           onChange={(e) => handleOnChangeGeneral(e, key)}
                         />
-                      )
+                      );
                     case "boolean":
                       return (
                         <input
@@ -204,7 +219,7 @@ const SubscriptionTemplate = ({
                           className="size-4  bg-white accent-gray-600 cursor-pointer"
                           onChange={(e) => handleOnChangeGeneral(e, key)}
                         />
-                      )
+                      );
                     case "select":
                       return (
                         <select
@@ -218,13 +233,17 @@ const SubscriptionTemplate = ({
                             </option>
                           ))}
                         </select>
-                      )
+                      );
                     case "time":
                       return (
-                        <TimeSelector value={setting.userValue || setting.default || "08:00"} />
-                      )
+                        <TimeSelector
+                          value={
+                            setting.userValue || setting.default || "08:00"
+                          }
+                        />
+                      );
                     default:
-                      return null
+                      return null;
                   }
                 })()}
               </div>
@@ -244,7 +263,7 @@ const SubscriptionTemplate = ({
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default SubscriptionTemplate
+export default SubscriptionTemplate;

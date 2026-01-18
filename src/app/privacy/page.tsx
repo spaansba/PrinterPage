@@ -1,25 +1,31 @@
-import React from "react"
+import React from "react";
 
 const PrivacyPolicy = () => {
-  const currentDate = new Date().toLocaleDateString()
-  const email = "jasenbasopboevenpad@gamil.com" // Replace with your email
+  const currentDate = new Date().toLocaleDateString();
+  const email = "jasenbasopboevenpad@gamil.com"; // Replace with your email
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="prose prose-slate">
         <h1 className="text-3xl font-bold mb-8">Privacy Policy</h1>
-        <p className="text-sm text-gray-600 mb-8">Last updated: {currentDate}</p>
+        <p className="text-sm text-gray-600 mb-8">
+          Last updated: {currentDate}
+        </p>
 
         <section className="mb-8">
           <h2 className="text-2xl font-semibold mb-4">What We Collect</h2>
           <h3 className="text-xl font-semibold mb-2">Basic Data</h3>
           <ul className="list-disc pl-5 space-y-2 mb-4">
-            <li>Authentication details through Google/Clerk when you sign in</li>
+            <li>
+              Authentication details through Google/Clerk when you sign in
+            </li>
             <li>Basic usage data (how you interact with our site)</li>
             <li>Device info (browser type, IP address)</li>
           </ul>
 
-          <h3 className="text-xl font-semibold mb-2">Optional Calendar Integration</h3>
+          <h3 className="text-xl font-semibold mb-2">
+            Optional Calendar Integration
+          </h3>
           <ul className="list-disc pl-5 space-y-2">
             <li>If you choose to enable Google Calendar integration:</li>
             <ul className="list-circle pl-5 space-y-2 mt-2">
@@ -44,8 +50,8 @@ const PrivacyPolicy = () => {
             <li>To sync events with your Google Calendar</li>
           </ul>
           <p className="mt-4 text-sm italic">
-            Note: Calendar integration is entirely optional. You can use our core services without
-            enabling calendar access.
+            Note: Calendar integration is entirely optional. You can use our
+            core services without enabling calendar access.
           </p>
         </section>
 
@@ -91,17 +97,20 @@ const PrivacyPolicy = () => {
             </li>
           </ul>
           <p className="mt-4">
-            These services may collect additional data as described in their policies.
+            These services may collect additional data as described in their
+            policies.
           </p>
           <p className="mt-2 text-sm italic">
-            You can revoke calendar access at any time through your Google Account settings or our
-            app settings.
+            You can revoke calendar access at any time through your Google
+            Account settings or our app settings.
           </p>
         </section>
 
         <section className="mb-8">
           <h2 className="text-2xl font-semibold mb-4">Security</h2>
-          <p>We use industry-standard security measures to protect your data.</p>
+          <p>
+            We use industry-standard security measures to protect your data.
+          </p>
         </section>
 
         <section className="mb-8">
@@ -127,7 +136,7 @@ const PrivacyPolicy = () => {
         </section>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default PrivacyPolicy
+export default PrivacyPolicy;

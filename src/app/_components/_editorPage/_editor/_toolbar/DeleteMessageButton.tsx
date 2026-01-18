@@ -1,17 +1,17 @@
-import DeleteModal from "@/app/_components/_helperComponents/DeleteModal"
-import { useEditorContext } from "@/app/context/editorContext"
-import { AlertTriangle, Delete, Trash2, X } from "lucide-react"
-import React, { useState } from "react"
+import DeleteModal from "@/app/_components/_helperComponents/DeleteModal";
+import { useEditorContext } from "@/app/context/editorContext";
+import { Trash2 } from "lucide-react";
+import React, { useState } from "react";
 
 function DeleteMessageButton() {
-  const { editor } = useEditorContext()
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const { editor } = useEditorContext();
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   function clearEditor() {
-    editor!.chain().focus().clearContent().run()
-    setShowDeleteModal(false)
+    editor!.chain().focus().clearContent().run();
+    setShowDeleteModal(false);
   }
   if (!editor) {
-    return null
+    return null;
   }
 
   return (
@@ -20,7 +20,7 @@ function DeleteMessageButton() {
         <button
           onMouseDown={() => {
             if (editor.state.selection.from > 1) {
-              setShowDeleteModal(true)
+              setShowDeleteModal(true);
             }
           }}
           className="size-7 flex items-center justify-center bg-toastPrimary border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080]"
@@ -36,7 +36,7 @@ function DeleteMessageButton() {
         titleText="Are you sure you want to delete the message?"
       />
     </>
-  )
+  );
 }
 
-export default DeleteMessageButton
+export default DeleteMessageButton;

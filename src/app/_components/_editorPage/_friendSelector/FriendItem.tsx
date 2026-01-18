@@ -1,16 +1,19 @@
-import React from "react"
-import Image from "next/image"
-import { Circle, CircleCheckBig, CircleMinus } from "lucide-react"
-import FriendProfilePicture from "../../_profilePicture/FriendProfilePicture"
-import type { Friend } from "@/app/types/printer"
+import React from "react";
+import { Circle, CircleCheckBig, CircleMinus } from "lucide-react";
+import FriendProfilePicture from "../../_profilePicture/FriendProfilePicture";
+import type { Friend } from "@/app/types/printer";
 
 type FriendItemProps = {
-  friend: Friend
-  isSelected: Boolean
-  handleFriendSelect: (selectedFriend: Friend) => void
-}
+  friend: Friend;
+  isSelected: Boolean;
+  handleFriendSelect: (selectedFriend: Friend) => void;
+};
 
-function FriendItem({ friend, isSelected, handleFriendSelect }: FriendItemProps) {
+function FriendItem({
+  friend,
+  isSelected,
+  handleFriendSelect,
+}: FriendItemProps) {
   return (
     <div
       className={`group/friend md:hover:bg-toastPrimaryHover ${
@@ -55,7 +58,7 @@ function FriendItem({ friend, isSelected, handleFriendSelect }: FriendItemProps)
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default FriendItem
+export default FriendItem;

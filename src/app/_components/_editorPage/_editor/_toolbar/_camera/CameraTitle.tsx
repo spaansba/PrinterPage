@@ -1,9 +1,9 @@
-import { CameraIcon, X } from "lucide-react"
-import React from "react"
+import { CameraIcon, X } from "lucide-react";
+import React from "react";
 
 type CameraTitleProps = {
-  onClose: () => void
-}
+  onClose: () => void;
+};
 
 function CameraTitle({ onClose }: CameraTitleProps) {
   return (
@@ -20,7 +20,7 @@ function CameraTitle({ onClose }: CameraTitleProps) {
         <X size={14} />
       </button>
     </div>
-  )
+  );
 }
 
-export default CameraTitle
+export default CameraTitle;

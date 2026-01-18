@@ -1,12 +1,15 @@
-import { CameraIcon } from "lucide-react"
-import React from "react"
+import { CameraIcon } from "lucide-react";
+import React from "react";
 
 type CaptureButtonProps = {
-  handleCaptureWebcam: () => void
-  isStreaming: boolean
-}
+  handleCaptureWebcam: () => void;
+  isStreaming: boolean;
+};
 
-function CaptureButton({ handleCaptureWebcam, isStreaming }: CaptureButtonProps) {
+function CaptureButton({
+  handleCaptureWebcam,
+  isStreaming,
+}: CaptureButtonProps) {
   return (
     <div className="flex gap-1">
       <button
@@ -18,7 +21,7 @@ function CaptureButton({ handleCaptureWebcam, isStreaming }: CaptureButtonProps)
         <CameraIcon size={30} />
       </button>
     </div>
-  )
+  );
 }
 
-export default CaptureButton
+export default CaptureButton;

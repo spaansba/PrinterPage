@@ -1,55 +1,58 @@
-"use server"
-import type { SettingDefinition, Toaster } from "@/app/types/printer"
-import { db } from ".."
-import { printers, printerUserPairing, users } from "../schema"
-import { and, eq, inArray, type SQL } from "drizzle-orm"
+"use server";
+import type { SettingDefinition, Toaster } from "@/app/types/printer";
+import { db } from "..";
+import { printers, printerUserPairing, users } from "../schema";
+import { and, eq, inArray, type SQL } from "drizzle-orm";
 import {
   printerBroadcasters,
   printerBroadcastSubscriptions,
   type SubscriptionStatus,
-} from "../schema/subscriptions"
+} from "../schema/subscriptions";
 
 type UpdateToasterData = {
-  name?: string
-  profilePicture?: string
-}
+  name?: string;
+  profilePicture?: string;
+};
 
-export const updateToasterInformation = async (toasterId: string, data: UpdateToasterData) => {
+export const updateToasterInformation = async (
+  toasterId: string,
+  data: UpdateToasterData,
+) => {
   try {
     // Only include fields that are provided in the update
     const updateData = {
       ...data,
       updatedAt: new Date().toISOString(),
-    }
+    };
 
     const updatedToaster = await db
       .update(printers)
       .set(updateData)
       .where(eq(printers.id, toasterId))
-      .returning()
+      .returning();
 
     if (!updatedToaster.length) {
       return {
         success: false,
         message: "Toaster not found",
         data: null,
-      }
+      };
     }
 
     return {
       success: true,
       message: "Toaster updated successfully",
       data: updatedToaster[0],
-    }
+    };
   } catch (error) {
-    console.error("Error updating toaster:", error)
+    console.error("Error updating toaster:", error);
     return {
       success: false,
       message: "Failed to update toaster",
       data: null,
-    }
+    };
   }
-}
+};
 
 const fetchToasters = async (where: SQL<unknown>): Promise<Toaster[]> => {
   // First, get the printer IDs that match our where clause
@@ -59,10 +62,10 @@ const fetchToasters = async (where: SQL<unknown>): Promise<Toaster[]> => {
     })
     .from(printers)
     .leftJoin(printerUserPairing, eq(printers.id, printerUserPairing.printerId))
-    .where(where)
+    .where(where);
 
   if (printerIds.length === 0) {
-    return []
+    return [];
   }
 
   // Then use these IDs to get the full toaster data
@@ -90,23 +93,23 @@ const fetchToasters = async (where: SQL<unknown>): Promise<Toaster[]> => {
     .from(printers)
     .leftJoin(
       printerBroadcastSubscriptions,
-      eq(printers.id, printerBroadcastSubscriptions.printerId)
+      eq(printers.id, printerBroadcastSubscriptions.printerId),
     )
     .leftJoin(
       printerBroadcasters,
-      eq(printerBroadcastSubscriptions.broadcastId, printerBroadcasters.id)
+      eq(printerBroadcastSubscriptions.broadcastId, printerBroadcasters.id),
     )
     .leftJoin(printerUserPairing, eq(printers.id, printerUserPairing.printerId))
     .leftJoin(users, eq(printerUserPairing.userId, users.id))
     .where(
       inArray(
         printers.id,
-        printerIds.map((p) => p.id)
-      )
-    )
+        printerIds.map((p) => p.id),
+      ),
+    );
 
   // Rest of the function remains the same with the grouping logic
-  const toasterMap = new Map<string, Toaster>()
+  const toasterMap = new Map<string, Toaster>();
 
   results.forEach((row) => {
     if (!toasterMap.has(row.id)) {
@@ -118,27 +121,33 @@ const fetchToasters = async (where: SQL<unknown>): Promise<Toaster[]> => {
         toastsReceived: row.toastsReceived,
         subscriptions: [],
         pairedAccounts: [],
-      }
+      };
 
       if (row.pairedUser) {
-        toaster.pairedAccounts.push(row.pairedUser)
+        toaster.pairedAccounts.push(row.pairedUser);
       }
 
       // If this row has a subscription, add it
       if (row.subscriptions.id) {
-        const settingDefinitions = row.subscriptions.settings as Record<string, SettingDefinition>
-        const userValues = row.subscriptions.settingsValues as Record<string, string>
+        const settingDefinitions = row.subscriptions.settings as Record<
+          string,
+          SettingDefinition
+        >;
+        const userValues = row.subscriptions.settingsValues as Record<
+          string,
+          string
+        >;
 
-        const mergedSettings: Record<string, SettingDefinition> = {}
+        const mergedSettings: Record<string, SettingDefinition> = {};
 
         // Merge setting definitions with user values
         Object.entries(settingDefinitions).forEach(([key, definition]) => {
-          const userValue = userValues[key] || null
+          const userValue = userValues[key] || null;
           mergedSettings[key] = {
             ...definition,
             userValue,
-          }
-        })
+          };
+        });
 
         toaster.subscriptions = [
           {
@@ -149,16 +158,19 @@ const fetchToasters = async (where: SQL<unknown>): Promise<Toaster[]> => {
             description: row.subscriptions.description!,
             title: row.subscriptions.title!,
           },
-        ]
+        ];
       }
 
-      toasterMap.set(row.id, toaster)
+      toasterMap.set(row.id, toaster);
     } else {
-      const toaster = toasterMap.get(row.id)!
+      const toaster = toasterMap.get(row.id)!;
 
       // Add paired user if it exists and isn't already added
-      if (row.pairedUser && !toaster.pairedAccounts?.some((u) => u.id === row.pairedUser?.id)) {
-        toaster.pairedAccounts!.push(row.pairedUser)
+      if (
+        row.pairedUser &&
+        !toaster.pairedAccounts?.some((u) => u.id === row.pairedUser?.id)
+      ) {
+        toaster.pairedAccounts!.push(row.pairedUser);
       }
 
       // Add subscription if it exists and isn't already added
@@ -166,19 +178,25 @@ const fetchToasters = async (where: SQL<unknown>): Promise<Toaster[]> => {
         row.subscriptions.id &&
         !toaster.subscriptions.some((s) => s.subId === row.subscriptions.id)
       ) {
-        const settingDefinitions = row.subscriptions.settings as Record<string, SettingDefinition>
-        const userValues = row.subscriptions.settingsValues as Record<string, { value: string }>
+        const settingDefinitions = row.subscriptions.settings as Record<
+          string,
+          SettingDefinition
+        >;
+        const userValues = row.subscriptions.settingsValues as Record<
+          string,
+          { value: string }
+        >;
 
-        const mergedSettings: Record<string, SettingDefinition> = {}
+        const mergedSettings: Record<string, SettingDefinition> = {};
 
         // Merge setting definitions with user values
         Object.entries(settingDefinitions).forEach(([key, definition]) => {
-          const userValue = userValues[key]?.value || null
+          const userValue = userValues[key]?.value || null;
           mergedSettings[key] = {
             ...definition,
             userValue,
-          }
-        })
+          };
+        });
 
         toaster.subscriptions.push({
           subId: row.subscriptions.id,
@@ -187,110 +205,124 @@ const fetchToasters = async (where: SQL<unknown>): Promise<Toaster[]> => {
           status: row.subscriptions.status as SubscriptionStatus,
           description: row.subscriptions.description!,
           title: row.subscriptions.title!,
-        })
+        });
       }
     }
-  })
+  });
 
-  return Array.from(toasterMap.values())
-}
+  return Array.from(toasterMap.values());
+};
 
 export const getToaster = async (
-  printerId: string
+  printerId: string,
 ): Promise<{
-  success: boolean
-  message: string
-  data: Toaster | null
+  success: boolean;
+  message: string;
+  data: Toaster | null;
 }> => {
   try {
-    const toasters: Toaster[] = await fetchToasters(eq(printers.id, printerId))
+    const toasters: Toaster[] = await fetchToasters(eq(printers.id, printerId));
 
     if (toasters.length === 0) {
       return {
         success: false,
         message: "Toaster not found",
         data: null,
-      }
+      };
     }
 
     return {
       success: true,
       message: "Toaster found successfully",
       data: toasters[0],
-    }
+    };
   } catch (error) {
-    console.error("Error fetching toaster:", error)
+    console.error("Error fetching toaster:", error);
     return {
       success: false,
       message: "Error fetching toaster",
       data: null,
-    }
+    };
   }
-}
+};
 
 export const getPairedToasters = async (
-  userId: string
+  userId: string,
 ): Promise<{
-  success: boolean
-  message: string
-  data: Toaster[]
+  success: boolean;
+  message: string;
+  data: Toaster[];
 }> => {
   try {
-    const toasters = await fetchToasters(eq(printerUserPairing.userId, userId))
+    const toasters = await fetchToasters(eq(printerUserPairing.userId, userId));
 
     if (toasters.length === 0) {
       return {
         success: false,
         message: "No paired toasters found",
         data: [],
-      }
+      };
     }
 
     return {
       success: true,
       message: "Paired toasters found successfully",
       data: toasters,
-    }
+    };
   } catch (error) {
-    console.error("Error fetching paired toasters:", error)
+    console.error("Error fetching paired toasters:", error);
     return {
       success: false,
       message: "Error fetching paired toasters",
       data: [],
-    }
+    };
   }
-}
-export const checkIfAlreadyPaired = async (printerId: string, userId: string) => {
+};
+export const checkIfAlreadyPaired = async (
+  printerId: string,
+  userId: string,
+) => {
   return await db
     .select()
     .from(printerUserPairing)
-    .where(and(eq(printerUserPairing.printerId, printerId), eq(printerUserPairing.userId, userId)))
-    .limit(1)
-}
+    .where(
+      and(
+        eq(printerUserPairing.printerId, printerId),
+        eq(printerUserPairing.userId, userId),
+      ),
+    )
+    .limit(1);
+};
 
-export const deleteToasterPairing = async (printerId: string, userId: string) => {
+export const deleteToasterPairing = async (
+  printerId: string,
+  userId: string,
+) => {
   try {
     const result = await db
       .delete(printerUserPairing)
       .where(
-        and(eq(printerUserPairing.printerId, printerId), eq(printerUserPairing.userId, userId))
+        and(
+          eq(printerUserPairing.printerId, printerId),
+          eq(printerUserPairing.userId, userId),
+        ),
       )
-      .returning()
+      .returning();
 
     if (result.length === 0) {
       return {
         success: false,
         message: "Paired printer not found",
-      }
+      };
     }
     return {
       success: true,
       message: "",
-    }
-  } catch (error) {
+    };
+  } catch {
     return {
       success: false,
       message: "Error in deleting printer pairing",
-    }
+    };
   }
-}
+};

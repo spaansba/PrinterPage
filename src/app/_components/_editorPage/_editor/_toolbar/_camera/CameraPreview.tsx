@@ -1,13 +1,13 @@
-import React from "react"
-import Webcam from "react-webcam"
-import type { videoConstraints } from "./CameraModal"
+import React from "react";
+import Webcam from "react-webcam";
+import type { videoConstraints } from "./CameraModal";
 
 type CameraPreviewProps = {
-  videoConstraints: videoConstraints
-  isStreaming: boolean
-  setIsStreaming: React.Dispatch<React.SetStateAction<boolean>>
-  webcamRef: React.RefObject<Webcam | null>
-}
+  videoConstraints: videoConstraints;
+  isStreaming: boolean;
+  setIsStreaming: React.Dispatch<React.SetStateAction<boolean>>;
+  webcamRef: React.RefObject<Webcam | null>;
+};
 
 function CameraPreview({
   videoConstraints,
@@ -39,7 +39,7 @@ function CameraPreview({
         />
       </div>
     </div>
-  )
+  );
 }
 
-export default CameraPreview
+export default CameraPreview;

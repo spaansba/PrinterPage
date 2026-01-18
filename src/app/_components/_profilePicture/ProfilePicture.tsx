@@ -1,18 +1,18 @@
-import React, { useState, useRef, useEffect } from "react"
-import Image from "next/image"
-import { Camera } from "lucide-react"
-import "react-image-crop/dist/ReactCrop.css"
-import CropModal from "./CropModal"
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
+import { Camera } from "lucide-react";
+import "react-image-crop/dist/ReactCrop.css";
+import CropModal from "./CropModal";
 
 type ProfilePictureProps = {
   handleNewProfilePicture: (blob: Blob) => Promise<{
-    success: boolean
-    message: string
-  }>
-  pictureURL: string
-  altName: string
-  fileInputRef: React.RefObject<HTMLInputElement | null>
-}
+    success: boolean;
+    message: string;
+  }>;
+  pictureURL: string;
+  altName: string;
+  fileInputRef: React.RefObject<HTMLInputElement | null>;
+};
 
 function ProfilePicture({
   handleNewProfilePicture,
@@ -20,27 +20,29 @@ function ProfilePicture({
   altName,
   fileInputRef,
 }: ProfilePictureProps) {
-  const [showCropDialog, setShowCropDialog] = useState(false)
-  const [imgSrc, setImgSrc] = useState("")
+  const [showCropDialog, setShowCropDialog] = useState(false);
+  const [imgSrc, setImgSrc] = useState("");
 
   // When you open a file, close it and open the exact same file the fileInput onChange doesnt fire. This makes sure it does
   useEffect(() => {
     if (!showCropDialog && fileInputRef.current) {
-      fileInputRef.current.value = ""
+      fileInputRef.current.value = "";
     }
-  }, [showCropDialog, fileInputRef])
+  }, [showCropDialog, fileInputRef]);
 
-  const handleProfilePictureChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) return
+  const handleProfilePictureChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-    const reader = new FileReader()
+    const reader = new FileReader();
     reader.addEventListener("load", () => {
-      setImgSrc(reader.result?.toString() || "")
-    })
-    reader.readAsDataURL(file)
-    setShowCropDialog(true)
-  }
+      setImgSrc(reader.result?.toString() || "");
+    });
+    reader.readAsDataURL(file);
+    setShowCropDialog(true);
+  };
 
   return (
     <>
@@ -77,7 +79,7 @@ function ProfilePicture({
         />
       )}
     </>
-  )
+  );
 }
 
-export default ProfilePicture
+export default ProfilePicture;

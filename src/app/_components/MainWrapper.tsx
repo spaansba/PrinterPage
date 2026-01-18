@@ -1,53 +1,53 @@
-"use client"
-import React, { useState } from "react"
-import { CustomEditorProvider } from "../context/editorContext"
-import { useAuth } from "@clerk/nextjs"
-import AppWindow from "./AppWindow"
-import NotSignedInPage from "./NotSignedInPage"
-import { testWeatherPrint } from "../_actions/testWeather"
+"use client";
+import React, { useState } from "react";
+import { CustomEditorProvider } from "../context/editorContext";
+import { useAuth } from "@clerk/nextjs";
+import AppWindow from "./AppWindow";
+import NotSignedInPage from "./NotSignedInPage";
+import { testWeatherPrint } from "../_actions/testWeather";
 
 export type SendStatus = {
-  friend: string
-  success: boolean
-  errorMessage: string
-}
+  friend: string;
+  success: boolean;
+  errorMessage: string;
+};
 
 export type messageStatus = {
-  editorStatus: string
-  sendStatus: SendStatus[] | []
-}
+  editorStatus: string;
+  sendStatus: SendStatus[] | [];
+};
 
 function MainWrapper() {
-  const { isLoaded, isSignedIn } = useAuth()
+  const { isLoaded, isSignedIn } = useAuth();
   const [messageStatus, setMessageStatus] = useState<messageStatus>({
     editorStatus: "",
     sendStatus: [],
-  })
-  const [hTMLContent, setHTMLContent] = useState("")
+  });
+  const [hTMLContent, setHTMLContent] = useState("");
 
   const handleTextChange = (inputText: string, inputHTML: string) => {
     if (inputText.length > 0 && inputHTML != hTMLContent) {
-      setMessageStatus({ sendStatus: [], editorStatus: "Editing" })
+      setMessageStatus({ sendStatus: [], editorStatus: "Editing" });
     }
     if (inputText.length == 0) {
-      setMessageStatus((prev) => ({ ...prev, editorStatus: "" }))
+      setMessageStatus((prev) => ({ ...prev, editorStatus: "" }));
     }
-    setHTMLContent(inputHTML)
-  }
+    setHTMLContent(inputHTML);
+  };
 
   const handleWeatherTest = async () => {
-    const result = await testWeatherPrint("amsterdam")
+    const result = await testWeatherPrint("amsterdam");
     if (result.success && result.dataUrl) {
       navigator.clipboard
         .writeText(result.dataUrl)
         .then(() => console.log("Data URL copied to clipboard"))
-        .catch((err) => console.error("Failed to copy:", err))
+        .catch((err) => console.error("Failed to copy:", err));
     } else {
-      console.error("Weather test failed:", result.error)
+      console.error("Weather test failed:", result.error);
     }
-  }
+  };
 
-  if (!isLoaded) return null
+  if (!isLoaded) return null;
 
   if (isSignedIn) {
     return (
@@ -66,10 +66,10 @@ function MainWrapper() {
           Test Weather Print
         </button>
       </div>
-    )
+    );
   }
 
-  return <NotSignedInPage />
+  return <NotSignedInPage />;
 }
 
-export default MainWrapper
+export default MainWrapper;

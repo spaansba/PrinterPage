@@ -1,7 +1,7 @@
-import React from "react"
+import React from "react";
 
 interface PageBorderDivProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 function PageBorderDiv({ children }: PageBorderDivProps) {
@@ -9,7 +9,7 @@ function PageBorderDiv({ children }: PageBorderDivProps) {
     <div className="border-t border-[1px] bg-toastWhite border-gray-500 flex flex-col relative">
       {children}
     </div>
-  )
+  );
 }
 
-export default PageBorderDiv
+export default PageBorderDiv;

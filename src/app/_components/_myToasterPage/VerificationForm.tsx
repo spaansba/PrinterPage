@@ -1,40 +1,40 @@
-"use client"
-import { KeyRound, X } from "lucide-react"
-import React, { type Dispatch, type SetStateAction } from "react"
-import { type UseFormSetError } from "react-hook-form"
-import { z } from "zod"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useUser } from "@clerk/nextjs"
-import { useForm } from "react-hook-form"
-import { VERIFICATION_CODE_LENGTH } from "@/lib/constants"
+"use client";
+import { KeyRound, X } from "lucide-react";
+import React, { type Dispatch, type SetStateAction } from "react";
+import { type UseFormSetError } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useUser } from "@clerk/nextjs";
+import { useForm } from "react-hook-form";
+import { VERIFICATION_CODE_LENGTH } from "@/lib/constants";
 
 const verificationSchema = z.object({
   code: z
     .string()
     .length(
       VERIFICATION_CODE_LENGTH,
-      `Verification code is ${VERIFICATION_CODE_LENGTH} characters long`
+      `Verification code is ${VERIFICATION_CODE_LENGTH} characters long`,
     ),
-})
+});
 
 type VerificationModalProps = {
-  showVerificationModal: boolean
-  setShowVerificationModal: Dispatch<SetStateAction<boolean>>
+  showVerificationModal: boolean;
+  setShowVerificationModal: Dispatch<SetStateAction<boolean>>;
   handleVerificationSubmit: (
     code: string,
     userId: string,
     setError: UseFormSetError<{
-      code: string
-    }>
-  ) => Promise<void>
-}
+      code: string;
+    }>,
+  ) => Promise<void>;
+};
 
 function VerificationModal({
   showVerificationModal,
   setShowVerificationModal,
   handleVerificationSubmit,
 }: VerificationModalProps) {
-  const { user } = useUser()
+  const { user } = useUser();
   const {
     register,
     handleSubmit,
@@ -43,20 +43,20 @@ function VerificationModal({
   } = useForm<z.infer<typeof verificationSchema>>({
     resolver: zodResolver(verificationSchema),
     mode: "onSubmit",
-  })
+  });
 
   const onSubmit = async (data: z.infer<typeof verificationSchema>) => {
     if (!user) {
-      return
+      return;
     }
     try {
-      await handleVerificationSubmit(data.code, user.id, setError)
-    } catch (error) {
+      await handleVerificationSubmit(data.code, user.id, setError);
+    } catch {
       setError("root", {
         message: "Failed to verify code. Please try again.",
-      })
+      });
     }
-  }
+  };
 
   return (
     <>
@@ -85,7 +85,7 @@ function VerificationModal({
                   <input
                     {...register("code", {
                       onChange: (e) => {
-                        e.target.value = e.target.value.toUpperCase()
+                        e.target.value = e.target.value.toUpperCase();
                       },
                     })}
                     className="w-full px-2 py-1 bg-white border-2 border-t-[#808080] border-l-[#808080] border-b-white border-r-white font-mono text-sm"
@@ -119,7 +119,7 @@ function VerificationModal({
         </div>
       )}
     </>
-  )
+  );
 }
 
-export default VerificationModal
+export default VerificationModal;

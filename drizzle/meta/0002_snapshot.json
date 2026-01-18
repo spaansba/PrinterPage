@@ -92,9 +92,7 @@
         "printer_users_user_id_unique": {
           "name": "printer_users_user_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "user_id"
-          ]
+          "columns": ["user_id"]
         }
       },
       "policies": {},
@@ -172,12 +170,8 @@
           "name": "printer_users_printer_association_printer_id_printer_printers_id_fk",
           "tableFrom": "printer_users_printer_association",
           "tableTo": "printer_printers",
-          "columnsFrom": [
-            "printer_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["printer_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }

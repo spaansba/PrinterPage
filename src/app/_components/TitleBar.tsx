@@ -1,34 +1,35 @@
-import React, { useEffect, type Dispatch, type SetStateAction } from "react"
-import { useEditorContext } from "../context/editorContext"
-const pages = ["Toast", "Friends", "Toaster", "Account"] as const
-export type Pages = (typeof pages)[number]
+import React, { useEffect, type Dispatch, type SetStateAction } from "react";
+import { useEditorContext } from "../context/editorContext";
+const pages = ["Toast", "Friends", "Toaster", "Account"] as const;
+export type Pages = (typeof pages)[number];
 
 type TitleBarProps = {
-  pageActivated: Pages
-  setPageActivated: Dispatch<SetStateAction<Pages>>
-}
+  pageActivated: Pages;
+  setPageActivated: Dispatch<SetStateAction<Pages>>;
+};
 
 function TitleBar({ pageActivated, setPageActivated }: TitleBarProps) {
-  const { editor } = useEditorContext()
+  const { editor } = useEditorContext();
   const Title = () => {
     switch (pageActivated) {
       case "Toast":
-        return "Toasting"
+        return "Toasting";
       case "Friends":
-        return "Toasters"
+        return "Toasters";
       case "Toaster":
-        return "Configure your toaster"
+        return "Configure your toaster";
       case "Account":
-        return "User Profile"
+        return "User Profile";
       default:
     }
-  }
+  };
 
   useEffect(() => {
     if (pageActivated === "Toast") {
-      editor?.commands.focus()
+      editor?.commands.focus();
     }
-  }, [pageActivated])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pageActivated]);
   return (
     <>
       <div className="h-6 bg-toastTertiary flex items-center justify-between px-2">
@@ -48,7 +49,7 @@ function TitleBar({ pageActivated, setPageActivated }: TitleBarProps) {
         ))}
       </div>
     </>
-  )
+  );
 }
 
-export default TitleBar
+export default TitleBar;

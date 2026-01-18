@@ -1,7 +1,7 @@
-import React, { useState } from "react"
+import React, { useState } from "react";
 
 function ToastSettings() {
-  const [activeTab, setActiveTab] = useState("profile")
+  const [activeTab, setActiveTab] = useState("profile");
   const renderContent = () => {
     switch (activeTab) {
       case "profile":
@@ -16,7 +16,7 @@ function ToastSettings() {
               <span className="text-blue-900">Show activity status</span>
             </label>
           </div>
-        )
+        );
       case "notifications":
         return (
           <div className="space-y-2">
@@ -25,7 +25,7 @@ function ToastSettings() {
               <span className="text-blue-900">Enable notifications</span>
             </label>
           </div>
-        )
+        );
       case "privacy":
         return (
           <div className="space-y-2">
@@ -34,11 +34,11 @@ function ToastSettings() {
               <span className="text-blue-900">Private account</span>
             </label>
           </div>
-        )
+        );
       default:
-        return null
+        return null;
     }
-  }
+  };
   return (
     <>
       {/* Tabs */}
@@ -76,9 +76,11 @@ function ToastSettings() {
       </div>
 
       {/* Content */}
-      <div className="bg-[#dfdfdf] p-3 border border-gray-400 mb-3">{renderContent()}</div>
+      <div className="bg-[#dfdfdf] p-3 border border-gray-400 mb-3">
+        {renderContent()}
+      </div>
     </>
-  )
+  );
 }
 
-export default ToastSettings
+export default ToastSettings;

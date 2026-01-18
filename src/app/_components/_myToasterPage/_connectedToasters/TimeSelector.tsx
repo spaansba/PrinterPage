@@ -1,49 +1,59 @@
-import React, { useState } from "react"
+import React, { useState } from "react";
 
 type TimeSelectorProps = {
-  value: string // in format "HH:mm"
-  onChange?: (time: string) => void
-  className?: string
-}
+  value: string; // in format "HH:mm"
+  onChange?: (time: string) => void;
+  className?: string;
+};
 
 const utcToLocal = (utcTime: string): string => {
-  const [hours, minutes] = utcTime.split(":")
-  const date = new Date()
-  date.setUTCHours(parseInt(hours), parseInt(minutes))
-  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false })
-}
+  const [hours, minutes] = utcTime.split(":");
+  const date = new Date();
+  date.setUTCHours(parseInt(hours), parseInt(minutes));
+  return date.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+};
 
 const localToUtc = (localTime: string): string => {
-  const [hours, minutes] = localTime.split(":")
-  const date = new Date()
-  date.setHours(parseInt(hours), parseInt(minutes))
+  const [hours, minutes] = localTime.split(":");
+  const date = new Date();
+  date.setHours(parseInt(hours), parseInt(minutes));
   return `${date.getUTCHours().toString().padStart(2, "0")}:${date
     .getUTCMinutes()
     .toString()
-    .padStart(2, "0")}`
-}
+    .padStart(2, "0")}`;
+};
 
-const TimeSelector = ({ value, onChange, className = "" }: TimeSelectorProps) => {
+const TimeSelector = ({
+  value,
+  onChange,
+  className = "",
+}: TimeSelectorProps) => {
   // Parse initial value or use defaults
-  const localTime = value ? utcToLocal(value) : "00:00"
-  const [hour, setHour] = useState(localTime ? localTime.split(":")[0] : "00")
-  const [minute, setMinute] = useState(localTime ? localTime.split(":")[1] : "00")
+  const localTime = value ? utcToLocal(value) : "00:00";
+  const [hour, setHour] = useState(localTime ? localTime.split(":")[0] : "00");
+  const [minute, setMinute] = useState(
+    localTime ? localTime.split(":")[1] : "00",
+  );
 
   const handleHourChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newHour = e.target.value
-    setHour(newHour)
-    const newLocalTime = `${newHour}:${minute}`
-    const newUtcTime = localToUtc(newLocalTime)
-    onChange?.(newUtcTime)
-  }
+    const newHour = e.target.value;
+    setHour(newHour);
+    const newLocalTime = `${newHour}:${minute}`;
+    const newUtcTime = localToUtc(newLocalTime);
+    onChange?.(newUtcTime);
+  };
 
   const handleMinuteChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newMinute = e.target.value
-    setMinute(newMinute)
-    const newLocalTime = `${hour}:${newMinute}`
-    const newUtcTime = localToUtc(newLocalTime)
-    onChange?.(newUtcTime)
-  }
+    const newMinute = e.target.value;
+    setMinute(newMinute);
+    const newLocalTime = `${hour}:${newMinute}`;
+    const newUtcTime = localToUtc(newLocalTime);
+    onChange?.(newUtcTime);
+  };
 
   return (
     <div className={`flex items-center gap-1 ${className}`}>
@@ -71,7 +81,7 @@ const TimeSelector = ({ value, onChange, className = "" }: TimeSelectorProps) =>
         ))}
       </select>
     </div>
-  )
-}
+  );
+};
 
-export default TimeSelector
+export default TimeSelector;

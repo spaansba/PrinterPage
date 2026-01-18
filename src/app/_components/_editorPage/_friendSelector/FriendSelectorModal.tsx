@@ -1,16 +1,19 @@
-import React from "react"
-import FriendItem from "./FriendItem"
-import type { FriendListHook } from "../../AppWindow"
-import AddNewFriend from "./AddNewFriend"
-import type { Friend } from "@/app/types/printer"
+import React from "react";
+import FriendItem from "./FriendItem";
+import type { FriendListHook } from "../../AppWindow";
+import AddNewFriend from "./AddNewFriend";
+import type { Friend } from "@/app/types/printer";
 
 type FriendSelectorModalProps = {
-  handleFriendSelect: (selectedFriend: Friend) => void
-  friendsHook: FriendListHook
-}
+  handleFriendSelect: (selectedFriend: Friend) => void;
+  friendsHook: FriendListHook;
+};
 
-function FriendSelectorModal({ handleFriendSelect, friendsHook }: FriendSelectorModalProps) {
-  const { friendList, selectedFriends } = friendsHook
+function FriendSelectorModal({
+  handleFriendSelect,
+  friendsHook,
+}: FriendSelectorModalProps) {
+  const { friendList, selectedFriends } = friendsHook;
 
   return (
     <div className="max-h-[30rem] overflow-y-auto">
@@ -25,7 +28,7 @@ function FriendSelectorModal({ handleFriendSelect, friendsHook }: FriendSelector
 
       <AddNewFriend friendsHook={friendsHook} />
     </div>
-  )
+  );
 }
 
-export default FriendSelectorModal
+export default FriendSelectorModal;

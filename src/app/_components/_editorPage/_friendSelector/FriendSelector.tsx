@@ -1,39 +1,41 @@
-"use client"
-import React, { useState } from "react"
+"use client";
+import React, { useState } from "react";
 
-import { useDropDownModal } from "../../../_customHooks/useDropdownModal"
-import type { FriendListHook } from "../../AppWindow"
-import SelectedToastersView from "./SelectedToastersView"
-import FriendSelectorModal from "./FriendSelectorModal"
-import type { Friend } from "@/app/types/printer"
-import PageBorderDiv from "../../_helperComponents/PageBorderDiv"
+import { useDropDownModal } from "../../../_customHooks/useDropdownModal";
+import type { FriendListHook } from "../../AppWindow";
+import SelectedToastersView from "./SelectedToastersView";
+import FriendSelectorModal from "./FriendSelectorModal";
+import type { Friend } from "@/app/types/printer";
+import PageBorderDiv from "../../_helperComponents/PageBorderDiv";
 
 type FriendSelectorProps = {
-  friendsHook: FriendListHook
-}
+  friendsHook: FriendListHook;
+};
 
 const FriendSelector = ({ friendsHook }: FriendSelectorProps) => {
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const { selectedFriends, setSelectedFriends } = friendsHook
-  const { toggleButtonRef, dropdownRef, isDropdownOpen, setIsDropdownOpen } = useDropDownModal(
-    () => {
-      setIsDropdownOpen(false)
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const { selectedFriends, setSelectedFriends } = friendsHook;
+  const { toggleButtonRef, dropdownRef, isDropdownOpen, setIsDropdownOpen } =
+    useDropDownModal(() => {
+      setIsDropdownOpen(false);
       // setIsAddingFriend(false)
-      setEditingId(null)
-    },
-    false
-  )
+      setEditingId(null);
+    }, false);
 
   function handleFriendSelect(selectedFriend: Friend) {
     if (selectedFriend.printerId == editingId) {
-      return
+      return;
     }
     // add if not present, remove if present
     setSelectedFriends(
-      selectedFriends.some((friend) => friend.printerId === selectedFriend.printerId)
-        ? selectedFriends.filter((friend) => friend.printerId !== selectedFriend.printerId)
-        : [...selectedFriends, selectedFriend]
-    )
+      selectedFriends.some(
+        (friend) => friend.printerId === selectedFriend.printerId,
+      )
+        ? selectedFriends.filter(
+            (friend) => friend.printerId !== selectedFriend.printerId,
+          )
+        : [...selectedFriends, selectedFriend],
+    );
   }
 
   return (
@@ -45,7 +47,10 @@ const FriendSelector = ({ friendsHook }: FriendSelectorProps) => {
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           className="w-full min-h-[50px] px-4 py-2 bg-toastWhite shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] cursor-pointer flex items-center justify-between"
         >
-          <SelectedToastersView selectedFriends={selectedFriends} isDropdownOpen={isDropdownOpen} />
+          <SelectedToastersView
+            selectedFriends={selectedFriends}
+            isDropdownOpen={isDropdownOpen}
+          />
         </button>
         {isDropdownOpen && (
           <div
@@ -60,7 +65,7 @@ const FriendSelector = ({ friendsHook }: FriendSelectorProps) => {
         )}
       </div>
     </PageBorderDiv>
-  )
-}
+  );
+};
 
-export default FriendSelector
+export default FriendSelector;

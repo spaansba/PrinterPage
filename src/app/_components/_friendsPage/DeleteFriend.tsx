@@ -1,19 +1,18 @@
-import { Trash2 } from "lucide-react"
-import React, { useState } from "react"
-import DeleteModal from "../_helperComponents/DeleteModal"
-import { useUser } from "@clerk/nextjs"
-import type { Friend } from "@/app/types/printer"
+import React, { useState } from "react";
+import DeleteModal from "../_helperComponents/DeleteModal";
+import { useUser } from "@clerk/nextjs";
+import type { Friend } from "@/app/types/printer";
 
 type DeleteFriendProps = {
-  friendToDelete: Friend
-  deleteFriend: (userId: string, friendToDelete: Friend) => Promise<void>
-}
+  friendToDelete: Friend;
+  deleteFriend: (userId: string, friendToDelete: Friend) => Promise<void>;
+};
 
 function DeleteFriend({ friendToDelete, deleteFriend }: DeleteFriendProps) {
-  const { user } = useUser()
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const { user } = useUser();
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   if (!user) {
-    return
+    return;
   }
 
   return (
@@ -26,7 +25,7 @@ function DeleteFriend({ friendToDelete, deleteFriend }: DeleteFriendProps) {
         titleText="Confirm Deletion of Friend"
       />
     </>
-  )
+  );
 }
 
-export default DeleteFriend
+export default DeleteFriend;

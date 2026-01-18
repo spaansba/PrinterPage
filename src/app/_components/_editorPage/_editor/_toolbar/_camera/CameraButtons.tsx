@@ -1,14 +1,13 @@
-import { CameraIcon, RefreshCcw } from "lucide-react"
-import React from "react"
-import CaptureButton from "./CaptureButton"
-import ChangeFacingModeButton from "./ChangeFacingModeButton"
+import React from "react";
+import CaptureButton from "./CaptureButton";
+import ChangeFacingModeButton from "./ChangeFacingModeButton";
 
 type CameraButtonsProps = {
-  handleCaptureWebcam: () => void
-  handleSwitchCamera: () => void
-  isStreaming: boolean
-  cameraCount: number
-}
+  handleCaptureWebcam: () => void;
+  handleSwitchCamera: () => void;
+  isStreaming: boolean;
+  cameraCount: number;
+};
 
 function CameraButtons({
   handleCaptureWebcam,
@@ -19,7 +18,10 @@ function CameraButtons({
   return (
     <>
       <div className="flex justify-between items-center gap-1 bg-toastPrimary">
-        <CaptureButton handleCaptureWebcam={handleCaptureWebcam} isStreaming={isStreaming} />
+        <CaptureButton
+          handleCaptureWebcam={handleCaptureWebcam}
+          isStreaming={isStreaming}
+        />
         <ChangeFacingModeButton
           handleSwitchCamera={handleSwitchCamera}
           isStreaming={isStreaming}
@@ -27,7 +29,7 @@ function CameraButtons({
         />
       </div>
     </>
-  )
+  );
 }
 
-export default CameraButtons
+export default CameraButtons;

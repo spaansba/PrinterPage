@@ -1,12 +1,12 @@
-"use client"
-import FontSizeDropdown from "../FontSizeDropdown"
-import SmileyDropdown from "../SmileyDropdown"
-import { useEditorContext } from "@/app/context/editorContext"
-import QRCodeButton from "./QRCodeButton"
-import ImageButton from "./_camera/ImageButton"
-import ToggleButton from "./ToggleButton"
-import { Bold, Highlighter, Underline } from "lucide-react"
-import DeleteMessageButton from "./DeleteMessageButton"
+"use client";
+import FontSizeDropdown from "../FontSizeDropdown";
+import SmileyDropdown from "../SmileyDropdown";
+import { useEditorContext } from "@/app/context/editorContext";
+import QRCodeButton from "./QRCodeButton";
+import ImageButton from "./_camera/ImageButton";
+import ToggleButton from "./ToggleButton";
+import { Bold, Highlighter, Underline } from "lucide-react";
+import DeleteMessageButton from "./DeleteMessageButton";
 
 const TextStyles = `
   .tall-text {
@@ -20,15 +20,15 @@ const TextStyles = `
   .wide-text {
     font-size: 26px
   }
-`
+`;
 export function Toolbar() {
-  const { editor } = useEditorContext()
+  const { editor } = useEditorContext();
 
   if (!editor) {
-    return null
+    return null;
   }
 
-  const DividerLine = () => <div className="w-px h-6 bg-[#808080] mx-1"></div>
+  const DividerLine = () => <div className="w-px h-6 bg-[#808080] mx-1"></div>;
   return (
     <>
       <style>{TextStyles}</style>
@@ -53,7 +53,11 @@ export function Toolbar() {
           editor={editor}
           Icon={Highlighter}
           onPressedChange={() =>
-            editor.chain().focus().toggleHighlight({ color: "rgb(49, 49, 49)" }).run()
+            editor
+              .chain()
+              .focus()
+              .toggleHighlight({ color: "rgb(49, 49, 49)" })
+              .run()
           }
           name="highlight"
         />
@@ -68,5 +72,5 @@ export function Toolbar() {
         <DeleteMessageButton />
       </div>
     </>
-  )
+  );
 }

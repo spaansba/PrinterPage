@@ -1,15 +1,18 @@
-import React from "react"
-import Image from "next/image"
-import { ChevronDown, ChevronUp } from "lucide-react"
-import FriendProfilePicture from "../../_profilePicture/FriendProfilePicture"
-import type { Friend } from "@/app/types/printer"
+import React from "react";
+import Image from "next/image";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import FriendProfilePicture from "../../_profilePicture/FriendProfilePicture";
+import type { Friend } from "@/app/types/printer";
 
 type SelectedToastersViewProps = {
-  selectedFriends: Friend[]
-  isDropdownOpen: boolean
-}
-const maxVisibleRecipients = 5
-function SelectedToastersView({ selectedFriends, isDropdownOpen }: SelectedToastersViewProps) {
+  selectedFriends: Friend[];
+  isDropdownOpen: boolean;
+};
+const maxVisibleRecipients = 5;
+function SelectedToastersView({
+  selectedFriends,
+  isDropdownOpen,
+}: SelectedToastersViewProps) {
   return (
     <>
       <div className="flex flex-wrap overflow-hidden w-[90%] gap-y-[0.4rem] gap-x-3">
@@ -50,7 +53,7 @@ function SelectedToastersView({ selectedFriends, isDropdownOpen }: SelectedToast
         <ChevronDown className="flex-shrink-0 mt-[0.3rem]" size={14} />
       )}
     </>
-  )
+  );
 }
 
-export default SelectedToastersView
+export default SelectedToastersView;

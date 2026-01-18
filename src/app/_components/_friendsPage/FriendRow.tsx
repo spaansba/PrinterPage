@@ -1,51 +1,55 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import React, { useRef, useState } from "react"
-import { useForm } from "react-hook-form"
-import type { z } from "zod"
-import { friendNameSchema } from "../_editorPage/AddNewFriendForm"
-import { useUser } from "@clerk/nextjs"
-import type { FriendListHook } from "../AppWindow"
-import type { Friend } from "@/app/types/printer"
-import FriendProfilePicture from "../_profilePicture/FriendProfilePicture"
-import { Check, Edit, Trash2, X } from "lucide-react"
-import { MenuModal, type MenuOption } from "../_helperComponents/MenuModal"
-import DeleteModal from "../_helperComponents/DeleteModal"
-import { formatDate } from "@/app/_helpers/getCurrentDate"
+import { zodResolver } from "@hookform/resolvers/zod";
+import React, { useRef, useState } from "react";
+import { useForm } from "react-hook-form";
+import type { z } from "zod";
+import { friendNameSchema } from "../_editorPage/AddNewFriendForm";
+import { useUser } from "@clerk/nextjs";
+import type { FriendListHook } from "../AppWindow";
+import type { Friend } from "@/app/types/printer";
+import FriendProfilePicture from "../_profilePicture/FriendProfilePicture";
+import { Check, Edit, Trash2, X } from "lucide-react";
+import { MenuModal, type MenuOption } from "../_helperComponents/MenuModal";
+import DeleteModal from "../_helperComponents/DeleteModal";
+import { formatDate } from "@/app/_helpers/getCurrentDate";
 
 type FriendRowProps = {
-  friendsHook: FriendListHook
-  friend: Friend
-}
+  friendsHook: FriendListHook;
+  friend: Friend;
+};
 
 function FriendRow({ friendsHook, friend }: FriendRowProps) {
-  const { user } = useUser()
-  const [isEditingName, setIsEditingName] = useState(false)
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const { user } = useUser();
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const {
     register: registerEdit,
     handleSubmit: handleSubmitEdit,
     formState: { errors: errorsEdit },
     reset: resetEdit,
     setError: setErrorEdit,
-    setFocus: setEditFocus,
   } = useForm<z.infer<typeof friendNameSchema>>({
     resolver: zodResolver(friendNameSchema),
     mode: "onSubmit",
-  })
-  const editNameFormRef = useRef<HTMLFormElement>(null)
+  });
+  const editNameFormRef = useRef<HTMLFormElement>(null);
 
-  async function handleNewName(data: z.infer<typeof friendNameSchema>, printerId: string) {
+  async function handleNewName(
+    data: z.infer<typeof friendNameSchema>,
+    printerId: string,
+  ) {
     if (!user) {
-      setErrorEdit("root", { message: "Failed to update name. Please try again." })
-      return
+      setErrorEdit("root", {
+        message: "Failed to update name. Please try again.",
+      });
+      return;
     }
-    const result = await friendsHook.changeFriendName(user.id, data, printerId)
+    const result = await friendsHook.changeFriendName(user.id, data, printerId);
     if (result.success) {
-      resetEdit()
-      setIsEditingName(false)
+      resetEdit();
+      setIsEditingName(false);
     } else {
-      setErrorEdit("root", { message: result.errorMessage })
+      setErrorEdit("root", { message: result.errorMessage });
     }
   }
 
@@ -54,18 +58,18 @@ function FriendRow({ friendsHook, friend }: FriendRowProps) {
       label: "Edit Name",
       icon: <Edit className="size-4" />,
       onClick: () => {
-        setIsEditingName(true)
+        setIsEditingName(true);
       },
     },
     {
       label: "Delete",
       icon: <Trash2 className="size-4" />,
       onClick: () => {
-        setShowDeleteModal(true)
+        setShowDeleteModal(true);
       },
       className: "text-toastError",
     },
-  ]
+  ];
 
   return (
     <>
@@ -96,8 +100,10 @@ function FriendRow({ friendsHook, friend }: FriendRowProps) {
               <form
                 ref={editNameFormRef}
                 onSubmit={(e) => {
-                  e.preventDefault()
-                  handleSubmitEdit((data) => handleNewName(data, friend.printerId))(e)
+                  e.preventDefault();
+                  handleSubmitEdit((data) =>
+                    handleNewName(data, friend.printerId),
+                  )(e);
                 }}
                 onClick={(e) => e.stopPropagation()}
               >
@@ -125,8 +131,8 @@ function FriendRow({ friendsHook, friend }: FriendRowProps) {
                 type="button"
                 title="Confirm Name"
                 onClick={(e) => {
-                  e.stopPropagation()
-                  editNameFormRef.current?.requestSubmit()
+                  e.stopPropagation();
+                  editNameFormRef.current?.requestSubmit();
                 }}
               >
                 <Check className="" size={18} />
@@ -135,7 +141,7 @@ function FriendRow({ friendsHook, friend }: FriendRowProps) {
                 type="button"
                 title="Cancel"
                 onClick={() => {
-                  setIsEditingName(false)
+                  setIsEditingName(false);
                 }}
               >
                 <X className="" size={18} />
@@ -144,19 +150,25 @@ function FriendRow({ friendsHook, friend }: FriendRowProps) {
           ) : (
             // dont remove empty title, otherwise title from main div will persists on menumodal
             <div className="ml-auto gap-2 flex" title="">
-              <MenuModal isOpen={isMenuOpen} setIsOpen={setIsMenuOpen} options={menuOptions} />
+              <MenuModal
+                isOpen={isMenuOpen}
+                setIsOpen={setIsMenuOpen}
+                options={menuOptions}
+              />
             </div>
           )}
         </div>
 
         {isEditingName && (
           <div className="text-toastError pl-[43px] text-[11px]">
-            {errorsEdit.name?.message && <p key="id_error">{errorsEdit.name?.message}</p>}
+            {errorsEdit.name?.message && (
+              <p key="id_error">{errorsEdit.name?.message}</p>
+            )}
           </div>
         )}
       </div>
     </>
-  )
+  );
 }
 
-export default FriendRow
+export default FriendRow;

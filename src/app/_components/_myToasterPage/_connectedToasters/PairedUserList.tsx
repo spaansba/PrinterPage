@@ -1,10 +1,10 @@
-import React from "react"
-import type { Toaster } from "@/app/types/printer"
-import FriendProfilePicture from "../../_profilePicture/FriendProfilePicture"
+import React from "react";
+import type { Toaster } from "@/app/types/printer";
+import FriendProfilePicture from "../../_profilePicture/FriendProfilePicture";
 
 type PairedUserListProps = {
-  toaster: Toaster
-}
+  toaster: Toaster;
+};
 
 function PairedUserList({ toaster }: PairedUserListProps) {
   return (
@@ -13,12 +13,17 @@ function PairedUserList({ toaster }: PairedUserListProps) {
       <div>
         {/*  dont remove div */}
         <div className="flex items-center gap-3 w-full">
-          <div className="text-sm font-bold text-gray-700">Users Paired to Toaster</div>
+          <div className="text-sm font-bold text-gray-700">
+            Users Paired to Toaster
+          </div>
           <div className="h-px  flex-grow" />
         </div>
         <div className="flex flex-wrap gap-4 mt-3">
           {toaster.pairedAccounts?.map((account) => (
-            <div key={`${toaster.id} & ${account.id}`} className="flex items-center gap-2">
+            <div
+              key={`${toaster.id} & ${account.id}`}
+              className="flex items-center gap-2"
+            >
               <FriendProfilePicture
                 pictureUrl={
                   account.profileImageUrl ||
@@ -33,7 +38,7 @@ function PairedUserList({ toaster }: PairedUserListProps) {
         </div>
       </div>
     </>
-  )
+  );
 }
 
-export default PairedUserList
+export default PairedUserList;

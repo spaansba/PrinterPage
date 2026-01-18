@@ -1,43 +1,51 @@
-import { useEditorContext } from "@/app/context/editorContext"
-import { QrCode, X } from "lucide-react"
-import React, { useState } from "react"
-import QRCode from "qrcode"
+import { useEditorContext } from "@/app/context/editorContext";
+import { QrCode, X } from "lucide-react";
+import React, { useState } from "react";
+import QRCode from "qrcode";
 
 function QRCodeButton() {
-  const [showQRInput, setShowQRInput] = useState(false)
-  const [qrInputText, setQRInputText] = useState("")
-  const { editor } = useEditorContext()
+  const [showQRInput, setShowQRInput] = useState(false);
+  const [qrInputText, setQRInputText] = useState("");
+  const { editor } = useEditorContext();
   function handleQRCode() {
-    setShowQRInput(true)
+    setShowQRInput(true);
   }
 
   function generateQRCode() {
-    if (!qrInputText.trim()) return
+    if (!qrInputText.trim()) return;
 
-    QRCode.toDataURL(qrInputText, { scale: 4, margin: 3, color: { light: "#e8e8e8" } })
+    QRCode.toDataURL(qrInputText, {
+      scale: 4,
+      margin: 3,
+      color: { light: "#e8e8e8" },
+    })
       .then((url) => {
-        const pos = editor!.state.selection.from
+        const pos = editor!.state.selection.from;
         editor!
           .chain()
           .focus()
-          .setImage({ src: url, alt: "[QR code]", title: `QR code for: ${qrInputText}` })
+          .setImage({
+            src: url,
+            alt: "[QR code]",
+            title: `QR code for: ${qrInputText}`,
+          })
           .setTextSelection(pos + 3)
-          .run()
+          .run();
 
         // Find and remove the thermal-print-effect class from the newly added QR code
-        const editorElement = editor?.view?.dom as HTMLElement
-        const images = editorElement.getElementsByTagName("img")
-        const lastImage = images[images.length - 1]
+        const editorElement = editor?.view?.dom as HTMLElement;
+        const images = editorElement.getElementsByTagName("img");
+        const lastImage = images[images.length - 1];
         if (lastImage) {
-          lastImage.classList.remove("thermal-print-effect")
+          lastImage.classList.remove("thermal-print-effect");
         }
 
-        setShowQRInput(false)
-        setQRInputText("")
+        setShowQRInput(false);
+        setQRInputText("");
       })
       .catch((err) => {
-        console.error(err)
-      })
+        console.error(err);
+      });
   }
 
   return (
@@ -67,7 +75,9 @@ function QRCodeButton() {
 
             <div className="p-4">
               <div className="mb-2">
-                <label className="block mb-2 text-sm">Enter text/url for QR code:</label>
+                <label className="block mb-2 text-sm">
+                  Enter text/url for QR code:
+                </label>
                 <input
                   type="text"
                   value={qrInputText}
@@ -97,7 +107,7 @@ function QRCodeButton() {
         </div>
       )}
     </>
-  )
+  );
 }
 
-export default QRCodeButton
+export default QRCodeButton;

@@ -1,59 +1,61 @@
-import { useUser } from "@clerk/nextjs"
-import { zodResolver } from "@hookform/resolvers/zod"
-import React, { useState, type Dispatch, type SetStateAction } from "react"
-import { useForm } from "react-hook-form"
-import type { z } from "zod"
-import { updatedUserName } from "@/lib/queries"
-import { Check, Loader2, SendHorizonal, X } from "lucide-react"
-import { useToasterUser } from "@/app/context/userDataContext"
-import { friendNameSchema } from "../_editorPage/AddNewFriendForm"
+import { useUser } from "@clerk/nextjs";
+import { zodResolver } from "@hookform/resolvers/zod";
+import React, { useState, type Dispatch, type SetStateAction } from "react";
+import { useForm } from "react-hook-form";
+import type { z } from "zod";
+import { updatedUserName } from "@/lib/queries";
+import { Check, Loader2, X } from "lucide-react";
+import { useToasterUser } from "@/app/context/userDataContext";
+import { friendNameSchema } from "../_editorPage/AddNewFriendForm";
 
 type UsernameProps = {
-  isEditingUsername: boolean
-  setIsEditingUsername: Dispatch<SetStateAction<boolean>>
-}
+  isEditingUsername: boolean;
+  setIsEditingUsername: Dispatch<SetStateAction<boolean>>;
+};
 
 function Username({ isEditingUsername, setIsEditingUsername }: UsernameProps) {
-  const { user } = useUser()
-  const [isUpdatingUsername, setIsUpdatingUsername] = useState(false)
-  const { currentUser, alterUsername } = useToasterUser()
+  const { user } = useUser();
+  const [isUpdatingUsername, setIsUpdatingUsername] = useState(false);
+  const { currentUser, alterUsername } = useToasterUser();
   const {
     register: registerEdit,
     handleSubmit: handleSubmitEdit,
     formState: { errors: errorsEdit },
-    reset: resetEdit,
     setError: setErrorEdit,
-    setFocus: setEditFocus,
   } = useForm<z.infer<typeof friendNameSchema>>({
     resolver: zodResolver(friendNameSchema),
     mode: "onSubmit",
-  })
+  });
 
   async function handleNewUserName(data: z.infer<typeof friendNameSchema>) {
     if (!user) {
-      setErrorEdit("root", { message: "User Doesn't Exist" })
-      return
+      setErrorEdit("root", { message: "User Doesn't Exist" });
+      return;
     }
 
     try {
-      setIsUpdatingUsername(true)
-      await updatedUserName(user.id, data.name)
-      alterUsername(user.id, data.name)
-      setIsEditingUsername(false)
+      setIsUpdatingUsername(true);
+      await updatedUserName(user.id, data.name);
+      alterUsername(user.id, data.name);
+      setIsEditingUsername(false);
     } catch (error) {
-      console.error("Error updating username:", error)
+      console.error("Error updating username:", error);
       setErrorEdit("name", {
-        message: error instanceof Error ? error.message : "Failed to update username",
-      })
+        message:
+          error instanceof Error ? error.message : "Failed to update username",
+      });
     } finally {
-      setIsUpdatingUsername(false)
+      setIsUpdatingUsername(false);
     }
   }
   return (
     <>
       <div title="Username" className="items-center gap-1 min-w-0">
         {isEditingUsername ? (
-          <form className="flex items-center flex-1" onSubmit={handleSubmitEdit(handleNewUserName)}>
+          <form
+            className="flex items-center flex-1"
+            onSubmit={handleSubmitEdit(handleNewUserName)}
+          >
             <input
               {...registerEdit("name")}
               className="w-[100px] border-[1px]  px-1 py-0.5 rounded"
@@ -88,10 +90,12 @@ function Username({ isEditingUsername, setIsEditingUsername }: UsernameProps) {
         )}
       </div>
       {errorsEdit.name && (
-        <span className="text-toastError text-sm">{errorsEdit.name.message}</span>
+        <span className="text-toastError text-sm">
+          {errorsEdit.name.message}
+        </span>
       )}
     </>
-  )
+  );
 }
 
-export default Username
+export default Username;

@@ -1,30 +1,32 @@
-"use client"
-import { UserProfile } from "@clerk/nextjs"
-import React, { useEffect, useState } from "react"
-import { useUser } from "@clerk/nextjs"
-import { useToasterUser } from "@/app/context/userDataContext"
-import AccountInformation from "./AccountInformation"
-import PageBorderDiv from "../_helperComponents/PageBorderDiv"
+"use client";
+import { UserProfile } from "@clerk/nextjs";
+import React, { useEffect, useState } from "react";
+import { useUser } from "@clerk/nextjs";
+import { useToasterUser } from "@/app/context/userDataContext";
+import AccountInformation from "./AccountInformation";
+import PageBorderDiv from "../_helperComponents/PageBorderDiv";
 
 function AccountPage() {
-  const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false)
-  const { user } = useUser()
-  const { currentUser } = useToasterUser()
+  const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
+  const { user } = useUser();
+  const { currentUser } = useToasterUser();
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setIsEditProfileModalOpen(false)
-    }
-    window.addEventListener("keydown", handleEscape)
-    return () => window.removeEventListener("keydown", handleEscape)
-  }, [])
+      if (e.key === "Escape") setIsEditProfileModalOpen(false);
+    };
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, []);
   if (!user || currentUser.id != user.id) {
-    return null
+    return null;
   }
 
   return (
     <PageBorderDiv>
       <div className="p-3">
-        <AccountInformation setIsEditProfileModalOpen={setIsEditProfileModalOpen} />
+        <AccountInformation
+          setIsEditProfileModalOpen={setIsEditProfileModalOpen}
+        />
       </div>
 
       {/* Edit Profile Modal */}
@@ -42,7 +44,7 @@ function AccountPage() {
         </div>
       )}
     </PageBorderDiv>
-  )
+  );
 }
 
-export default AccountPage
+export default AccountPage;

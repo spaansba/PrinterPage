@@ -1,17 +1,11 @@
-import { processImage } from "./ImageToBytes"
-
-const TextJustify = {
-  Left: 0,
-  Center: 1,
-  Right: 2,
-} as const
+import { processImage } from "./ImageToBytes";
 
 const TEXT_SIZE_MAP = {
   "13": 0x00,
   "26": 0x11,
   "42": 0x22,
   "52": 0x33,
-} as const
+} as const;
 
 const HTML_ENTITIES = {
   LT: {
@@ -34,7 +28,7 @@ const HTML_ENTITIES = {
     entity: [0x26, 0x61, 0x70, 0x6f, 0x73, 0x3b], // "&apos;"
     value: 0x27, // '
   },
-} as const
+} as const;
 
 const CONTROL = {
   ESC: 0x1b,
@@ -42,13 +36,13 @@ const CONTROL = {
   FS: 0x1c,
   DC2: 0x12,
   LF: 0x0a,
-} as const
+} as const;
 
 const MODIFIERS = {
   HYPHEN: 0x2d, //-
   E: 0x45, //E
   B: 0x42, //B
-}
+};
 
 const TAGS = {
   WILDCARD: 0x3f,
@@ -60,34 +54,34 @@ const TAGS = {
   U: 0x75,
   TEXT_SIZE: [0x74, 0x65, 0x78, 0x74, 0x2d, 0x73, 0x69, 0x7a, 0x65], // text-size
   TEXT: [
-    0x20, 0x63, 0x6c, 0x61, 0x73, 0x73, 0x3d, 0x22, 0x74, 0x65, 0x78, 0x74, 0x2d, 0x5b, 0x3f, 0x3f,
-    0x70, 0x78, 0x5d, 0x22,
+    0x20, 0x63, 0x6c, 0x61, 0x73, 0x73, 0x3d, 0x22, 0x74, 0x65, 0x78, 0x74,
+    0x2d, 0x5b, 0x3f, 0x3f, 0x70, 0x78, 0x5d, 0x22,
   ], //  class="text-[??px]"
   SPAN: [0x73, 0x70, 0x61, 0x6e],
   MARK: [0x6d, 0x61, 0x72, 0x6b],
   IMAGE_MARKER: [0x7c, 0x26, 0x5e, 0x25, 0x69, 0x6d, 0x61, 0x67, 0x65, 0x3a], // |&^%image:
-} as const
+} as const;
 
 const BOOL = {
   TRUE_DOUBLE: 0x2,
   TRUE: 0x1,
   FALSE: 0x0,
-} as const
+} as const;
 
 type BoolCommand = {
   state: {
-    on: Uint8Array
-    off: Uint8Array
-  }
+    on: Uint8Array;
+    off: Uint8Array;
+  };
   html: {
-    open: Uint8Array
-    close: Uint8Array
-  }
-}
+    open: Uint8Array;
+    close: Uint8Array;
+  };
+};
 
 type BoolCommands = {
-  [key: string]: BoolCommand
-}
+  [key: string]: BoolCommand;
+};
 
 const BoolCommands: BoolCommands = {
   bold: {
@@ -97,7 +91,12 @@ const BoolCommands: BoolCommands = {
     },
     html: {
       open: new Uint8Array([TAGS.LESS_THAN, ...TAGS.STRONG, TAGS.GREATER_THAN]),
-      close: new Uint8Array([TAGS.LESS_THAN, TAGS.FSLASH, ...TAGS.STRONG, TAGS.GREATER_THAN]),
+      close: new Uint8Array([
+        TAGS.LESS_THAN,
+        TAGS.FSLASH,
+        ...TAGS.STRONG,
+        TAGS.GREATER_THAN,
+      ]),
     },
   },
   underline: {
@@ -107,7 +106,12 @@ const BoolCommands: BoolCommands = {
     },
     html: {
       open: new Uint8Array([TAGS.LESS_THAN, TAGS.U, TAGS.GREATER_THAN]),
-      close: new Uint8Array([TAGS.LESS_THAN, TAGS.FSLASH, TAGS.U, TAGS.GREATER_THAN]),
+      close: new Uint8Array([
+        TAGS.LESS_THAN,
+        TAGS.FSLASH,
+        TAGS.U,
+        TAGS.GREATER_THAN,
+      ]),
     },
   },
   invert: {
@@ -118,16 +122,23 @@ const BoolCommands: BoolCommands = {
     html: {
       //<mark class="color-white" data-color="rgb(49, 49, 49)" style="background-color: rgb(49, 49, 49); color: inherit">
       open: new Uint8Array([
-        0x3c, 0x6d, 0x61, 0x72, 0x6b, 0x20, 0x63, 0x6c, 0x61, 0x73, 0x73, 0x3d, 0x22, 0x63, 0x6f,
-        0x6c, 0x6f, 0x72, 0x2d, 0x77, 0x68, 0x69, 0x74, 0x65, 0x22, 0x20, 0x64, 0x61, 0x74, 0x61,
-        0x2d, 0x63, 0x6f, 0x6c, 0x6f, 0x72, 0x3d, 0x22, 0x72, 0x67, 0x62, 0x28, 0x34, 0x39, 0x2c,
-        0x20, 0x34, 0x39, 0x2c, 0x20, 0x34, 0x39, 0x29, 0x22, 0x20, 0x73, 0x74, 0x79, 0x6c, 0x65,
-        0x3d, 0x22, 0x62, 0x61, 0x63, 0x6b, 0x67, 0x72, 0x6f, 0x75, 0x6e, 0x64, 0x2d, 0x63, 0x6f,
-        0x6c, 0x6f, 0x72, 0x3a, 0x20, 0x72, 0x67, 0x62, 0x28, 0x34, 0x39, 0x2c, 0x20, 0x34, 0x39,
-        0x2c, 0x20, 0x34, 0x39, 0x29, 0x3b, 0x20, 0x63, 0x6f, 0x6c, 0x6f, 0x72, 0x3a, 0x20, 0x69,
-        0x6e, 0x68, 0x65, 0x72, 0x69, 0x74, 0x22, 0x3e,
+        0x3c, 0x6d, 0x61, 0x72, 0x6b, 0x20, 0x63, 0x6c, 0x61, 0x73, 0x73, 0x3d,
+        0x22, 0x63, 0x6f, 0x6c, 0x6f, 0x72, 0x2d, 0x77, 0x68, 0x69, 0x74, 0x65,
+        0x22, 0x20, 0x64, 0x61, 0x74, 0x61, 0x2d, 0x63, 0x6f, 0x6c, 0x6f, 0x72,
+        0x3d, 0x22, 0x72, 0x67, 0x62, 0x28, 0x34, 0x39, 0x2c, 0x20, 0x34, 0x39,
+        0x2c, 0x20, 0x34, 0x39, 0x29, 0x22, 0x20, 0x73, 0x74, 0x79, 0x6c, 0x65,
+        0x3d, 0x22, 0x62, 0x61, 0x63, 0x6b, 0x67, 0x72, 0x6f, 0x75, 0x6e, 0x64,
+        0x2d, 0x63, 0x6f, 0x6c, 0x6f, 0x72, 0x3a, 0x20, 0x72, 0x67, 0x62, 0x28,
+        0x34, 0x39, 0x2c, 0x20, 0x34, 0x39, 0x2c, 0x20, 0x34, 0x39, 0x29, 0x3b,
+        0x20, 0x63, 0x6f, 0x6c, 0x6f, 0x72, 0x3a, 0x20, 0x69, 0x6e, 0x68, 0x65,
+        0x72, 0x69, 0x74, 0x22, 0x3e,
       ]),
-      close: new Uint8Array([TAGS.LESS_THAN, TAGS.FSLASH, ...TAGS.MARK, TAGS.GREATER_THAN]),
+      close: new Uint8Array([
+        TAGS.LESS_THAN,
+        TAGS.FSLASH,
+        ...TAGS.MARK,
+        TAGS.GREATER_THAN,
+      ]),
     },
   },
   size: {
@@ -137,15 +148,28 @@ const BoolCommands: BoolCommands = {
     },
     html: {
       //<text-size class="text-[??px]">
-      open: new Uint8Array([TAGS.LESS_THAN, ...TAGS.TEXT_SIZE, ...TAGS.TEXT, TAGS.GREATER_THAN]),
-      close: new Uint8Array([TAGS.LESS_THAN, TAGS.FSLASH, ...TAGS.TEXT_SIZE, TAGS.GREATER_THAN]),
+      open: new Uint8Array([
+        TAGS.LESS_THAN,
+        ...TAGS.TEXT_SIZE,
+        ...TAGS.TEXT,
+        TAGS.GREATER_THAN,
+      ]),
+      close: new Uint8Array([
+        TAGS.LESS_THAN,
+        TAGS.FSLASH,
+        ...TAGS.TEXT_SIZE,
+        TAGS.GREATER_THAN,
+      ]),
     },
   },
-}
+};
 
-export async function HtmlEncoder(originalArray: Uint8Array, imageArray: string[]) {
-  let newArray: Uint8Array = new Uint8Array(originalArray)
-  debugArray(newArray, "Original")
+export async function HtmlEncoder(
+  originalArray: Uint8Array,
+  imageArray: string[],
+) {
+  let newArray: Uint8Array = new Uint8Array(originalArray);
+  debugArray(newArray, "Original");
 
   // Process boolean commands
   Object.entries(BoolCommands).forEach(([key, command]) => {
@@ -154,89 +178,106 @@ export async function HtmlEncoder(originalArray: Uint8Array, imageArray: string[
       command.html.open,
       command.state.on,
       key,
-      true
-    )
+      true,
+    );
     const [replacedClosed] = htmlTagToESCPOSEncoder(
       replacedOpen,
       command.html.close,
       command.state.off,
       key,
-      false
-    )
-    newArray = replacedClosed
-  })
-  debugArray(newArray, "After bool commands")
+      false,
+    );
+    newArray = replacedClosed;
+  });
+  debugArray(newArray, "After bool commands");
 
-  newArray = await convertImages(newArray, imageArray)
-  debugArray(newArray, "after image converting")
+  newArray = await convertImages(newArray, imageArray);
+  debugArray(newArray, "after image converting");
 
-  newArray = addLineBreaks(newArray)
-  debugArray(newArray, "After line breaks")
+  newArray = addLineBreaks(newArray);
+  debugArray(newArray, "After line breaks");
 
-  newArray = convertEntitiesToHex(newArray)
-  debugArray(newArray, "After entities")
+  newArray = convertEntitiesToHex(newArray);
+  debugArray(newArray, "After entities");
 
-  newArray = removeBasicTags(newArray)
-  debugArray(newArray, "After removing tags")
+  newArray = removeBasicTags(newArray);
+  debugArray(newArray, "After removing tags");
 
-  return newArray
+  return newArray;
 }
 
 function addLineBreaks(array: Uint8Array): Uint8Array {
-  const lineBreakTag = new Uint8Array(hexArrayFromString("<line-break>"))
-  const emptyLineTag = new Uint8Array(hexArrayFromString(`<br class="ProseMirror-trailingBreak">`))
-  const lfByte = new Uint8Array([CONTROL.LF])
+  const lineBreakTag = new Uint8Array(hexArrayFromString("<line-break>"));
+  const emptyLineTag = new Uint8Array(
+    hexArrayFromString(`<br class="ProseMirror-trailingBreak">`),
+  );
+  const lfByte = new Uint8Array([CONTROL.LF]);
 
-  const [result] = htmlTagToESCPOSEncoder(array, lineBreakTag, lfByte, "linebreak", true)
-  const [result2] = htmlTagToESCPOSEncoder(result, emptyLineTag, lfByte, "emptyLine", true)
-  return result2
+  const [result] = htmlTagToESCPOSEncoder(
+    array,
+    lineBreakTag,
+    lfByte,
+    "linebreak",
+    true,
+  );
+  const [result2] = htmlTagToESCPOSEncoder(
+    result,
+    emptyLineTag,
+    lfByte,
+    "emptyLine",
+    true,
+  );
+  return result2;
 }
 
 function convertEntitiesToHex(array: Uint8Array): Uint8Array {
-  let result: Uint8Array = new Uint8Array(array)
+  let result: Uint8Array = new Uint8Array(array);
 
   Object.values(HTML_ENTITIES).forEach((entity) => {
-    const findSequence = new Uint8Array(entity.entity)
-    const replaceSequence = new Uint8Array([entity.value])
+    const findSequence = new Uint8Array(entity.entity);
+    const replaceSequence = new Uint8Array([entity.value]);
     const [newResult] = htmlTagToESCPOSEncoder(
       result,
       findSequence,
       replaceSequence,
       "entity",
-      true
-    )
-    result = newResult
-  })
+      true,
+    );
+    result = newResult;
+  });
 
-  return result
+  return result;
 }
 
 function removeBasicTags(array: Uint8Array): Uint8Array {
-  const tagsToRemove = ["p", "span", "div"]
+  const tagsToRemove = ["p", "span", "div"];
 
   return tagsToRemove.reduce((acc, tag) => {
-    let result = new Uint8Array(acc)
+    let result = new Uint8Array(acc);
 
     // Remove opening tags with all their attributes
-    let i = 0
+    let i = 0;
     while (i < result.length) {
-      if (result[i] === TAGS.LESS_THAN && result[i + 1] === hexArrayFromString(tag)[0]) {
+      if (
+        result[i] === TAGS.LESS_THAN &&
+        result[i + 1] === hexArrayFromString(tag)[0]
+      ) {
         // Find the closing '>'
-        let end = i
+        let end = i;
         while (end < result.length && result[end] !== TAGS.GREATER_THAN) {
-          end++
+          end++;
         }
 
         if (end < result.length) {
           // Remove everything from '<' to '>'
-          const newArray = new Uint8Array(result.length - (end - i + 1))
-          newArray.set(result.slice(0, i))
-          newArray.set(result.slice(end + 1), i)
-          result = newArray
-          continue
+          const newArray = new Uint8Array(result.length - (end - i + 1));
+          newArray.set(result.slice(0, i));
+          newArray.set(result.slice(end + 1), i);
+          result = newArray;
+          continue;
         }
       }
-      i++
+      i++;
     }
 
     // Remove closing tags
@@ -245,38 +286,41 @@ function removeBasicTags(array: Uint8Array): Uint8Array {
       TAGS.FSLASH,
       ...hexArrayFromString(tag),
       TAGS.GREATER_THAN,
-    ])
+    ]);
 
     const [finalResult] = htmlTagToESCPOSEncoder(
       result,
       closeTag,
       new Uint8Array([]),
       "remove",
-      false
-    )
+      false,
+    );
 
-    return finalResult
-  }, array)
+    return finalResult;
+  }, array);
 }
 
 // Add this debug helper function
 function debugArray(array: Uint8Array, label: string = ""): void {
   // Only run in development mode
-  if (typeof process !== "undefined" && process.env.NODE_ENV === "development") {
-    const text = new TextDecoder().decode(array)
+  if (
+    typeof process !== "undefined" &&
+    process.env.NODE_ENV === "development"
+  ) {
+    const text = new TextDecoder().decode(array);
     const hex = Array.from(array)
       .map((byte) => byte.toString(16).padStart(2, "0"))
-      .join(" ")
+      .join(" ");
 
-    console.log(`${label ? label + " | " : ""}Length: ${array.length}`)
-    console.log(`Hex: ${hex}`)
-    console.log(`Text: ${text}`)
-    console.log("%c" + "─".repeat(80), "color: green")
+    console.log(`${label ? label + " | " : ""}Length: ${array.length}`);
+    console.log(`Hex: ${hex}`);
+    console.log(`Text: ${text}`);
+    console.log("%c" + "─".repeat(80), "color: green");
   }
 }
 
 function hexArrayFromString(str: string): number[] {
-  return Array.from(str).map((char) => char.charCodeAt(0))
+  return Array.from(str).map((char) => char.charCodeAt(0));
 }
 
 function htmlTagToESCPOSEncoder(
@@ -285,98 +329,102 @@ function htmlTagToESCPOSEncoder(
   replaceSequence: Uint8Array,
   key: string,
   openTag: boolean,
-  startIndex: number = 0
+  startIndex: number = 0,
 ): [Uint8Array, number] {
-  let replacementCount = 0
+  let replacementCount = 0;
   // Create a Map to store matchIndex -> replaceSequence pairs
-  const replacements = new Map<number, Uint8Array>()
+  const replacements = new Map<number, Uint8Array>();
 
   // Find all matches in the sequence
   for (let i = startIndex; i <= array.length - findSequence.length; i++) {
-    let currentSequenceMatches = true
+    let currentSequenceMatches = true;
     for (let j = 0; j < findSequence.length; j++) {
       if (findSequence[j] === TAGS.WILDCARD) {
-        continue
+        continue;
       }
       if (array[i + j] !== findSequence[j]) {
-        currentSequenceMatches = false
-        break
+        currentSequenceMatches = false;
+        break;
       }
     }
 
     if (currentSequenceMatches) {
       if (key === "size" && openTag) {
-        const sizeStartIndex = i + findSequence.indexOf(TAGS.WILDCARD)
+        const sizeStartIndex = i + findSequence.indexOf(TAGS.WILDCARD);
         const sizeDigits =
           String.fromCharCode(array[sizeStartIndex]) +
-          String.fromCharCode(array[sizeStartIndex + 1])
+          String.fromCharCode(array[sizeStartIndex + 1]);
 
         if (sizeDigits in TEXT_SIZE_MAP) {
           // Create a new replacement sequence for this specific size
-          const specificReplaceSequence = new Uint8Array(replaceSequence)
-          specificReplaceSequence[2] = TEXT_SIZE_MAP[sizeDigits as keyof typeof TEXT_SIZE_MAP]
+          const specificReplaceSequence = new Uint8Array(replaceSequence);
+          specificReplaceSequence[2] =
+            TEXT_SIZE_MAP[sizeDigits as keyof typeof TEXT_SIZE_MAP];
 
           // Store the specific replacement sequence for this match
-          replacements.set(i, specificReplaceSequence)
-          replacementCount++
+          replacements.set(i, specificReplaceSequence);
+          replacementCount++;
         }
       } else {
         // For non-size tags or closing tags, use the original replacement sequence
-        replacements.set(i, replaceSequence)
-        replacementCount++
+        replacements.set(i, replaceSequence);
+        replacementCount++;
       }
     }
   }
 
-  const sizeDiff = replaceSequence.length - findSequence.length
-  const newSize = array.length + sizeDiff * replacements.size
-  let newBitArray = new Uint8Array(newSize)
+  const sizeDiff = replaceSequence.length - findSequence.length;
+  const newSize = array.length + sizeDiff * replacements.size;
+  let newBitArray = new Uint8Array(newSize);
 
-  let totalIndex = 0
-  let currentIndex = 0
+  let totalIndex = 0;
+  let currentIndex = 0;
 
   // Sort the match indices to process them in order
-  const sortedIndices = Array.from(replacements.keys()).sort((a, b) => a - b)
+  const sortedIndices = Array.from(replacements.keys()).sort((a, b) => a - b);
 
   sortedIndices.forEach((matchIndex) => {
     while (currentIndex < matchIndex) {
-      newBitArray[totalIndex++] = array[currentIndex++]
+      newBitArray[totalIndex++] = array[currentIndex++];
     }
 
-    const currentReplaceSequence = replacements.get(matchIndex)!
+    const currentReplaceSequence = replacements.get(matchIndex)!;
     for (let j = 0; j < currentReplaceSequence.length; j++) {
-      newBitArray[totalIndex++] = currentReplaceSequence[j]
+      newBitArray[totalIndex++] = currentReplaceSequence[j];
     }
 
-    currentIndex += findSequence.length
-  })
+    currentIndex += findSequence.length;
+  });
 
   // Copy any remaining bytes
   while (currentIndex < array.length) {
-    newBitArray[totalIndex++] = array[currentIndex++]
+    newBitArray[totalIndex++] = array[currentIndex++];
   }
 
-  return [newBitArray, replacementCount]
+  return [newBitArray, replacementCount];
 }
 
-async function convertImages(array: Uint8Array, imageArray: string[]): Promise<Uint8Array> {
-  const imageMarker = new Uint8Array([...TAGS.IMAGE_MARKER])
-  const replacements = new Map<number, Uint8Array>()
-  let replacementCount = 0
+async function convertImages(
+  array: Uint8Array,
+  imageArray: string[],
+): Promise<Uint8Array> {
+  const imageMarker = new Uint8Array([...TAGS.IMAGE_MARKER]);
+  const replacements = new Map<number, Uint8Array>();
+  let replacementCount = 0;
 
   for (let i = 0; i < array.length; i++) {
-    let isImageMarker = true
+    let isImageMarker = true;
     for (let j = 0; j < imageMarker.length; j++) {
       if (array[i + j] !== imageMarker[j]) {
-        isImageMarker = false
-        break
+        isImageMarker = false;
+        break;
       }
     }
     if (isImageMarker) {
-      const image = await processImage(imageArray[replacementCount])
+      const image = await processImage(imageArray[replacementCount]);
 
-      replacements.set(i, image)
-      replacementCount++
+      replacements.set(i, image);
+      replacementCount++;
     }
   }
 
@@ -384,46 +432,52 @@ async function convertImages(array: Uint8Array, imageArray: string[]): Promise<U
     // Calculate total size of all replacement images
     const totalImageSize = Array.from(replacements.values()).reduce(
       (total, image) => total + image.length,
-      0
-    )
+      0,
+    );
 
     // Calculate final array size: original size - markers + images
-    const newSize = array.length - replacementCount * imageMarker.length + totalImageSize
+    const newSize =
+      array.length - replacementCount * imageMarker.length + totalImageSize;
 
-    const bitArrayWithImages = replaceArrays(array, replacements, newSize, imageMarker.length)
-    return bitArrayWithImages
+    const bitArrayWithImages = replaceArrays(
+      array,
+      replacements,
+      newSize,
+      imageMarker.length,
+    );
+    return bitArrayWithImages;
   }
-  return array
+  return array;
 }
 
 function replaceArrays(
   mainArray: Uint8Array,
   replacements: Map<number, Uint8Array>,
   newArraySize: number,
-  replaceSize: number
+  replaceSize: number,
 ): Uint8Array {
-  let newBitArray = new Uint8Array(newArraySize)
-  let targetIndex = 0
-  let currentIndex = 0
+  let newBitArray = new Uint8Array(newArraySize);
+  let targetIndex = 0;
+  let currentIndex = 0;
 
   // Sort the match indices to process them in order
-  const sortedIndices = Array.from(replacements.keys()).sort((a, b) => a - b)
+  const sortedIndices = Array.from(replacements.keys()).sort((a, b) => a - b);
 
   sortedIndices.forEach((matchIndex) => {
     while (currentIndex < matchIndex) {
-      newBitArray[targetIndex++] = mainArray[currentIndex++]
+      newBitArray[targetIndex++] = mainArray[currentIndex++];
     }
 
-    const currentReplacementSequence = replacements.get(matchIndex)!
+    const currentReplacementSequence = replacements.get(matchIndex)!;
     for (let j = 0; j < currentReplacementSequence.length; j++) {
-      newBitArray[targetIndex++] = currentReplacementSequence[j]
+      newBitArray[targetIndex++] = currentReplacementSequence[j];
     }
-    currentIndex += replaceSize
-  })
+    currentIndex += replaceSize;
+  });
 
   // Copy any remaining bytes
   while (currentIndex < mainArray.length) {
-    newBitArray[targetIndex++] = mainArray[currentIndex++]
+    newBitArray[targetIndex++] = mainArray[currentIndex++];
   }
-  return newBitArray
+  return newBitArray;
 }

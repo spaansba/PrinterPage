@@ -1,20 +1,20 @@
-import { addAssociatedPrinters } from "@/lib/queries"
-import { useUser } from "@clerk/nextjs"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Plus } from "lucide-react"
-import React, { type Dispatch, type SetStateAction } from "react"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import type { FriendListHook } from "../AppWindow"
-import { getToaster } from "@/lib/queries/toasterInfo"
-import type { Friend } from "@/app/types/printer"
+import { addAssociatedPrinters } from "@/lib/queries";
+import { useUser } from "@clerk/nextjs";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Plus } from "lucide-react";
+import React, { type Dispatch, type SetStateAction } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import type { FriendListHook } from "../AppWindow";
+import { getToaster } from "@/lib/queries/toasterInfo";
+import type { Friend } from "@/app/types/printer";
 
 export const friendNameSchema = z.object({
   name: z
     .string()
     .min(3, { message: "Name is too short (min 3)" })
     .max(20, { message: "Name is too long (max 20)" }),
-})
+});
 
 export const printerIdSchema = z.object({
   printerId: z
@@ -22,15 +22,19 @@ export const printerIdSchema = z.object({
     .min(10, { message: "Should be 10 characters long" })
     .max(10, { message: "Should be 10 characters long" }),
   name: friendNameSchema.shape.name,
-})
+});
 
 type AddNewFriendFormProps = {
-  setIsAddingFriend: Dispatch<SetStateAction<boolean>>
-  addFriendRef: React.RefObject<HTMLFormElement | null>
-  friendsHook: FriendListHook
-}
+  setIsAddingFriend: Dispatch<SetStateAction<boolean>>;
+  addFriendRef: React.RefObject<HTMLFormElement | null>;
+  friendsHook: FriendListHook;
+};
 
-function AddNewFriendForm({ friendsHook, setIsAddingFriend, addFriendRef }: AddNewFriendFormProps) {
+function AddNewFriendForm({
+  friendsHook,
+  setIsAddingFriend,
+  addFriendRef,
+}: AddNewFriendFormProps) {
   const {
     register: registerNew,
     handleSubmit: handleSubmitNew,
@@ -40,39 +44,43 @@ function AddNewFriendForm({ friendsHook, setIsAddingFriend, addFriendRef }: AddN
   } = useForm<z.infer<typeof printerIdSchema>>({
     resolver: zodResolver(printerIdSchema),
     mode: "onSubmit",
-  })
-  const { user } = useUser()
+  });
+  const { user } = useUser();
   async function handleFormSubmit(data: z.infer<typeof printerIdSchema>) {
     if (!user) {
-      setErrorNew("root", { message: "User Doesnt Exist" })
-      return
+      setErrorNew("root", { message: "User Doesnt Exist" });
+      return;
     }
     try {
-      const printerData = await getToaster(data.printerId)
+      const printerData = await getToaster(data.printerId);
       if (!printerData.data) {
-        setErrorNew("root", { message: printerData.message })
-        return
+        setErrorNew("root", { message: printerData.message });
+        return;
       }
-      const added = await addAssociatedPrinters(user.id, printerData.data.id, data.name)
+      const added = await addAssociatedPrinters(
+        user.id,
+        printerData.data.id,
+        data.name,
+      );
       if (added.error) {
-        setErrorNew("root", { message: added.error.message })
+        setErrorNew("root", { message: added.error.message });
       } else {
-        resetNew()
+        resetNew();
         const newFriend: Friend = {
           printerId: printerData.data.id,
           name: added.data.name,
           lastSendMessage: new Date().toISOString(),
           profilePicture: printerData.data.profilePicture,
-        }
-        friendsHook.setFriendList((prev) => [...prev, newFriend])
-        setIsAddingFriend(false)
-        friendsHook.setSelectedFriends([newFriend])
+        };
+        friendsHook.setFriendList((prev) => [...prev, newFriend]);
+        setIsAddingFriend(false);
+        friendsHook.setSelectedFriends([newFriend]);
       }
     } catch (error) {
       setErrorNew("root", {
         message: "Failed to add toaster. Please try again.",
-      })
-      console.error(error)
+      });
+      console.error(error);
     }
   }
   return (
@@ -88,7 +96,7 @@ function AddNewFriendForm({ friendsHook, setIsAddingFriend, addFriendRef }: AddN
         <input
           {...registerNew("printerId", {
             onChange: (e) => {
-              e.target.value = e.target.value.toLowerCase()
+              e.target.value = e.target.value.toLowerCase();
             },
           })}
           placeholder="xxxxxxxxxx"
@@ -98,7 +106,9 @@ function AddNewFriendForm({ friendsHook, setIsAddingFriend, addFriendRef }: AddN
           spellCheck="false"
         />
         <div className="col-span-2 text-toastError pt-1">
-          {errorsNew.printerId?.message && <p key="id_error">{errorsNew.printerId?.message}</p>}
+          {errorsNew.printerId?.message && (
+            <p key="id_error">{errorsNew.printerId?.message}</p>
+          )}
         </div>
       </div>
       <div className="grid grid-cols-2">
@@ -113,11 +123,15 @@ function AddNewFriendForm({ friendsHook, setIsAddingFriend, addFriendRef }: AddN
           className="border-solid border border-gray-300 text-[16px] px-2 py-1 rounded"
         />
         <div className="col-span-2 text-toastError pt-1">
-          {errorsNew.name?.message && <p key="name_error">{errorsNew.name?.message}</p>}
+          {errorsNew.name?.message && (
+            <p key="name_error">{errorsNew.name?.message}</p>
+          )}
         </div>
       </div>
       <div className="text-toastError pt-1">
-        {errorsNew.root?.message && <p key="root_error">{errorsNew.root?.message}</p>}
+        {errorsNew.root?.message && (
+          <p key="root_error">{errorsNew.root?.message}</p>
+        )}
       </div>
       <button
         type="submit"
@@ -126,7 +140,7 @@ function AddNewFriendForm({ friendsHook, setIsAddingFriend, addFriendRef }: AddN
         <Plus />
       </button>
     </form>
-  )
+  );
 }
 
-export default AddNewFriendForm
+export default AddNewFriendForm;

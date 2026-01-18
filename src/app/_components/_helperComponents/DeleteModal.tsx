@@ -1,13 +1,13 @@
-import { AlertTriangle, X } from "lucide-react"
-import React, { useState, type Dispatch, type SetStateAction } from "react"
+import { AlertTriangle, X } from "lucide-react";
+import React, { type Dispatch, type SetStateAction } from "react";
 
 type DeleteModelProps = {
-  showDeleteModal: boolean
-  setShowDeleteModal: Dispatch<SetStateAction<boolean>>
-  handleOnDeleteClick: () => void
-  titleText: string
-  messageText: string
-}
+  showDeleteModal: boolean;
+  setShowDeleteModal: Dispatch<SetStateAction<boolean>>;
+  handleOnDeleteClick: () => void;
+  titleText: string;
+  messageText: string;
+};
 
 function DeleteModal({
   showDeleteModal,
@@ -41,8 +41,8 @@ function DeleteModal({
               <div className="flex justify-end gap-1 bg-toastPrimary">
                 <button
                   onClick={() => {
-                    setShowDeleteModal(false)
-                    handleOnDeleteClick()
+                    setShowDeleteModal(false);
+                    handleOnDeleteClick();
                   }}
                   className="h-7 px-4 flex items-center justify-center bg-toastPrimary border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-b-white active:border-r-white"
                 >
@@ -60,7 +60,7 @@ function DeleteModal({
         </div>
       )}
     </>
-  )
+  );
 }
 
-export default DeleteModal
+export default DeleteModal;

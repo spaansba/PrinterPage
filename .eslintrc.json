@@ -10,5 +10,11 @@
     "project": "./tsconfig.json"
   },
   "root": true,
-  "ignorePatterns": ["node_modules/", ".next/", "public/", "*.config.js", "*.config.mjs"]
+  "ignorePatterns": [
+    "node_modules/",
+    ".next/",
+    "public/",
+    "*.config.js",
+    "*.config.mjs"
+  ]
 }

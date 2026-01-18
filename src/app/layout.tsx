@@ -1,14 +1,14 @@
-import type { Metadata, Viewport } from "next"
-import { IBM_Plex_Mono } from "next/font/google"
-import "./globals.css"
-import { ClerkProvider } from "@clerk/nextjs"
+import type { Metadata, Viewport } from "next";
+import { IBM_Plex_Mono } from "next/font/google";
+import "./globals.css";
+import { ClerkProvider } from "@clerk/nextjs";
 
 const ibmPlexMono = IBM_Plex_Mono({
   subsets: ["latin"],
   weight: ["400", "700"],
   display: "swap",
   variable: "--font-ibm-plex-mono",
-})
+});
 
 export const metadata: Metadata = {
   title: "Toaster",
@@ -144,7 +144,7 @@ export const metadata: Metadata = {
       },
     ],
   },
-}
+};
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -156,9 +156,11 @@ export const viewport: Viewport = {
     { media: "(prefers-color-scheme: light)", color: "#d4d0c8" },
     { media: "(prefers-color-scheme: dark)", color: "#d4d0c8" },
   ],
-}
+};
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <ClerkProvider dynamic>
       <html lang="en">
@@ -168,5 +170,5 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         </body>
       </html>
     </ClerkProvider>
-  )
+  );
 }

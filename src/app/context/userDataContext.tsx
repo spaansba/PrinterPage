@@ -1,16 +1,15 @@
-"use client"
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
-import type { Friend, Toaster, ToasterUser } from "../types/printer"
-import { useEditor } from "@tiptap/react"
+"use client";
+import { createContext, useContext, useState, type ReactNode } from "react";
+import type { Friend, Toaster, ToasterUser } from "../types/printer";
 
 type ToasterUserContextType = {
-  friendList: Friend[]
-  pairedToasters: Toaster[]
-  setFriendList: React.Dispatch<React.SetStateAction<Friend[]>>
-  setPairedToasters: React.Dispatch<React.SetStateAction<Toaster[]>>
-  currentUser: ToasterUser
-  alterUsername: (userId: string, newName: string) => void
-}
+  friendList: Friend[];
+  pairedToasters: Toaster[];
+  setFriendList: React.Dispatch<React.SetStateAction<Friend[]>>;
+  setPairedToasters: React.Dispatch<React.SetStateAction<Toaster[]>>;
+  currentUser: ToasterUser;
+  alterUsername: (userId: string, newName: string) => void;
+};
 
 const ToasterUserContext = createContext<ToasterUserContextType>({
   friendList: [],
@@ -23,14 +22,14 @@ const ToasterUserContext = createContext<ToasterUserContextType>({
     toastsSend: 0,
     profileImageUrl: "",
   },
-  alterUsername: (userId: string, newName: string) => {},
-})
+  alterUsername: () => {},
+});
 
 interface ToasterUserProviderProps {
-  children: ReactNode
-  initialFriendList: Friend[]
-  initialPairedToasters: Toaster[]
-  initialUser: ToasterUser
+  children: ReactNode;
+  initialFriendList: Friend[];
+  initialPairedToasters: Toaster[];
+  initialUser: ToasterUser;
 }
 
 export function ToasterUserProvider({
@@ -39,9 +38,11 @@ export function ToasterUserProvider({
   initialPairedToasters,
   initialUser,
 }: ToasterUserProviderProps) {
-  const [friendList, setFriendList] = useState<Friend[]>(initialFriendList)
-  const [pairedToasters, setPairedToasters] = useState<Toaster[]>(initialPairedToasters)
-  const [currentUser, setCurrentUser] = useState<ToasterUser>(initialUser)
+  const [friendList, setFriendList] = useState<Friend[]>(initialFriendList);
+  const [pairedToasters, setPairedToasters] = useState<Toaster[]>(
+    initialPairedToasters,
+  );
+  const [currentUser, setCurrentUser] = useState<ToasterUser>(initialUser);
   //const alterPairedToasters
 
   const alterUsername = (userId: string, newName: string) => {
@@ -50,7 +51,7 @@ export function ToasterUserProvider({
       username: newName,
       toastsSend: prev.toastsSend,
       profileImageUrl: prev.profileImageUrl,
-    }))
+    }));
 
     setPairedToasters((prev) => {
       return prev.map((toaster) => ({
@@ -61,11 +62,11 @@ export function ToasterUserProvider({
                 ...account,
                 username: newName,
               }
-            : account
+            : account,
         ),
-      }))
-    })
-  }
+      }));
+    });
+  };
 
   return (
     <ToasterUserContext.Provider
@@ -80,15 +81,15 @@ export function ToasterUserProvider({
     >
       {children}
     </ToasterUserContext.Provider>
-  )
+  );
 }
 
 export function useToasterUser() {
-  const context = useContext(ToasterUserContext)
+  const context = useContext(ToasterUserContext);
   if (!context) {
-    throw new Error("useToasterUser must be used within a ToasterUserProvider")
+    throw new Error("useToasterUser must be used within a ToasterUserProvider");
   }
-  return context
+  return context;
 }
 
-export default ToasterUserContext
+export default ToasterUserContext;

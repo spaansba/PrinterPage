@@ -1,6 +1,6 @@
-"use client"
-import { Mark } from "@tiptap/core"
-import { RawCommands } from "@tiptap/core"
+"use client";
+import { Mark } from "@tiptap/core";
+import { RawCommands } from "@tiptap/core";
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
@@ -8,12 +8,12 @@ declare module "@tiptap/core" {
       /**
        * Toggle a custom mark with class
        */
-      toggleCustomMark: (className: string) => ReturnType
+      toggleCustomMark: (className: string) => ReturnType;
       /**
        * Unset custom mark
        */
-      unsetCustomMark: () => ReturnType
-    }
+      unsetCustomMark: () => ReturnType;
+    };
   }
 }
 
@@ -27,11 +27,11 @@ export const CustomMark = Mark.create({
       htmlTag: "text-size",
       // Add immediatelyRender option for SSR
       immediatelyRender: false,
-    }
+    };
   },
 
   renderHTML({ HTMLAttributes }) {
-    return [this.options.htmlTag, HTMLAttributes, 0]
+    return [this.options.htmlTag, HTMLAttributes, 0];
   },
 
   parseHTML() {
@@ -39,7 +39,7 @@ export const CustomMark = Mark.create({
       {
         tag: this.options.htmlTag,
       },
-    ]
+    ];
   },
 
   addCommands() {
@@ -48,22 +48,22 @@ export const CustomMark = Mark.create({
         (className: string) =>
         ({ chain, editor }) => {
           // Check if the current selection has the exact class we want to toggle
-          const isActive = editor.isActive(this.name, { class: className })
+          const isActive = editor.isActive(this.name, { class: className });
 
           if (isActive) {
             // If the class is already applied, remove the mark completely
-            return chain().unsetMark(this.name).run()
+            return chain().unsetMark(this.name).run();
           }
 
           // If the class isn't applied, add it
-          return chain().setMark(this.name, { class: className }).run()
+          return chain().setMark(this.name, { class: className }).run();
         },
       unsetCustomMark:
         () =>
         ({ chain }) => {
-          return chain().unsetMark(this.name).run()
+          return chain().unsetMark(this.name).run();
         },
-    } as Partial<RawCommands>
+    } as Partial<RawCommands>;
   },
 
   addAttributes() {
@@ -73,13 +73,13 @@ export const CustomMark = Mark.create({
         parseHTML: (element) => element.getAttribute("class"),
         renderHTML: (attributes) => {
           if (!attributes.class) {
-            return {}
+            return {};
           }
           return {
             class: attributes.class,
-          }
+          };
         },
       },
-    }
+    };
   },
-})
+});

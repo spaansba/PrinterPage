@@ -113,12 +113,8 @@
           "name": "printer_users_printer_association_printer_id_printer_printers_id_fk",
           "tableFrom": "printer_users_printer_association",
           "tableTo": "printer_printers",
-          "columnsFrom": [
-            "printer_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["printer_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }

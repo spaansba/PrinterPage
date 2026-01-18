@@ -1,21 +1,21 @@
-"use client"
-import { useEffect, useState } from "react"
-import type { Editor } from "@tiptap/react"
-import { useDropDownModal } from "@/app/_customHooks/useDropdownModal"
+"use client";
+import { useEffect, useState } from "react";
+import type { Editor } from "@tiptap/react";
+import { useDropDownModal } from "@/app/_customHooks/useDropdownModal";
 
 interface FontSize {
-  label: string
-  value: string
+  label: string;
+  value: string;
 }
 
 interface FontSizeDropdownProps {
-  editor: Editor
+  editor: Editor;
 }
 
 interface DropdownItemProps {
-  size: FontSize
-  onClick: (value: string) => void
-  isSelected: boolean
+  size: FontSize;
+  onClick: (value: string) => void;
+  isSelected: boolean;
 }
 
 const fontSizes = [
@@ -23,42 +23,40 @@ const fontSizes = [
   { label: "26", value: "text-[26px]" },
   { label: "42", value: "text-[42px]" },
   { label: "52", value: "text-[52px]" },
-] as const
+] as const;
 
 const DropdownItem = ({ size, onClick, isSelected }: DropdownItemProps) => (
   <button
     type="button"
     onMouseDown={(e) => {
-      e.preventDefault()
-      onClick(size.value)
+      e.preventDefault();
+      onClick(size.value);
     }}
     className={`w-full px-2 py-1 text-left text-black text-sm md:hover:bg-toastPrimaryHover 
       ${isSelected ? "bg-toastPrimaryHover" : ""}`}
   >
     {size.label}
   </button>
-)
+);
 
 function FontSizeDropdown({ editor }: FontSizeDropdownProps) {
-  const [currentSize, setCurrentSize] = useState("text-[13px]")
-  const { toggleButtonRef, dropdownRef, isDropdownOpen, setIsDropdownOpen } = useDropDownModal(
-    () => setIsDropdownOpen(false),
-    true
-  )
+  const [currentSize, setCurrentSize] = useState("text-[13px]");
+  const { toggleButtonRef, dropdownRef, isDropdownOpen, setIsDropdownOpen } =
+    useDropDownModal(() => setIsDropdownOpen(false), true);
 
   const updateFontSize = () => {
     const activeSize = fontSizes.find((size) =>
-      editor.isActive("customMark", { class: size.value })
-    )
+      editor.isActive("customMark", { class: size.value }),
+    );
     if (activeSize?.value !== currentSize) {
-      setCurrentSize(activeSize?.value ?? fontSizes[0].value)
+      setCurrentSize(activeSize?.value ?? fontSizes[0].value);
     }
-  }
+  };
 
   const handleFontSizeChange = (selectedValue: string) => {
     if (currentSize === "text-[13px]" && selectedValue === "text-[13px]") {
-      setIsDropdownOpen(false)
-      return
+      setIsDropdownOpen(false);
+      return;
     }
 
     editor
@@ -66,25 +64,27 @@ function FontSizeDropdown({ editor }: FontSizeDropdownProps) {
       .focus()
       .unsetMark("customMark")
       .setMark("customMark", { class: selectedValue })
-      .run()
+      .run();
 
-    setIsDropdownOpen(false)
-    setCurrentSize(selectedValue)
-  }
+    setIsDropdownOpen(false);
+    setCurrentSize(selectedValue);
+  };
 
   useEffect(() => {
-    updateFontSize()
+    updateFontSize();
 
-    editor.on("selectionUpdate", updateFontSize)
-    editor.on("update", updateFontSize)
+    editor.on("selectionUpdate", updateFontSize);
+    editor.on("update", updateFontSize);
 
     return () => {
-      editor.off("selectionUpdate", updateFontSize)
-      editor.off("update", updateFontSize)
-    }
-  }, [editor, updateFontSize])
+      editor.off("selectionUpdate", updateFontSize);
+      editor.off("update", updateFontSize);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editor]);
 
-  const currentLabel = fontSizes.find((size) => size.value === currentSize)?.label ?? "13px"
+  const currentLabel =
+    fontSizes.find((size) => size.value === currentSize)?.label ?? "13px";
 
   return (
     <div className="relative select-none z-[1] mr-1 px-1 border border-transparent hover:border-t-white hover:border-l-white hover:border-b-[#808080] hover:border-r-[#808080]">
@@ -92,8 +92,8 @@ function FontSizeDropdown({ editor }: FontSizeDropdownProps) {
         ref={toggleButtonRef}
         type="button"
         onMouseDown={(e) => {
-          e.preventDefault()
-          setIsDropdownOpen(!isDropdownOpen)
+          e.preventDefault();
+          setIsDropdownOpen(!isDropdownOpen);
         }}
         className="group h-7 w-[35px] cursor-pointer rounded-none text-sm text-left
           flex items-center justify-between
@@ -127,7 +127,7 @@ function FontSizeDropdown({ editor }: FontSizeDropdownProps) {
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default FontSizeDropdown
+export default FontSizeDropdown;

@@ -1,11 +1,11 @@
-import { RefreshCcw } from "lucide-react"
-import React from "react"
+import { RefreshCcw } from "lucide-react";
+import React from "react";
 
 type ChangeFacingModeButtonProps = {
-  cameraCount: number
-  handleSwitchCamera: () => void
-  isStreaming: boolean
-}
+  cameraCount: number;
+  handleSwitchCamera: () => void;
+  isStreaming: boolean;
+};
 
 function ChangeFacingModeButton({
   cameraCount,
@@ -25,7 +25,7 @@ function ChangeFacingModeButton({
         </button>
       )}
     </>
-  )
+  );
 }
 
-export default ChangeFacingModeButton
+export default ChangeFacingModeButton;

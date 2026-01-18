@@ -1,11 +1,11 @@
-import React from "react"
+import React from "react";
 
 interface RetroToggleProps {
-  checked: boolean
-  onChange: () => void
-  disabled?: boolean
-  className?: string
-  "aria-label"?: string
+  checked: boolean;
+  onChange: () => void;
+  disabled?: boolean;
+  className?: string;
+  "aria-label"?: string;
 }
 
 const RetroToggle: React.FC<RetroToggleProps> = ({
@@ -16,11 +16,11 @@ const RetroToggle: React.FC<RetroToggleProps> = ({
   "aria-label": ariaLabel = "Toggle switch",
 }) => {
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault()
+    e.preventDefault();
     if (!disabled) {
-      onChange()
+      onChange();
     }
-  }
+  };
 
   return (
     <div className="w-10">
@@ -46,7 +46,7 @@ const RetroToggle: React.FC<RetroToggleProps> = ({
         </span>
       </button>
     </div>
-  )
-}
+  );
+};
 
-export default RetroToggle
+export default RetroToggle;

@@ -1,11 +1,11 @@
-import type { Toaster } from "@/app/types/printer"
-import PairedUserList from "./PairedUserList"
-import ToasterInformation from "./ToasterInformation"
-import ToasterSubscriptions from "./ToasterSubscriptions"
+import type { Toaster } from "@/app/types/printer";
+import PairedUserList from "./PairedUserList";
+import ToasterInformation from "./ToasterInformation";
+import ToasterSubscriptions from "./ToasterSubscriptions";
 
 type PairedToasterContainerProps = {
-  toaster: Toaster
-}
+  toaster: Toaster;
+};
 
 function PairedToasterContainer({ toaster }: PairedToasterContainerProps) {
   return (
@@ -18,7 +18,7 @@ function PairedToasterContainer({ toaster }: PairedToasterContainerProps) {
         <ToasterSubscriptions toaster={toaster} />
       </div>
     </div>
-  )
+  );
 }
 
-export default PairedToasterContainer
+export default PairedToasterContainer;

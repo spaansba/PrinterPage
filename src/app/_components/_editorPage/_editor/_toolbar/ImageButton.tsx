@@ -1,25 +1,25 @@
-import { ImageIcon } from "lucide-react"
-import React, { useState } from "react"
-import CameraModal from "./_camera/CameraModal"
-import { useEditorContext } from "@/app/context/editorContext"
+import { ImageIcon } from "lucide-react";
+import React, { useState } from "react";
+import CameraModal from "./_camera/CameraModal";
+import { useEditorContext } from "@/app/context/editorContext";
 
 function ImageButton() {
-  const { editor } = useEditorContext()
-  const [showCamera, setShowCamera] = useState(false)
+  const { editor } = useEditorContext();
+  const [showCamera, setShowCamera] = useState(false);
   function triggerImageUpload() {
     // Shows the camera modal, if no camera model is found and on pc it opens the users directory
-    setShowCamera(true)
+    setShowCamera(true);
   }
   const handleCameraCapture = (photoData: string) => {
-    const pos = editor!.state.selection.from
+    const pos = editor!.state.selection.from;
     editor!
       .chain()
       .focus()
       .setImage({ src: photoData, alt: "[Camera photo]" })
       .setTextSelection(pos + 3)
-      .run()
-    setShowCamera(false)
-  }
+      .run();
+    setShowCamera(false);
+  };
   return (
     <>
       <button
@@ -36,7 +36,7 @@ function ImageButton() {
         />
       )}
     </>
-  )
+  );
 }
 
-export default ImageButton
+export default ImageButton;

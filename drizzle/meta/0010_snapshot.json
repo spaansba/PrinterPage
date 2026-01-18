@@ -26,13 +26,9 @@
         "subscriptions_printer_id_printer_printers_id_fk": {
           "name": "subscriptions_printer_id_printer_printers_id_fk",
           "tableFrom": "subscriptions",
-          "columnsFrom": [
-            "printer_id"
-          ],
+          "columnsFrom": ["printer_id"],
           "tableTo": "printer_printers",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -84,26 +80,18 @@
         "user_pairing_printer_id_printer_printers_id_fk": {
           "name": "user_pairing_printer_id_printer_printers_id_fk",
           "tableFrom": "user_pairing",
-          "columnsFrom": [
-            "printer_id"
-          ],
+          "columnsFrom": ["printer_id"],
           "tableTo": "printer_printers",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "user_pairing_user_id_printer_users_id_fk": {
           "name": "user_pairing_user_id_printer_users_id_fk",
           "tableFrom": "user_pairing",
-          "columnsFrom": [
-            "user_id"
-          ],
+          "columnsFrom": ["user_id"],
           "tableTo": "printer_users",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -258,26 +246,18 @@
         "printer_users_printer_association_user_id_printer_users_id_fk": {
           "name": "printer_users_printer_association_user_id_printer_users_id_fk",
           "tableFrom": "printer_users_printer_association",
-          "columnsFrom": [
-            "user_id"
-          ],
+          "columnsFrom": ["user_id"],
           "tableTo": "printer_users",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "printer_users_printer_association_associated_printer_id_printer_printers_id_fk": {
           "name": "printer_users_printer_association_associated_printer_id_printer_printers_id_fk",
           "tableFrom": "printer_users_printer_association",
-          "columnsFrom": [
-            "associated_printer_id"
-          ],
+          "columnsFrom": ["associated_printer_id"],
           "tableTo": "printer_printers",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -337,13 +317,9 @@
         "verification_attempts_user_id_printer_users_id_fk": {
           "name": "verification_attempts_user_id_printer_users_id_fk",
           "tableFrom": "verification_attempts",
-          "columnsFrom": [
-            "user_id"
-          ],
+          "columnsFrom": ["user_id"],
           "tableTo": "printer_users",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -396,13 +372,9 @@
         "verification_codes_printer_id_printer_printers_id_fk": {
           "name": "verification_codes_printer_id_printer_printers_id_fk",
           "tableFrom": "verification_codes",
-          "columnsFrom": [
-            "printer_id"
-          ],
+          "columnsFrom": ["printer_id"],
           "tableTo": "printer_printers",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
