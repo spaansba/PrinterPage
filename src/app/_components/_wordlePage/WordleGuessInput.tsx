@@ -32,26 +32,24 @@ function WordleGuessInput({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2">
-      <div className="flex-1 flex items-center gap-1">
-        <input
-          type="text"
-          value={value}
-          onChange={handleChange}
-          placeholder="ENTER WORD"
-          disabled={isSubmitting || disabled}
-          maxLength={5}
-          className="flex-1 px-2 py-1 text-sm font-mono uppercase tracking-widest border border-gray-400 focus:outline-none focus:border-gray-600 disabled:bg-gray-100"
-          autoComplete="off"
-          autoCorrect="off"
-          autoCapitalize="off"
-          spellCheck="false"
-        />
-      </div>
+    <form onSubmit={handleSubmit} className="relative">
+      <input
+        type="text"
+        value={value}
+        onChange={handleChange}
+        placeholder="Enter 5 Letter Word"
+        disabled={isSubmitting || disabled}
+        maxLength={5}
+        className="w-full px-2 py-1 pr-14 text-sm font-mono uppercase tracking-widest border border-gray-400 focus:outline-none focus:border-gray-600 disabled:bg-gray-100"
+        autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="off"
+        spellCheck="false"
+      />
       <button
         type="submit"
         disabled={value.length !== 5 || isSubmitting || disabled}
-        className="px-3 py-1 text-xs font-medium bg-toastTertiary text-white hover:bg-opacity-90 disabled:bg-gray-400 disabled:cursor-not-allowed"
+        className="absolute right-1 top-1/2 -translate-y-1/2 px-2 py-0.5 text-xs font-medium bg-green-600 text-white hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
       >
         {isSubmitting ? "..." : "Send"}
       </button>

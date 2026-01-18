@@ -1,7 +1,7 @@
 import type { Toaster } from "@/app/types/printer";
 import React from "react";
 import SubscriptionTemplate from "./SubscriptionTemplate";
-import { CloudSun, Home, Smile } from "lucide-react";
+import { Baby, CloudSun, Home, Smile } from "lucide-react";
 
 type ToasterSubscriptionsProps = {
   toaster: Toaster;
@@ -15,6 +15,8 @@ function ToasterSubscriptions({ toaster }: ToasterSubscriptionsProps) {
         return <CloudSun className="size-6" />;
       case "Dad Jokes":
         return <Smile className="size-6" />;
+      case "Baby Countdown":
+        return <Baby className="size-6" />;
       default:
         return <Home className="size-6" />;
     }

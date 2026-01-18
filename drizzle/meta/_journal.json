@@ -169,6 +169,13 @@
       "when": 1739782429596,
       "tag": "0023_fast_starjammers",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1768764935869,
+      "tag": "0024_special_kate_bishop",
+      "breakpoints": true
     }
   ]
 }

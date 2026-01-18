@@ -17,6 +17,12 @@ export default defineConfig({
   dbCredentials: {
     url: env.parsed?.POSTGRES_URL ?? "",
   },
-  tablesFilter: "printer_",
+  tablesFilter: [
+    "printer_*",
+    "user_pairing",
+    "verification_*",
+    "daily_wordle_words",
+    "wordle_user_*",
+  ],
   verbose: true,
 });

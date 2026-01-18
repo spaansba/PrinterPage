@@ -38,12 +38,12 @@ function TitleBar({ pageActivated, setPageActivated }: TitleBarProps) {
         <span className="text-white text-sm font-bold">{Title()}</span>
       </div>
 
-      <div className="h-6 bg-toastPrimary border-t border-[#808080] border-b flex items-center px-2 text-xs gap-[0.7rem]">
+      <div className="h-6 bg-toastPrimary border-t border-[#808080] border-b flex items-center px-2 text-xs gap-[0.7rem] overflow-x-auto whitespace-nowrap scrollbar-hide">
         {pages.map((page) => (
           <button
             key={page}
             onClick={() => setPageActivated(page)}
-            className={`${pageActivated === page ? "underline" : "hover:opacity-80"} `}
+            className={`${pageActivated === page ? "underline" : "hover:opacity-80"} flex-shrink-0`}
           >
             <u>{page.charAt(0)}</u>
             {page.slice(1)}

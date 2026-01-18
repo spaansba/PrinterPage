@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Calendar } from "lucide-react";
+import { Calendar, FlaskConical } from "lucide-react";
 import type { SettingDefinition, Toaster } from "@/app/types/printer";
 import TimeSelector from "./TimeSelector";
 import { useToasterUser } from "@/app/context/userDataContext";
@@ -38,6 +38,7 @@ const SubscriptionTemplate = ({
   const [settings, setSettings] = useState(initialSettings);
   const [sendTime, setSendTime] = useState<string | null>(initialSendTime);
   const [hasChanges, setHasChanges] = useState(false);
+  const [isTesting, setIsTesting] = useState(false);
   const { setPairedToasters } = useToasterUser();
   // TODO zod
   const onToggle = async () => {
@@ -136,6 +137,36 @@ const SubscriptionTemplate = ({
     setSendTime(time);
     setHasChanges(true);
   };
+
+  const handleTest = async () => {
+    setIsTesting(true);
+    try {
+      const settingsObj: Record<string, string> = {};
+      settings.forEach((setting) => {
+        settingsObj[setting.label] = setting.userValue || setting.default;
+      });
+
+      const res = await fetch("/api/subscriptions/test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          subscriptionType: title,
+          printerId: toaster.id,
+          settings: settingsObj,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        console.error("Test failed:", data.error);
+      }
+    } catch (error) {
+      console.error("Test error:", error);
+    } finally {
+      setIsTesting(false);
+    }
+  };
+
   return (
     <div className="mt-3 bg-toastWhite border border-gray-300 rounded-sm p-3">
       {/* Title row with icon and enable checkbox */}
@@ -157,8 +188,20 @@ const SubscriptionTemplate = ({
           </div>
         </div>
 
-        {/* Checkbox */}
-        <RetroToggleButton checked={isEnabled} onChange={onToggle} />
+        {/* Toggle and Test button */}
+        <div className="flex items-center gap-2">
+          {process.env.NODE_ENV === "development" && (
+            <button
+              onClick={handleTest}
+              disabled={isTesting}
+              className="p-1 text-gray-500 hover:text-gray-700 disabled:opacity-50"
+              title="Test subscription"
+            >
+              <FlaskConical className={`size-5 ${isTesting ? "animate-pulse" : ""}`} />
+            </button>
+          )}
+          <RetroToggleButton checked={isEnabled} onChange={onToggle} />
+        </div>
       </div>
       {isEnabled && (
         <div className="mt-3 text-sm text-gray-600">

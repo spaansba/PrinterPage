@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm seed:baby:*)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm exec eslint:*)",
+      "Bash(pnpm exec tsc:*)",
+      "Bash(fi)",
+      "Bash(done)",
+      "Bash(pnpm generate:*)",
+      "Bash(pnpm push:*)",
+      "Bash(pnpm db:create-wordle:*)"
+    ]
+  }
+}

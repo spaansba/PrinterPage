@@ -27,9 +27,7 @@ export type SettingInputType = z.infer<typeof SettingInputType>;
 
 export const printerBroadcasters = pgTable("printer_broadcasters", {
   id: varchar("id", { length: 10 }).primaryKey(),
-  creatorId: varchar("creator_id", { length: 256 })
-    .notNull()
-    .references(() => users.id, { onDelete: "set null" }),
+  creatorId: varchar("creator_id", { length: 256 }),
   name: varchar("name", { length: 200 }).notNull(),
   description: varchar("description", { length: 40 }).notNull().default(""),
   settings: json("settings").notNull().default("{}"),

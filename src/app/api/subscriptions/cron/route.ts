@@ -7,6 +7,7 @@ import {
 } from "@/lib/queries/subscriptions/generalSubscription";
 import { registerFonts } from "@/lib/registerFonts";
 import { sendDadJoke } from "@/lib/queries/subscriptions/dadJokes";
+import { sendBabyCountdown } from "@/lib/queries/subscriptions/babyCountdown";
 
 export async function GET() {
   const headersList = await headers();
@@ -91,6 +92,8 @@ async function processSubscription(
       return sendWeatherReport(sub);
     case "2":
       return sendDadJoke(sub.printerId);
+    case "3":
+      return sendBabyCountdown(sub.printerId);
     default:
       return {
         success: false,
