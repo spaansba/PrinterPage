@@ -178,9 +178,7 @@ export const drawWeatherCard = async (
   const iconX = 5;
   const iconY = (canvas.height - iconSize) / 2 + yCenterOffset;
 
-  const image = await loadImage(`https:${forcast.condition.icon}`, {
-    crossOrigin: "anonymous",
-  });
+  const image = await loadImage(`https:${forcast.condition.icon}`);
   ctx.drawImage(image, iconX, iconY, iconSize, iconSize);
   applyBlackFilter(ctx, iconX, iconY, iconSize, iconSize);
   // ctx.filter = "brightness(0)" // Make everything black
