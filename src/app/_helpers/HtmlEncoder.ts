@@ -164,6 +164,74 @@ const BoolCommands: BoolCommands = {
   },
 };
 
+// Flexibly replace any <mark ...> opening tag and </mark> closing tag with ESC/POS invert commands
+function replaceMarkTags(array: Uint8Array): Uint8Array {
+  const invertOn = BoolCommands.invert.state.on;
+  const invertOff = BoolCommands.invert.state.off;
+
+  // Pattern: <mark (0x3c 0x6d 0x61 0x72 0x6b)
+  const markOpenStart = [0x3c, 0x6d, 0x61, 0x72, 0x6b];
+  // Pattern: </mark> (0x3c 0x2f 0x6d 0x61 0x72 0x6b 0x3e)
+  const markClose = [0x3c, 0x2f, 0x6d, 0x61, 0x72, 0x6b, 0x3e];
+
+  let result = new Uint8Array(array);
+
+  // Replace opening <mark ...> tags
+  let i = 0;
+  while (i < result.length - markOpenStart.length) {
+    // Check if we found "<mark"
+    let foundOpenStart = true;
+    for (let j = 0; j < markOpenStart.length; j++) {
+      if (result[i + j] !== markOpenStart[j]) {
+        foundOpenStart = false;
+        break;
+      }
+    }
+
+    // Make sure the next char after "<mark" is a space (0x20) or ">" (0x3e) to avoid matching <markdown> etc.
+    if (foundOpenStart) {
+      const nextChar = result[i + markOpenStart.length];
+      if (nextChar !== 0x20 && nextChar !== 0x3e) {
+        foundOpenStart = false;
+      }
+    }
+
+    if (foundOpenStart) {
+      // Find the closing ">" for this tag
+      let endIndex = i + markOpenStart.length;
+      while (endIndex < result.length && result[endIndex] !== 0x3e) {
+        endIndex++;
+      }
+
+      if (endIndex < result.length) {
+        // Found the closing ">", replace the entire <mark ...> with invertOn
+        const tagLength = endIndex - i + 1;
+        const newArray = new Uint8Array(
+          result.length - tagLength + invertOn.length,
+        );
+        newArray.set(result.slice(0, i));
+        newArray.set(invertOn, i);
+        newArray.set(result.slice(endIndex + 1), i + invertOn.length);
+        result = newArray;
+        i += invertOn.length;
+        continue;
+      }
+    }
+    i++;
+  }
+
+  // Replace closing </mark> tags
+  const [finalResult] = htmlTagToESCPOSEncoder(
+    result,
+    new Uint8Array(markClose),
+    invertOff,
+    "markClose",
+    false,
+  );
+
+  return finalResult;
+}
+
 export async function HtmlEncoder(
   originalArray: Uint8Array,
   imageArray: string[],
@@ -171,8 +239,13 @@ export async function HtmlEncoder(
   let newArray: Uint8Array = new Uint8Array(originalArray);
   debugArray(newArray, "Original");
 
-  // Process boolean commands
+  // Process mark/highlight tags first with flexible matching
+  newArray = replaceMarkTags(newArray);
+  debugArray(newArray, "After mark tags");
+
+  // Process boolean commands (skip invert since we handled mark tags above)
   Object.entries(BoolCommands).forEach(([key, command]) => {
+    if (key === "invert") return; // Already handled by replaceMarkTags
     const [replacedOpen] = htmlTagToESCPOSEncoder(
       newArray,
       command.html.open,

@@ -82,16 +82,8 @@ async function processImageFromArray(
   imageData: Uint8Array,
   options: ImageProcessingOptions = {},
 ): Promise<{ data: Uint8Array; width: number; height: number }> {
-  // Convert Uint8Array to blob
-  const blob = new Blob(
-    [
-      imageData.buffer.slice(
-        imageData.byteOffset,
-        imageData.byteOffset + imageData.byteLength,
-      ),
-    ],
-    { type: "image/png" },
-  );
+  // Convert Uint8Array to blob (slice creates a new ArrayBuffer, avoiding SharedArrayBuffer type issues)
+  const blob = new Blob([imageData.slice()], { type: "image/png" });
   const imageUrl = URL.createObjectURL(blob);
 
   try {

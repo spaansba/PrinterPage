@@ -56,20 +56,20 @@ async function printingOpenTag(
   });
 
   try {
-    const [bannerImg, profileImg] = await Promise.all([
-      loadImages("/images/Toast.png"),
-      loadImages(profileImageUrl),
-    ]);
+    const isDev = process.env.NODE_ENV === "development";
 
-    const bannerData = await createBannerSection(bannerImg);
+    const profileImg = await loadImages(profileImageUrl);
     const profileData = await createProfileSection(profileImg, sender);
+
+    encoder.initialize().raw([0x1b, 0x40]).font("a").size(1);
+
+    if (!isDev) {
+      const bannerImg = await loadImages("/images/Toast.png");
+      const bannerData = await createBannerSection(bannerImg);
+      encoder.image(bannerData, PRINTER_WIDTH, 88, "atkinson", 128).rule();
+    }
+
     return encoder
-      .initialize()
-      .raw([0x1b, 0x40])
-      .font("a")
-      .size(1)
-      .image(bannerData, PRINTER_WIDTH, 88, "atkinson", 128)
-      .rule()
       .image(profileData, PRINTER_WIDTH, profileData.height, "atkinson", 128)
       .align("left")
       .encode();
