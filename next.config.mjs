@@ -4,6 +4,7 @@ import withPWA from "next-pwa";
 const nextConfig = {
   reactStrictMode: true, // Enable React strict mode for improved error handling
   serverExternalPackages: ["@napi-rs/canvas"],
+  turbopack: {}, // Silence Turbopack warning (Next.js 16 default)
   compiler: {
     removeConsole: process.env.NODE_ENV !== "development", // Remove console.log in production
   },
