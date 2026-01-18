@@ -1,39 +1,35 @@
-import { registerFont } from "canvas"
-import path from "path"
+import { GlobalFonts } from "@napi-rs/canvas";
+import path from "path";
 
-let fontsRegistered = false
+let fontsRegistered = false;
 
 export function registerFonts() {
   // Only register fonts once
-  if (fontsRegistered) return
+  if (fontsRegistered) return;
 
   try {
-    registerFont(path.join(process.cwd(), "fonts", "CourierPrime-Regular.ttf"), {
-      family: "Courier New",
-      style: "normal",
-      weight: "normal",
-    })
+    GlobalFonts.registerFromPath(
+      path.join(process.cwd(), "fonts", "CourierPrime-Regular.ttf"),
+      "Courier New",
+    );
 
-    registerFont(path.join(process.cwd(), "fonts", "CourierPrime-Bold.ttf"), {
-      family: "Courier New",
-      style: "normal",
-      weight: "bold",
-    })
+    GlobalFonts.registerFromPath(
+      path.join(process.cwd(), "fonts", "CourierPrime-Bold.ttf"),
+      "Courier New",
+    );
 
-    registerFont(path.join(process.cwd(), "fonts", "CourierPrime-Italic.ttf"), {
-      family: "Courier New",
-      style: "italic",
-      weight: "normal",
-    })
+    GlobalFonts.registerFromPath(
+      path.join(process.cwd(), "fonts", "CourierPrime-Italic.ttf"),
+      "Courier New",
+    );
 
-    registerFont(path.join(process.cwd(), "fonts", "CourierPrime-BoldItalic.ttf"), {
-      family: "Courier New",
-      style: "italic",
-      weight: "bold",
-    })
+    GlobalFonts.registerFromPath(
+      path.join(process.cwd(), "fonts", "CourierPrime-BoldItalic.ttf"),
+      "Courier New",
+    );
 
-    fontsRegistered = true
+    fontsRegistered = true;
   } catch (error) {
-    console.error("Error registering fonts:", error)
+    console.error("Error registering fonts:", error);
   }
 }

@@ -1,5 +1,5 @@
 import { PRINTER_WIDTH } from "@/lib/constants"
-import { createCanvas } from "canvas"
+import { createCanvas } from "@napi-rs/canvas"
 import ReceiptPrinterEncoder from "@point-of-sale/receipt-printer-encoder"
 export const dadJokeCardBytes = async (joke: string): Promise<Uint8Array> => {
   const encoder = new ReceiptPrinterEncoder({

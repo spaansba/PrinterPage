@@ -7,7 +7,7 @@ import {
 } from "@/app/_helpers/imageCreating/weatherCard"
 import { PRINTER_WIDTH } from "@/lib/constants"
 import type { PrinterSubscription, TempUnit } from "@/lib/schema/subscriptions"
-import { createCanvas } from "canvas"
+import { createCanvas } from "@napi-rs/canvas"
 import { sendSubscription } from "./generalSubscription"
 
 export const sendWeatherReport = async (

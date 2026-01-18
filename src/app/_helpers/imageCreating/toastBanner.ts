@@ -1,4 +1,4 @@
-import type { Canvas, CanvasRenderingContext2D as NodeCanvasContext } from "canvas"
+import type { Canvas, SKRSContext2D as NodeCanvasContext } from "@napi-rs/canvas"
 import { baseCanvas, drawCircularImage } from "../createImagesToPrint"
 
 export type imageCanvas = {
