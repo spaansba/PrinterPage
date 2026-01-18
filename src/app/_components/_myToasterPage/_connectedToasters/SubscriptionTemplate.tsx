@@ -189,18 +189,18 @@ const SubscriptionTemplate = ({
         </div>
 
         {/* Toggle and Test button */}
-        <div className="flex items-center gap-2">
-          {process.env.NODE_ENV === "development" && (
-            <button
-              onClick={handleTest}
-              disabled={isTesting}
-              className="p-1 text-gray-500 hover:text-gray-700 disabled:opacity-50"
-              title="Test subscription"
-            >
-              <FlaskConical className={`size-5 ${isTesting ? "animate-pulse" : ""}`} />
-            </button>
-          )}
+        <div className="flex flex-col items-center gap-3">
           <RetroToggleButton checked={isEnabled} onChange={onToggle} />
+          <button
+            onClick={handleTest}
+            disabled={isTesting}
+            className="text-xs text-gray-500 hover:text-gray-700 disabled:opacity-50 flex items-center gap-1"
+            title="Test subscription"
+          >
+            <FlaskConical
+              className={`size-5 ${isTesting ? "animate-pulse" : ""}`}
+            />
+          </button>
         </div>
       </div>
       {isEnabled && (

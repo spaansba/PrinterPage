@@ -1,16 +1,17 @@
 import { NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import { sendWeatherReport } from "@/lib/queries/subscriptions/weather";
 import { sendDadJoke } from "@/lib/queries/subscriptions/dadJokes";
 import { sendBabyCountdown } from "@/lib/queries/subscriptions/babyCountdown";
 import { registerFonts } from "@/lib/registerFonts";
 
 export async function POST(request: Request) {
-  // Only allow in development
-  if (process.env.NODE_ENV !== "development") {
-    return NextResponse.json({ error: "Not allowed" }, { status: 403 });
-  }
-
   try {
+    // Require authentication
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const { subscriptionType, printerId, settings } = await request.json();
 
     if (!subscriptionType || !printerId) {

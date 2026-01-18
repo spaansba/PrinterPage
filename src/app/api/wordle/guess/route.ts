@@ -3,6 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { submitGuess } from "@/lib/queries/wordle";
 import { wordleCardBytes } from "@/app/_helpers/imageCreating/wordleCard";
 import { sendSubscription } from "@/lib/queries/subscriptions/generalSubscription";
+import { registerFonts } from "@/lib/registerFonts";
 
 export async function POST(request: Request): Promise<NextResponse> {
   try {
@@ -43,6 +44,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     let printed = false;
     if (result.allGuessResults && result.guessNumber && result.gameStatus) {
       try {
+        registerFonts();
         const printContent = await wordleCardBytes(
           result.allGuessResults,
           result.guessNumber,
