@@ -1,12 +1,12 @@
 "use client";
 import { Editor, useEditor } from "@tiptap/react";
 import React, { createContext, useContext } from "react";
-import StarterKit from "@tiptap/starter-kit";
-import Underline from "@tiptap/extension-underline";
-import Highlight from "@tiptap/extension-highlight";
+import { StarterKit } from "@tiptap/starter-kit";
+import { Underline } from "@tiptap/extension-underline";
+import { Highlight } from "@tiptap/extension-highlight";
 import { TextStyle } from "@tiptap/extension-text-style";
 import { CustomMark } from "../_components/_editorPage/_editor/CustomSpan";
-import Image from "@tiptap/extension-image";
+import { Image } from "@tiptap/extension-image";
 import { useForm, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -41,10 +41,6 @@ export function CustomEditorProvider({
     content: "",
     extensions: [
       StarterKit.configure({
-        history: {
-          depth: 100,
-          newGroupDelay: 500,
-        },
         paragraph: {
           HTMLAttributes: {
             // We have the editor on 16px so it doesnt zoom in on mobile automatically. This hack makes it 13px again
@@ -188,6 +184,8 @@ export function CustomEditorProvider({
           z.object({
             printerId: z.string(),
             name: z.string(),
+            lastSendMessage: z.string(),
+            profilePicture: z.string().nullable(),
           }),
         )
         .nullable()
