@@ -10,7 +10,6 @@ type ToasterSubscriptionsProps = {
 function ToasterSubscriptions({ toaster }: ToasterSubscriptionsProps) {
   //TODO set icons in database
   const getIcon = (subTitle: string) => {
-    console.log(subTitle);
     switch (subTitle) {
       case "Weather":
         return <CloudSun className="size-6" />;

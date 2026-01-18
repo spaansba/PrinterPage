@@ -39,7 +39,6 @@ const SubscriptionTemplate = ({
   const [sendTime, setSendTime] = useState<string | null>(initialSendTime);
   const [hasChanges, setHasChanges] = useState(false);
   const { setPairedToasters } = useToasterUser();
-  console.log(initialSettings);
   // TODO zod
   const onToggle = async () => {
     setIsEnabled(!isEnabled);

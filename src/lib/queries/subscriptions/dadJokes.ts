@@ -40,7 +40,6 @@ export const getDadJoke = async (): Promise<DadJokeResponse> => {
     }
 
     const data: DadJokeResponse = await response.json();
-    console.log(data);
 
     return data;
   } catch (error) {

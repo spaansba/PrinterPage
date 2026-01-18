@@ -38,7 +38,7 @@ export default async function Home() {
   const pairedToastersWithProfilePictures = await getProfilePicFromUsers(
     pairedToasters.data,
   );
-  console.log(pairedToastersWithProfilePictures);
+
   return (
     <div className="flex flex-col items-center justify-center p-2 gap-6 font-mono text-black bg-toastPrimary">
       <ToasterUserProvider

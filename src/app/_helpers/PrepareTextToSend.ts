@@ -14,7 +14,7 @@ export const PrepareTextToSend = async (
   imageURL: string,
 ): Promise<Uint8Array> => {
   const replaceImgTagsWithSrc = processImgTags(text);
-  console.log(text);
+
   let utf8Encode = new TextEncoder();
   const userMessage = await HtmlEncoder(
     utf8Encode.encode(replaceImgTagsWithSrc.text),

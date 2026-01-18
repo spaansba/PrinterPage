@@ -31,7 +31,7 @@ export const weatherCardBytes = async (
     imageCanvas.canvas.width,
     imageCanvas.canvas.height,
   );
-  console.log(imageCanvas.canvas.height);
+
   return encoder
     .initialize()
     .raw([0x1b, 0x40])

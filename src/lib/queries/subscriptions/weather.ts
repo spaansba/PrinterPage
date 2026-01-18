@@ -247,7 +247,6 @@ const getMostFrequentCondition = (
 };
 
 export const getWeatherReport = async (userLocation: string) => {
-  console.log(userLocation);
   try {
     const [current, forecast] = await Promise.all([
       fetch(
