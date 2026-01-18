@@ -4,7 +4,7 @@ import React, { createContext, useContext } from "react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import Highlight from "@tiptap/extension-highlight";
-import TextStyle from "@tiptap/extension-text-style";
+import { TextStyle } from "@tiptap/extension-text-style";
 import { CustomMark } from "../_components/_editorPage/_editor/CustomSpan";
 import Image from "@tiptap/extension-image";
 import { useForm, UseFormReturn } from "react-hook-form";
