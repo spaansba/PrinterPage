@@ -12,19 +12,14 @@ export async function GET() {
   const headersList = await headers()
   const token = headersList.get("x-cron-token")
   const timeHeader = headersList.get("x-time-send")
-  const devHeader = headersList.get("x-enable-dev-mode")
 
-  // if (devHeader) {
-  //   await sendSubsToDevDevice()
-  //   return NextResponse.json({ status: "dev successful" }, { status: 200 })
-  // }
-
-  const dateSend = timeHeader ? new Date(Number(timeHeader) * 1000) : new Date()
-  const timeSend = RoundToClosest5Minutes(dateSend)
-
+  // Auth check first - fail fast
   if (token !== process.env.CRON_ORG_SECRET) {
     return new NextResponse("Unauthorized", { status: 401 })
   }
+
+  const dateSend = timeHeader ? new Date(Number(timeHeader) * 1000) : new Date()
+  const timeSend = RoundToClosest10Minutes(dateSend)
 
   try {
     // Get array of the subscriptions
@@ -35,46 +30,26 @@ export async function GET() {
     }
 
     if (subscriptions.subscriptions.length === 0) {
-      return NextResponse.json({ status: subscriptions.message }, { status: 200 })
+      return NextResponse.json({ status: "no jobs" }, { status: 200 })
     }
 
     registerFonts()
 
-    // Array to collect all errors during processing
-    const errors: Array<{ subscriptionId: string; error: string }> = []
+    // Process all subscriptions in parallel
+    const results = await Promise.allSettled(
+      subscriptions.subscriptions.map((sub) => processSubscription(sub))
+    )
 
-    // Process all subscriptions
-    for (const sub of subscriptions.subscriptions) {
-      try {
-        switch (sub.broadcastId) {
-          case "1":
-            const weatherReport = await sendWeatherReport(sub)
-            if (!weatherReport.success) {
-              const errorMessage = weatherReport.error || "Unknown error sending weather report"
-              console.error(`Error sending weather report to ${sub.printerId}: ${errorMessage}`)
-              errors.push({ subscriptionId: sub.id, error: errorMessage })
-            }
-            break
-          case "2":
-            const dadJokeResult = await sendDadJoke(sub.printerId)
-            if (!dadJokeResult.success) {
-              const errorMessage = dadJokeResult.error || "Unknown error sending dad joke"
-              console.error(`Error sending dad joke to ${sub.printerId}: ${errorMessage}`)
-              errors.push({ subscriptionId: sub.id, error: errorMessage })
-            }
-            break
-          default:
-            const errorMessage = `Unknown broadcast ID: ${sub.broadcastId}`
-            console.error(errorMessage)
-            errors.push({ subscriptionId: sub.id, error: errorMessage })
-            break
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        console.error(`Error processing subscription ${sub.id}:`, errorMessage)
-        errors.push({ subscriptionId: sub.id, error: errorMessage })
+    // Collect errors from rejected promises and failed results
+    const errors: Array<{ subscriptionId: string; error: string }> = []
+    results.forEach((result, index) => {
+      const sub = subscriptions.subscriptions[index]
+      if (result.status === "rejected") {
+        errors.push({ subscriptionId: sub.id, error: String(result.reason) })
+      } else if (!result.value.success) {
+        errors.push({ subscriptionId: sub.id, error: result.value.error || "Unknown error" })
       }
-    }
+    })
 
     return NextResponse.json(
       {
@@ -82,7 +57,6 @@ export async function GET() {
         successCount: subscriptions.subscriptions.length - errors.length,
         errorCount: errors.length,
         errors: errors.length > 0 ? errors : undefined,
-        subscriptions: subscriptions,
       },
       { status: errors.length > 0 ? 207 : 200 }
     )
@@ -99,26 +73,22 @@ export async function GET() {
   }
 }
 
-// Development testing function
-const sendSubsToDevDevice = async () => {
-  await sendDadJoke("fcs2ean4kg")
-  await sendWeatherReport({
-    broadcastId: "1",
-    id: "1",
-    printerId: "fcs2ean4kg",
-    createdAt: "2025-01-19 17:41:49.271188",
-    sendTime: "9:15",
-    settingsValues: {
-      Temperature: "Celsius",
-      Location: "Rotterdam",
-    },
-    status: "active",
-    updatedAt: "2025-01-19 17:41:49.271188",
-  })
+// Process a single subscription
+async function processSubscription(
+  sub: GetSubscriptions["subscriptions"][number]
+): Promise<{ success: boolean; error?: string }> {
+  switch (sub.broadcastId) {
+    case "1":
+      return sendWeatherReport(sub)
+    case "2":
+      return sendDadJoke(sub.printerId)
+    default:
+      return { success: false, error: `Unknown broadcast ID: ${sub.broadcastId}` }
+  }
 }
 
-const RoundToClosest5Minutes = (time: Date) => {
-  const coeff = 1000 * 60 * 5
+const RoundToClosest10Minutes = (time: Date) => {
+  const coeff = 1000 * 60 * 10
   const roundedDate = new Date(Math.round(time.getTime() / coeff) * coeff)
   const hours = roundedDate.getUTCHours().toString().padStart(2, "0")
   const minutes = roundedDate.getUTCMinutes().toString().padStart(2, "0")

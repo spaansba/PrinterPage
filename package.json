@@ -74,17 +74,5 @@
   "overrides": {
     "@types/react": "19.0.2",
     "@types/react-dom": "19.0.2"
-  },
-  "pnpm": {
-    "supportedArchitectures": {
-      "os": [
-        "win32",
-        "current"
-      ],
-      "cpu": [
-        "x64",
-        "current"
-      ]
-    }
   }
 }

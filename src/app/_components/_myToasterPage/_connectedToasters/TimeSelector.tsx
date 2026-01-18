@@ -64,7 +64,7 @@ const TimeSelector = ({ value, onChange, className = "" }: TimeSelectorProps) =>
         value={minute}
         onChange={handleMinuteChange}
       >
-        {Array.from({ length: 12 }, (_, i) => i * 5).map((m) => (
+        {Array.from({ length: 6 }, (_, i) => i * 10).map((m) => (
           <option key={m} value={m.toString().padStart(2, "0")}>
             {m.toString().padStart(2, "0")}
           </option>
