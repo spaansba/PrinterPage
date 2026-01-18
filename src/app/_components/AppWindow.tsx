@@ -13,6 +13,7 @@ import type { z } from "zod";
 import type { messageStatus } from "./MainWrapper";
 import type { friendNameSchema } from "./_editorPage/AddNewFriendForm";
 import MyToasterPage from "./_myToasterPage/MyToasterPage";
+import WordlePage from "./_wordlePage/WordlePage";
 import { useToasterUser } from "../context/userDataContext";
 import type { Friend } from "../types/printer";
 
@@ -50,6 +51,9 @@ function AppWindow({
           <FriendsPage friendsHook={friendsHook} />
         )}
         {pageActivated === "Toaster" && <MyToasterPage />}
+        <div className={pageActivated === "Toastle" ? "" : "hidden"}>
+          <WordlePage />
+        </div>
       </div>
     </>
   );

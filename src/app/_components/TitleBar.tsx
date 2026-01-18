@@ -1,6 +1,6 @@
 import React, { useEffect, type Dispatch, type SetStateAction } from "react";
 import { useEditorContext } from "../context/editorContext";
-const pages = ["Toast", "Friends", "Toaster", "Account"] as const;
+const pages = ["Toast", "Friends", "Toaster", "Toastle", "Account"] as const;
 export type Pages = (typeof pages)[number];
 
 type TitleBarProps = {
@@ -18,6 +18,8 @@ function TitleBar({ pageActivated, setPageActivated }: TitleBarProps) {
         return "Toasters";
       case "Toaster":
         return "Configure your toaster";
+      case "Toastle":
+        return "Daily Toastle";
       case "Account":
         return "User Profile";
       default:

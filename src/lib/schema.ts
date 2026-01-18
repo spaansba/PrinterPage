@@ -17,10 +17,10 @@ export const printerUserPairing = pgTable("user_pairing", {
     .notNull()
     .references(() => users.id),
   createdAt: timestamp("created_at", { mode: "string" })
-    .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
+    .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
   updatedAt: timestamp("updated_at", { mode: "string" })
-    .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
+    .default(sql`CURRENT_TIMESTAMP`)
     .notNull()
     .$onUpdate(() => new Date().toISOString()),
 });
@@ -35,10 +35,10 @@ export const verificationAttempts = pgTable("verification_attempts", {
     .default(sql`NOW() + INTERVAL '60 minutes'`)
     .notNull(),
   createdAt: timestamp("created_at", { mode: "string" })
-    .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
+    .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
   updatedAt: timestamp("updated_at", { mode: "string" })
-    .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
+    .default(sql`CURRENT_TIMESTAMP`)
     .notNull()
     .$onUpdate(() => new Date().toISOString()),
 });
@@ -48,10 +48,10 @@ export const users = pgTable("printer_users", {
   username: varchar("username", { length: 256 }).notNull(),
   toastsSend: integer("toasts_send").default(0).notNull(),
   createdAt: timestamp("created_at", { mode: "string" })
-    .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
+    .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
   updatedAt: timestamp("updated_at", { mode: "string" })
-    .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
+    .default(sql`CURRENT_TIMESTAMP`)
     .notNull()
     .$onUpdate(() => new Date().toISOString()),
 });
@@ -63,10 +63,10 @@ export const printers = pgTable("printer_printers", {
   profilePicture: varchar("profile_picture", { length: 2048 }).notNull(),
   toastsReceived: integer("toasts_received").default(0).notNull(),
   createdAt: timestamp("created_at", { mode: "string" })
-    .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
+    .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
   updatedAt: timestamp("updated_at", { mode: "string" })
-    .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
+    .default(sql`CURRENT_TIMESTAMP`)
     .notNull()
     .$onUpdate(() => new Date().toISOString()),
 });
@@ -86,10 +86,10 @@ export const usersAssociatedPrinters = pgTable(
       .notNull(),
     name: varchar("name", { length: 50 }).notNull(),
     createdAt: timestamp("created_at", { mode: "string" })
-      .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
+      .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
     updatedAt: timestamp("updated_at", { mode: "string" })
-      .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
+      .default(sql`CURRENT_TIMESTAMP`)
       .notNull()
       .$onUpdate(() => new Date().toISOString()),
     lastSendMessage: timestamp("last_send_message", { mode: "string" })
@@ -105,10 +105,10 @@ export const verificationCodes = pgTable("verification_codes", {
     .references(() => printers.id),
   code: varchar("code", { length: 6 }).notNull(),
   createdAt: timestamp("created_at", { mode: "string" })
-    .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC'`)
+    .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
   expiresAt: timestamp("expires_at", { mode: "string" })
-    .default(sql`CURRENT_TIMESTAMP AT TIME ZONE 'UTC' + INTERVAL '5 minutes'`)
+    .default(sql`CURRENT_TIMESTAMP + INTERVAL '5 minutes'`)
     .notNull(),
 });
 
